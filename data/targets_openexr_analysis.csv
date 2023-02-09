@@ -1,0 +1,16 @@
+target,in_degree,out_degree,number_of_dependencies,number_of_dependents,num_of_source_files,critical_path
+//:Iex,24,3,41,9,19,False
+//:IexConfig,2,2,2,11,1,False
+//:IexConfigInternal,2,2,2,11,1,False
+//:IexTest,18,1,53,1,22,False
+//:IlmThread,21,2,56,7,34,False
+//:IlmThreadConfig,2,2,2,9,1,False
+//:OpenEXR,218,6,341,6,240,True
+//:OpenEXRConfig,2,2,2,11,1,False
+//:OpenEXRConfigInternal,2,2,2,8,1,False
+//:exr2aces,7,1,322,1,241,False
+//:exrenvmap,20,1,335,1,254,False
+//:exrheader,7,1,322,1,241,False
+//:exrstdattr,7,1,322,1,241,False
+//:windows,2,4,3,10,0,False
+//bazel/example:Demo,7,1,322,1,241,False
