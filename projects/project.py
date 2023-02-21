@@ -10,7 +10,7 @@ import pandas as pd
 import requests
 from git import Repo
 from github import Github
-from github.GithubException import UnknownObjectException
+from github import GithubException
 
 from utils import fileutils
 
@@ -25,7 +25,7 @@ class Project:
 def search_projects(file_name_pattern: str, build_tool: str) -> [Project]:
     logging.info(f"starting to search project for build tool {build_tool} with file name pattern {file_name_pattern}")
     proc = subprocess.run(
-        [f"src search -json 'select:repo (file:{file_name_pattern}) count:all'"],
+        [f"src search -json 'select:repo (file:{file_name_pattern}) count:10000'"],
         capture_output=True,
         text=True,
         shell=True)
@@ -47,6 +47,7 @@ def search_projects(file_name_pattern: str, build_tool: str) -> [Project]:
         paths = repo_name.removeprefix("github.com/").split("/")
 
         projects.append(Project(paths[0], paths[1]))
+    logging.info(f"found {len(projects)} projects")
     return projects
 
 
@@ -61,13 +62,11 @@ def filter_projects(projects: [Project]) -> [Project]:
         try:
             time.sleep(3)
             repo = g.get_repo(f"{p.org}/{p.name}")
-        except UnknownObjectException:
-            logging.warning(f"error when get repository info for project {p.org}/{p.name}, reason: not found")
+        except GithubException as e:
+            logging.warning(f"error when get repository info for project {p.org}/{p.name}, reason: {e}")
             continue
         if repo.stargazers_count < 100:
-            # The search results returned by SourceGraph are sorted by the number of stars.
-            # So, once we encounter a repo that has less than 100 stars, we can stop the loop.
-            break
+            continue
         commits = commit_count(p.org, p.name, token)
         if commits < 100:
             continue
@@ -121,7 +120,7 @@ def commit_count(org: str, project: str, token: str) -> int:
     params = {
         'per_page': 1,
     }
-    resp = requests.request('GET', url, params=params, headers=headers)
+    resp = requests.request('GET', url, params=params, headers=headers, timeout=30)
     if (resp.status_code // 100) != 2:
         raise Exception(f'invalid github response: {resp.content}')
     # check the resp count, just in case there are 0 commits
@@ -144,19 +143,10 @@ def clone_projects(base_dir: str, projects: [Project]):
 
 
 def retrieve_bazel_projects(project_base_dir: str):
-    # projects = search_projects("^BUILD(.bazel)?$", "bazel")
-    # projects = filter_projects(projects)
-    # clone_projects("./repos/bazel", projects)
-    # remove_non_bazel_projects("/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/bazel")
-
-    projects_data = pd.read_csv("data/bazel_projects.csv")
-    projects = []
-    for _, row in projects_data.iterrows():
-        paths = row["project"].split("_")
-        p = Project(paths[0], "_".join(paths[1:]))
-        p.meta["stars"] = row["stars"]
-        p.meta["commits"] = row["commits"]
-        projects.append(p)
+    projects = search_projects("^BUILD(.bazel)?$", "bazel")
+    projects = filter_projects(projects)
+    clone_projects("./repos/bazel", projects)
+    remove_non_bazel_projects("/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/bazel")
 
     filtered_projects = set()
     for f in os.scandir(project_base_dir):
@@ -172,6 +162,16 @@ def retrieve_bazel_projects(project_base_dir: str):
             f.write(f"{p.org}_{p.name},{p.meta['stars']},{p.meta['commits']},bazel\n")
 
 
+def retrieve_maven_projects(project_base_dir: str):
+    projects = search_projects("^pom.xml$", "maven")
+    projects = filter_projects(projects)
+    with open("data/maven_projects.csv", "w") as f:
+        f.write("project,stars,commits,build_tool\n")
+        for p in projects:
+            f.write(f"{p.org}_{p.name},{p.meta['stars']},{p.meta['commits']},maven\n")
+
+
 def retrieve_projects():
     project_base_dir = "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/"
-    retrieve_bazel_projects(f"{project_base_dir}/bazel")
+    # retrieve_bazel_projects(f"{project_base_dir}/bazel")
+    retrieve_maven_projects(f"{project_base_dir}/maven")
