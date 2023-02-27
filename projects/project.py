@@ -6,7 +6,7 @@ import subprocess
 import time
 import urllib
 import pandas as pd
-
+import numpy as np
 import requests
 from git import Repo
 from github import Github
@@ -171,7 +171,32 @@ def retrieve_maven_projects(project_base_dir: str):
             f.write(f"{p.org}_{p.name},{p.meta['stars']},{p.meta['commits']},maven\n")
 
 
+def sample_maven_projects():
+    mvn_projects = pd.read_csv("data/maven_projects.csv")
+    bazel_projects = pd.read_csv("data/bazel_projects.csv")
+
+    mvn_projects = mvn_projects.sort_values(by="commits").reset_index(drop=True)
+    subsets = np.array_split(mvn_projects, 2)
+    small_maven_projects = subsets[0].iloc[np.random.choice(len(subsets[0]), len(bazel_projects), replace=False)]
+    large_maven_projects = subsets[1].iloc[np.random.choice(len(subsets[1]), len(bazel_projects), replace=False)]
+    small_maven_projects.to_csv("data/small_maven_projects_subset.csv", index=False)
+    large_maven_projects.to_csv("data/large_maven_projects_subset.csv", index=False)
+
+    clone_maven_projects("./repos/maven-small", small_maven_projects)
+    clone_maven_projects("./repos/maven-large", large_maven_projects)
+
+
+def clone_maven_projects(base_dir: str, projects_raw: pd.DataFrame):
+    projects = []
+    for _, row in projects_raw.iterrows():
+        segs = row["project"].split("_")
+        projects.append(Project(segs[0], "_".join(segs[1:])))
+
+    clone_projects(base_dir, projects)
+
+
 def retrieve_projects():
     project_base_dir = "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/"
     # retrieve_bazel_projects(f"{project_base_dir}/bazel")
-    retrieve_maven_projects(f"{project_base_dir}/maven")
+    # retrieve_maven_projects(f"{project_base_dir}/maven")
+    # sample_maven_projects()
