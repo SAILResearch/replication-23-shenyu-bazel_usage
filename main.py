@@ -8,6 +8,6 @@ if __name__ == '__main__':
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
-    projects = project.retrieve_projects()
+    # projects = project.retrieve_projects()
 
-    # analysis.analyze.analyze("/Users/zhengshenyu/GolandProjects/bazel-testing-practices/repos")
+    analysis.analyze.analyze("./repos")

@@ -37,7 +37,7 @@ class CIConfigParser:
     def __init__(self, project_dir: str):
         self.project_dir = project_dir
         self.ci_file_pattern = re.compile(self._ci_file_pattern())
-        self.sh_scripts = fileutils.scan_tree(project_dir, re.compile(r".*\.sh"), match_path=False)
+        self.sh_scripts = list(fileutils.scan_tree(project_dir, re.compile(r".*\.sh"), match_path=False))
         self.bazel_command_matcher = re.compile(".*bazel (.+)")
         self.maven_command_matcher = re.compile(".*mvn (.*)")
 
@@ -80,14 +80,26 @@ class CIConfigParser:
             if match := matcher.match(command):
                 cmds.append(
                     BuildCommand(build_tool, match.group(1)))
-            elif script_might_invoked := next((f for f in self.sh_scripts if f.name in command), None):
+            else:
                 # if this step invoke a script, we look at that script to check if they run any Bazel command within
-                with open(script_might_invoked.path, "r") as f:
-                    raw_script = f.read()
-                    for match in matcher.finditer(raw_script):
-                        cmds.append(
-                            BuildCommand(build_tool, match.group(1)))
-        return cmds
+                for script_file in self.sh_scripts:
+                    if script_file.name in command:
+                        with open(script_file.path, "r") as f:
+                            raw_script = f.read()
+                            for match in matcher.finditer(raw_script):
+                                cmds.append(
+                                    BuildCommand(build_tool, match.group(1)))
+
+        filtered = []
+        for cmd in cmds:
+            if cmd.build_tool == "bazel":
+                bazel_sub_cmds = ["build", "test", "run", "coverage"]
+                if not any(x in cmd.raw_arguments for x in bazel_sub_cmds):
+                    continue
+
+            filtered.append(cmd)
+
+        return filtered
 
 
 class GitHubActionConfigParser(CIConfigParser):
@@ -98,7 +110,11 @@ class GitHubActionConfigParser(CIConfigParser):
     def parse_ci_file(self, ci_config_str: str) -> CIConfig:
         gha_cfg = CIConfig(self.ci_tool_type())
 
-        cfgs = yaml.full_load(ci_config_str)
+        try:
+            cfgs = yaml.full_load(ci_config_str)
+        except yaml.error.YAMLError as e:
+            logging.error(f"error when load yaml {ci_config_str}, reason {e}")
+            return None
         if "jobs" not in cfgs:
             return gha_cfg
 
