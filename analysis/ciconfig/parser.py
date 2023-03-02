@@ -390,16 +390,21 @@ class BuildkiteConfigParser(CIConfigParser):
             tasks = cfgs["platforms"].values() if "platform" in cfgs else cfgs["tasks"].values()
             for task in tasks:
                 if "build_targets" in task:
+                    targets = task["build_targets"]
+
                     build_flags = task["build_flags"] if "build_flags" in task else []
                     build_flags.extend(self.default_bazelci_build_flags)
-                    bb_cfg.build_commands.append(BuildCommand("bazel", "build " + " ".join(build_flags)))
+                    bb_cfg.build_commands.append(
+                        BuildCommand("bazel", "build " + " ".join(build_flags) + " " + " ".join(targets)))
                 if "test_targets" in task:
+                    targets = task["test_targets"]
+
                     test_flags = task["test_flags"] if "test_flags" in task else []
                     test_flags.extend(self.default_bazelci_test_flags)
-                    bb_cfg.build_commands.append(BuildCommand("bazel", "test " + " ".join(test_flags)))
+                    bb_cfg.build_commands.append(
+                        BuildCommand("bazel", "test " + " ".join(test_flags) + " " + " ".join(targets)))
 
             return bb_cfg
-
 
     def ci_tool_type(self) -> str:
         return "buildkite"
