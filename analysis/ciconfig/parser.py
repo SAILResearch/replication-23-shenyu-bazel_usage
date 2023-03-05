@@ -197,11 +197,22 @@ class CircleCIConfigParser(CIConfigParser):
         if "jobs" not in cfgs:
             return cc_cfg
 
+        custom_executors = {}
+        if "executors" in cfgs:
+            for executor_name, executor_cfg in cfgs["executors"].items():
+                executor_cores = self._convert_res_class_to_cores(executor_cfg)
+                if executor_cores:
+                    custom_executors[executor_name] = executor_cores
+
         for job in cfgs["jobs"].values():
             if "steps" not in job:
                 continue
 
-            cores = self._convert_res_class_to_cores(job)
+            if "executor" in job and type(job["executor"]) is str and job["executor"] in custom_executors:
+                cores = custom_executors[job["executor"]]
+            else:
+                cores = self._convert_res_class_to_cores(job)
+
             if not cores:
                 continue
 

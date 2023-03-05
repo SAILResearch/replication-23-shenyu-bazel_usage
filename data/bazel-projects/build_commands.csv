@@ -2307,6 +2307,7 @@ nelhage_rules_boost#buildkite#bazel#test  //...#False#False#-1#2
 nelhage_rules_boost#buildkite#bazel#build  //...#False#False#-1#2
 nelhage_rules_boost#buildkite#bazel#test  //...#False#False#-1#2
 nelhage_rules_boost#buildkite#bazel#build --features=layering_check --cxxopt=-std=c++17 //... -//:asio_ssl_test -//:stacktrace_test#False#False#-1#2
+angular_universal#circle_ci#bazel#test //...#False#False#-1#2
 quantumlib_Stim#github_actions#bazel#build :all#False#False#-1#2
 quantumlib_Stim#github_actions#bazel#test :stim_test#False#False#-1#2
 quantumlib_Stim#github_actions#bazel#build :stim_dev_wheel#False#False#-1#2
@@ -2420,6 +2421,9 @@ snuspl_nimble#circle_ci#bazel#build :torch#False#False#-1#2
 snuspl_nimble#circle_ci#bazel#build/ a --remote_http_cache=http://localhost:7777 \\' build_torch_xla_libs.sh#False#False#-1#2
 snuspl_nimble#circle_ci#bazel#test --test_timeout=480 --test_output=all --test_tag_filters=-gpu-required --test_filter=-*CUDA :all_tests#False#False#-1#2
 snuspl_nimble#circle_ci#bazel#test --test_timeout=480 --test_output=all --test_tag_filters=-gpu-required --test_filter=-*CUDA :all_tests#False#False#-1#2
+angular_angular-cli#circle_ci#bazel#build //...#False#False#-1#8
+angular_angular-cli#circle_ci#bazel#test --define=E2E_TEMP=/mnt/ramdisk/e2e --define=E2E_SHARD_TOTAL=${CIRCLE_NODE_TOTAL} --define=E2E_SHARD_INDEX=${CIRCLE_NODE_INDEX} --config=e2e //tests/legacy-cli:e2e<<# parameters.snapshots >>.snapshots<</ parameters.snapshots >>.<< parameters.subset >>#False#False#-1#8
+angular_angular-cli#circle_ci#bazel#test --config=saucelabs //tests/legacy-cli:e2e.saucelabs#False#False#-1#8
 libjxl_libjxl#github_actions#bazel#build -c opt ...:all#False#False#-1#2
 libjxl_libjxl#github_actions#bazel#test -c opt --test_output=errors ...:all#False#False#-1#2
 bazeltools_bazel-deps#github_actions#bazel#build src/scala/com/github/johnynek/bazel_deps/parseproject_deploy.jar#False#False#-1#2
