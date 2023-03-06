@@ -85,7 +85,8 @@ class CIConfigParser:
                 (command, rest) = line.split(maxsplit=1)
                 # we only concern about the build, test, coverage and run commands.
                 if command.startswith(("build", "test", "coverage", "run")):
-                    bazelrc_configs[command] = rest if command not in bazelrc_configs else bazelrc_configs[command] + " " + rest
+                    bazelrc_configs[command] = rest if command not in bazelrc_configs else bazelrc_configs[
+                                                                                               command] + " " + rest
 
         # in .bazelrc, some commands inherit configs from other commands, so we resolve these inherited config here.
         inheritances = {"test": ["build"], "run": ["build"], "coverage": ["test", "build"]}
@@ -132,7 +133,9 @@ class CIConfigParser:
         filtered = []
         for cmd in cmds:
             if cmd.build_tool == "bazel":
-                bazel_sub_cmds = ["build", "test", "run", "coverage"]
+                # we only analyze the following commands.
+                # Also, we add a space to each command to try to improve the precision of the results.
+                bazel_sub_cmds = ["build ", "test ", "run ", "coverage "]
                 if not any(x in cmd.raw_arguments for x in bazel_sub_cmds):
                     continue
 
