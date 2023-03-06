@@ -119,7 +119,6 @@ googleapis_google-api-java-client#github_actions#maven#-B ${INTEGRATION_TEST_ARG
 googleapis_google-api-java-client#github_actions#maven#-B \#False#False#-1#2
 googleapis_google-api-java-client#github_actions#maven#-B -ntp -Denforcer.skip=true clirr:check#False#False#-1#2
 googleapis_google-api-java-client#github_actions#maven#install:install-file \#False#False#-1#2
-googleapis_google-api-java-client#github_actions#maven#validate' at the bottom#False#False#-1#2
 googleapis_google-api-java-client#github_actions#maven#verify install -B -V -ntp -fae \#False#False#-1#2
 googleapis_google-api-java-client#github_actions#maven#verify install -B -V -ntp -fae \#False#False#-1#2
 googleapis_google-api-java-client#github_actions#maven#verify install -B -V -ntp -fae \#False#False#-1#2
@@ -546,7 +545,6 @@ googleapis_google-oauth-java-client#github_actions#maven#-B ${INTEGRATION_TEST_A
 googleapis_google-oauth-java-client#github_actions#maven#-B \#False#False#-1#2
 googleapis_google-oauth-java-client#github_actions#maven#-B -ntp -Denforcer.skip=true clirr:check#False#False#-1#2
 googleapis_google-oauth-java-client#github_actions#maven#-P lint --quiet --batch-mode checkstyle:check#False#False#-1#2
-googleapis_google-oauth-java-client#github_actions#maven#verify' at the bottom#False#False#-1#2
 googleapis_google-oauth-java-client#github_actions#maven#verify install -B -V -ntp -fae \#False#False#-1#2
 googleapis_google-oauth-java-client#github_actions#maven#verify install -B -V -ntp -fae \#False#False#-1#2
 googleapis_google-oauth-java-client#github_actions#maven#verify install -B -V -ntp -fae \#False#False#-1#2
@@ -610,7 +608,6 @@ SANSA-Stack_SANSA-Stack#github_actions#maven#test --no-transfer-progress --fail-
 platonai_pulsarR#github_actions#maven#-B package --file pom.xml#False#False#-1#2
 platonai_pulsarR#github_actions#maven#deploy -s $GITHUB_WORKSPACE/settings.xml#False#False#-1#2
 karatelabs_karate#github_actions#maven#-B clean install -P pre-release -Djavacpp.platform=linux-x86_64#False#False#-1#2
-karatelabs_karate#github_actions#maven#clean install -P pre-release -DskipTests#False#False#-1#2
 karatelabs_karate#github_actions#maven#help:evaluate -Dexpression=project.version -q -DforceStdout)#False#False#-1#2
 karatelabs_karate#github_actions#maven#versions:set versions:commit -B -ntp -DnewVersion=${KARATE_VERSION} -f examples/gatling/pom.xml#False#False#-1#2
 karatelabs_karate#github_actions#maven#clean test -B -ntp -f examples/gatling/pom.xml#False#False#-1#2

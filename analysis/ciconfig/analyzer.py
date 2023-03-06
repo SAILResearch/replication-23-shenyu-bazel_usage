@@ -62,5 +62,5 @@ class CIConfigAnalyzer:
 
 if __name__ == "__main__":
     results = CIConfigAnalyzer()._analyze_project_ci_configs(
-        "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/bazel/apache_rocketmq")
+        "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/bazel/iree-org_iree")
     print(results)

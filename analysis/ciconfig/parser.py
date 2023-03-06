@@ -127,6 +127,8 @@ class CIConfigParser:
                         with open(script_file.path, "r") as f:
                             raw_script = f.read()
                             for match in matcher.finditer(raw_script):
+                                if match.group().startswith("#"):
+                                    continue
                                 cmds.append(
                                     BuildCommand(build_tool, match.group(1)))
 
