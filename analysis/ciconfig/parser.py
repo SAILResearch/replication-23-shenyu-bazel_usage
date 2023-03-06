@@ -38,6 +38,7 @@ class CIConfigParser:
         self.project_dir = project_dir
         self.ci_file_pattern = re.compile(self._ci_file_pattern())
         self.sh_scripts = list(fileutils.scan_tree(project_dir, re.compile(r".*\.sh"), match_path=False))
+        self.bazelrc_configs = self._extract_bazelrc_configs()
         self.bazel_command_matcher = re.compile(".*bazel (.+)")
         self.maven_command_matcher = re.compile(".*mvn (.*)")
 
@@ -66,6 +67,44 @@ class CIConfigParser:
     @abstractmethod
     def _ci_file_pattern(self) -> str:
         pass
+
+    def _extract_bazelrc_configs(self) -> dict[str:str]:
+        bazelrc_configs = {}
+        bazelrc_file_path = os.path.join(self.project_dir, ".bazelrc")
+        if not fileutils.exists(bazelrc_file_path):
+            return bazelrc_configs
+        with open(bazelrc_file_path, "r") as bazelrc_file:
+            for line in bazelrc_file:
+                line = line.rstrip()
+                if not line or line.startswith("#"):
+                    continue
+                line = line.strip()
+                if " " not in line:
+                    continue
+
+                (command, rest) = line.split(maxsplit=1)
+                # we only concern about the build, test, coverage and run commands.
+                if command.startswith(("build", "test", "coverage", "run")):
+                    bazelrc_configs[command] = rest if command not in bazelrc_configs else bazelrc_configs[command] + " " + rest
+
+        # in .bazelrc, some commands inherit configs from other commands, so we resolve these inherited config here.
+        inheritances = {"test": ["build"], "run": ["build"], "coverage": ["test", "build"]}
+        resolved_cfgs = {}
+        for bazelrc_cmd, bazelrc_cfg in bazelrc_configs.items():
+            for inherited_cmd, ancestors in inheritances.items():
+                if not bazelrc_cmd.startswith(inherited_cmd):
+                    continue
+                for ancestor in ancestors:
+                    ancestor_cmd = bazelrc_cmd.replace(inherited_cmd, ancestor)
+                    if ancestor_cmd not in bazelrc_configs:
+                        continue
+                    resolved_cfgs[bazelrc_cmd] = bazelrc_cfg + " " + bazelrc_configs[ancestor_cmd]
+
+        for bazelrc_cmd, bazelrc_cfg in bazelrc_configs.items():
+            if bazelrc_cmd not in resolved_cfgs:
+                resolved_cfgs[bazelrc_cmd] = bazelrc_cfg
+
+        return resolved_cfgs
 
     def _scan_ci_files(self) -> [os.DirEntry]:
         possible_ci_files = []
@@ -97,9 +136,35 @@ class CIConfigParser:
                 if not any(x in cmd.raw_arguments for x in bazel_sub_cmds):
                     continue
 
+            cmd.raw_arguments = self._apply_default_bazelrc_configs(cmd.raw_arguments)
             filtered.append(cmd)
 
         return filtered
+
+    def _apply_default_bazelrc_configs(self, raw_arguments: str) -> str:
+        bazel_group_config_regex = re.compile(r"--config=(.+)")
+
+        group_config_tag = ""
+        if match := bazel_group_config_regex.match(raw_arguments):
+            group_config_tag = match.group(1)
+
+        for bazelrc_cmd, bazelrc_cfg in self.bazelrc_configs.items():
+            # command with group tag - like build:ci
+            if ":" in bazelrc_cmd:
+                if not bazelrc_cmd.endswith(f":{group_config_tag}"):
+                    continue
+
+                segs = bazelrc_cmd.split(":", maxsplit=1)
+                if len(segs) < 2:
+                    continue
+                cmd = segs[0]
+            else:
+                cmd = bazelrc_cmd
+
+            if f"{cmd} " in raw_arguments or cmd == "common":
+                raw_arguments = f"{raw_arguments} {bazelrc_cfg}"
+
+        return raw_arguments
 
 
 class GitHubActionConfigParser(CIConfigParser):
@@ -405,15 +470,21 @@ class BuildkiteConfigParser(CIConfigParser):
 
                     build_flags = task["build_flags"] if "build_flags" in task else []
                     build_flags.extend(self.default_bazelci_build_flags)
+
+                    raw_arguments = self._apply_default_bazelrc_configs(
+                        "build " + " ".join(build_flags) + " " + " ".join(targets))
                     bb_cfg.build_commands.append(
-                        BuildCommand("bazel", "build " + " ".join(build_flags) + " " + " ".join(targets)))
+                        BuildCommand("bazel", raw_arguments))
                 if "test_targets" in task:
                     targets = task["test_targets"]
 
                     test_flags = task["test_flags"] if "test_flags" in task else []
                     test_flags.extend(self.default_bazelci_test_flags)
+                    raw_arguments = self._apply_default_bazelrc_configs(
+                        "test " + " ".join(test_flags) + " " + " ".join(targets))
+
                     bb_cfg.build_commands.append(
-                        BuildCommand("bazel", "test " + " ".join(test_flags) + " " + " ".join(targets)))
+                        BuildCommand("bazel", raw_arguments))
 
             return bb_cfg
 

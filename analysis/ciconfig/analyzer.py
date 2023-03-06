@@ -62,5 +62,5 @@ class CIConfigAnalyzer:
 
 if __name__ == "__main__":
     results = CIConfigAnalyzer()._analyze_project_ci_configs(
-        "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/bazel/angular_angular-cli")
+        "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/bazel/apache_rocketmq")
     print(results)
