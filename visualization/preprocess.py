@@ -5,7 +5,9 @@ import pandas as pd
 
 from utils import fileutils
 
-build_argument_matcher = re.compile(r"^(--\w+(=\w+)?\s+)")
+build_argument_matchers = {"bazel": re.compile(r"^(--\w+(=[^\s]+)?\s+)"), "maven": re.compile(r"^(-\w+(=[^\s]+)?\s+)")}
+build_subcommands = {"bazel": ["build", "test", "run", "coverage"],
+                     "maven": ["clean", "compile", "test", "package", "integration-test", "install", "deploy"]}
 
 
 def preprocess_data(data_dir: str):
@@ -26,22 +28,36 @@ def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, targe
 
     build_commands = pd.read_csv(source_data_file_path, sep="#")
     build_commands = build_commands[build_commands["build_tool"] == build_tool]
-    build_commands["subcommand"] = build_commands.apply(lambda row: label_subcommand(row), axis=1)
+    build_commands["subcommands"] = build_commands.apply(lambda row: label_subcommand(row, build_tool), axis=1)
+    build_commands = build_commands[build_commands["subcommands"] != ""]
 
-    build_commands.drop_duplicates(subset=["build", "subcommand"])
+    build_commands = build_commands.drop_duplicates(subset=["project", "ci_tool", "subcommands"], keep="first")
+    build_commands = build_commands.drop(
+        columns=["raw_arguments", "build_tool", "local_cache", "remote_cache", "parallelism", "cores"])
+    build_commands.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
 
-def label_subcommand(row) -> str:
+def label_subcommand(row, build_tool) -> str:
     args = row["raw_arguments"]
 
     args = args.lstrip()
-    while match := build_argument_matcher.match(args):
+    while match := build_argument_matchers[build_tool].search(args):
         matched_argument = match.group(1)
         args = args.replace(matched_argument, "")
 
-    if not args.startswith(("build ", "test ", "run ", "coverage ")):
-        return ""
+    subcommands = []
+    # TODO make codes more graceful
+    while True:
+        matched = False
+        for subcommand in build_subcommands[build_tool]:
+            if args.startswith(f"{subcommand} ") or (" " not in args and args == subcommand):
+                subcommands.append(subcommand)
+                args = args.replace(f"{subcommand}", "")
+                args = args.lstrip()
+                matched = True
+                break
 
-    segs = args.split(" ")
+        if not matched:
+            break
 
-    return segs[0]
+    return ",".join(subcommands)
