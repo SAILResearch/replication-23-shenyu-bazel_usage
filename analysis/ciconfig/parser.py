@@ -92,10 +92,10 @@ class CIConfigParser:
                                                                                                command] + " " + rest
 
         # in .bazelrc, some commands inherit configs from other commands, so we resolve these inherited config here.
-        inheritances = {"test": ["build"], "run": ["build"], "coverage": ["test", "build"]}
+        inheritances_graph = {"test": ["build"], "run": ["build"], "coverage": ["test", "build"]}
         resolved_cfgs = {}
         for bazelrc_cmd, bazelrc_cfg in bazelrc_configs.items():
-            for inherited_cmd, ancestors in inheritances.items():
+            for inherited_cmd, ancestors in inheritances_graph.items():
                 if not bazelrc_cmd.startswith(inherited_cmd):
                     continue
                 for ancestor in ancestors:
@@ -107,6 +107,25 @@ class CIConfigParser:
         for bazelrc_cmd, bazelrc_cfg in bazelrc_configs.items():
             if bazelrc_cmd not in resolved_cfgs:
                 resolved_cfgs[bazelrc_cmd] = bazelrc_cfg
+
+        heirs_graph = {"test": ["coverage"], "build": ["test", "run", "coverage"]}
+        heirs_cfgs = {}
+        for bazelrc_cmd, bazelrc_cfg in resolved_cfgs.items():
+            for ancestor, heirs in heirs_graph.items():
+                if not bazelrc_cmd.startswith(ancestor):
+                    continue
+
+                for heir in heirs:
+                    heir_cmd = bazelrc_cmd.replace(ancestor, heir)
+                    if heir_cmd in resolved_cfgs:
+                        continue
+
+                    if heir_cmd in heirs_cfgs:
+                        heirs_cfgs[heir_cmd] = heirs_cfgs[heir_cmd] + " " + bazelrc_cfg
+                    else:
+                        heirs_cfgs[heir_cmd] = bazelrc_cfg
+        for cmd, cfg in heirs_cfgs.items():
+            resolved_cfgs[cmd] = cfg
 
         return resolved_cfgs
 
