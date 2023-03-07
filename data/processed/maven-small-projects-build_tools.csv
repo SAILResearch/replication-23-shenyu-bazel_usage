@@ -4,6 +4,7 @@ agroal_agroal,github_actions,deploy
 vidstige_jadb,github_actions,package
 ConsenSys_Mahuta,circle_ci,"clean,install"
 ConsenSys_Mahuta,circle_ci,"clean,test"
+ConsenSys_Mahuta,circle_ci,deploy
 dasniko_testcontainers-keycloak,github_actions,package
 myndocs_kotlin-oauth2-server,github_actions,package
 aliyun_aliyun-odps-jdbc,github_actions,package
@@ -58,6 +59,7 @@ osalvador_ReplicaDB,github_actions,package
 libetl_curl,github_actions,package
 liuyueyi_quick-media,github_actions,package
 liuyueyi_quick-media,github_actions,deploy
+bjornharrtell_jts2geojson,github_actions,test
 wyt1215819315_autoplan,github_actions,package
 salesforce_mirus,github_actions,deploy
 salesforce_mirus,github_actions,package

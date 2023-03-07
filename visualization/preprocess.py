@@ -5,7 +5,8 @@ import pandas as pd
 
 from utils import fileutils
 
-build_argument_matchers = {"bazel": re.compile(r"^(--\w+(=[^\s]+)?\s+)"), "maven": re.compile(r"^(-\w+(=[^\s]+)?\s+)")}
+build_argument_matchers = {"bazel": re.compile(r"^(--\w+(=[^\s]+)?\s+)"),
+                           "maven": re.compile(r"^(--?\w+( ?[^-\s]+)?\s+)")}
 build_subcommands = {"bazel": ["build", "test", "run", "coverage"],
                      "maven": ["clean", "compile", "test", "package", "integration-test", "install", "deploy"]}
 
@@ -29,6 +30,8 @@ def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, targe
     build_commands = pd.read_csv(source_data_file_path, sep="#")
     build_commands = build_commands[build_commands["build_tool"] == build_tool]
     build_commands["subcommands"] = build_commands.apply(lambda row: label_subcommand(row, build_tool), axis=1)
+    # some maven projects specify their default goals in the maven pom,
+    # so we need to read the default goals from the pom file as the subcommands.
     build_commands = build_commands[build_commands["subcommands"] != ""]
 
     build_commands = build_commands.drop_duplicates(subset=["project", "ci_tool", "subcommands"], keep="first")
@@ -43,6 +46,10 @@ def label_subcommand(row, build_tool) -> str:
     args = args.lstrip()
     while match := build_argument_matchers[build_tool].search(args):
         matched_argument = match.group(1)
+        for subcommand in build_subcommands[build_tool]:
+            if matched_argument.rstrip().endswith(f" {subcommand}"):
+                matched_argument = matched_argument.rstrip().replace(subcommand, "")
+
         args = args.replace(matched_argument, "")
 
     subcommands = []

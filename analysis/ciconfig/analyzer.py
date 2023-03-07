@@ -42,11 +42,11 @@ class CIConfigAnalyzer:
                                 use_local_cache = True
                             if "--remote_cache" in cmd.raw_arguments:
                                 use_remote_cache = True
-                            if match := bazel_job_regex.match(cmd.raw_arguments):
+                            if match := bazel_job_regex.search(cmd.raw_arguments):
                                 parallelism = float(match.group(1))
                         elif cmd.build_tool == "maven":
                             # TODO, We need to examine the pom file to know if the maven project uses cache.
-                            if match := maven_parallel_options_regex.match(cmd.raw_arguments):
+                            if match := maven_parallel_options_regex.search(cmd.raw_arguments):
                                 threads = match.group(1)
                                 if threads.endswith("C"):
                                     parallelism = float(threads.removesuffix("C")) * cores
