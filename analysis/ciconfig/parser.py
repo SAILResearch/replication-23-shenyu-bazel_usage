@@ -71,6 +71,7 @@ class CIConfigParser:
     def _extract_bazelrc_configs(self) -> dict[str:str]:
         bazelrc_configs = {}
         bazelrc_file_path = os.path.join(self.project_dir, ".bazelrc")
+
         if not fileutils.exists(bazelrc_file_path):
             return bazelrc_configs
         with open(bazelrc_file_path, "r") as bazelrc_file:
@@ -78,6 +79,8 @@ class CIConfigParser:
                 line = line.rstrip()
                 if not line or line.startswith("#"):
                     continue
+
+                line = self._remove_comments(line)
                 line = line.strip()
                 if " " not in line:
                     continue
@@ -141,16 +144,26 @@ class CIConfigParser:
                 if not any(x in cmd.raw_arguments for x in bazel_sub_cmds):
                     continue
 
+            cmd.raw_arguments = self._remove_comments(cmd.raw_arguments)
+            if cmd.raw_arguments == "":
+                continue
+
             cmd.raw_arguments = self._apply_default_bazelrc_configs(cmd.raw_arguments)
             filtered.append(cmd)
 
         return filtered
 
+    def _remove_comments(self, x: str) -> str:
+        comments_matcher = re.compile(r"(#.*)")
+        if match := comments_matcher.search(x):
+            x = x.replace(match.group(1), "")
+        return x
+
     def _apply_default_bazelrc_configs(self, raw_arguments: str) -> str:
         bazel_group_config_regex = re.compile(r"--config=(.+)")
 
         group_config_tag = ""
-        if match := bazel_group_config_regex.match(raw_arguments):
+        if match := bazel_group_config_regex.search(raw_arguments):
             group_config_tag = match.group(1)
 
         for bazelrc_cmd, bazelrc_cfg in self.bazelrc_configs.items():
@@ -214,7 +227,7 @@ class GitHubActionConfigParser(CIConfigParser):
 
                 # if the workflow uses larger runners that have more resources, the name of the runner may reflect
                 # the number of cores given to the runner
-                if match := self.runner_cores_pattern.match(runner):
+                if match := self.runner_cores_pattern.search(runner):
                     cores = int(match.group(1))
 
             local_cache_enable = False
