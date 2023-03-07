@@ -17,7 +17,7 @@ class CIToolType(Enum):
 
 class BuildCommand:
     def __init__(self, build_tool: str, raw_arguments: str, local_cache: bool = False, local_cache_paths=None,
-                 cores: int = 2):
+                 cores: int = 2, bazelci_project=False):
         if local_cache_paths is None:
             local_cache_paths = []
         self.build_tool = build_tool
@@ -25,6 +25,7 @@ class BuildCommand:
         self.local_cache = local_cache
         self.local_cache_paths = local_cache_paths
         self.cores = cores
+        self.bazelci_project = bazelci_project
 
 
 class CIConfig:
@@ -252,19 +253,32 @@ class GitHubActionConfigParser(CIConfigParser):
             local_cache_enable = False
             local_cache_paths = None
 
+            local_maven_cache = False
+
             for step in job["steps"]:
                 # this step uses cache action
-                if "uses" in step and step["uses"].startswith("actions@cache"):
-                    if "with" in step and "path" in step["with"]:
-                        local_cache_enable = True
-                        local_cache_paths = step["with"]["path"].splitlines()
-                    continue
+                if "uses" in step:
+                    if step["uses"].startswith("actions@cache"):
+                        if "with" in step and "path" in step["with"]:
+                            local_cache_enable = True
+                            local_cache_paths = step["with"]["path"].splitlines()
+                        continue
+
+                    if step["uses"].startswith("actions/setup-java"):
+                        if "with" in step and "cache" in step["with"] and step["with"]["cache"] == "maven":
+                            local_maven_cache = True
 
                 # this step runs command
                 if "run" in step:
                     command = step["run"]
                     for cmd in self._parse_commands(command):
                         cmd.cores = cores
+                        if cmd.build_tool == "maven" and local_maven_cache:
+                            local_cache_enable = True
+                            if not local_cache_paths:
+                                local_cache_paths = []
+                            local_cache_paths.append("~/.m2/repository")
+
                         cmd.local_cache = local_cache_enable
                         cmd.local_cache_paths = local_cache_paths
                         gha_cfg.build_commands.append(cmd)
@@ -511,7 +525,7 @@ class BuildkiteConfigParser(CIConfigParser):
                     raw_arguments = self._apply_default_bazelrc_configs(
                         "build " + " ".join(build_flags) + " " + " ".join(targets))
                     bb_cfg.build_commands.append(
-                        BuildCommand("bazel", raw_arguments))
+                        BuildCommand("bazel", raw_arguments, bazelci_project=True))
                 if "test_targets" in task:
                     targets = task["test_targets"]
 
@@ -521,7 +535,7 @@ class BuildkiteConfigParser(CIConfigParser):
                         "test " + " ".join(test_flags) + " " + " ".join(targets))
 
                     bb_cfg.build_commands.append(
-                        BuildCommand("bazel", raw_arguments))
+                        BuildCommand("bazel", raw_arguments, bazelci_project=True))
 
             return bb_cfg
 

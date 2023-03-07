@@ -40,12 +40,18 @@ class CIConfigAnalyzer:
                         if cmd.build_tool == "bazel":
                             if cmd.local_cache and any(path.endswith(".cache/bazel") for path in cmd.local_cache_paths):
                                 use_local_cache = True
-                            if "--remote_cache" in cmd.raw_arguments:
+                            # TODO by default all projects that use bazelci verison of buildkite use cache, but we need to add the exception list here
+                            if "--remote_cache" in cmd.raw_arguments or (cmd.bazelci_project and cmd.build_tool == "buildkite"):
                                 use_remote_cache = True
                             if match := bazel_job_regex.search(cmd.raw_arguments):
                                 parallelism = float(match.group(1))
+                            if parallelism == -1:
+                                # the default value of --jobs in bazel is 200
+                                parallelism = 200
                         elif cmd.build_tool == "maven":
-                            # TODO, We need to examine the pom file to know if the maven project uses cache.
+                            # TODO, We need to examine the pom file to know if the maven project uses remote cache.
+                            if cmd.local_cache and any(".m2" in path for path in cmd.local_cache_paths):
+                                use_local_cache = True
                             if match := maven_parallel_options_regex.search(cmd.raw_arguments):
                                 threads = match.group(1)
                                 if threads.endswith("C"):
