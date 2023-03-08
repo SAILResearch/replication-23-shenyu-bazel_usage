@@ -5,12 +5,25 @@ import pandas as pd
 
 from utils import fileutils
 
-build_argument_matchers = {"bazel": re.compile(r"^(--\w+(=[^\s]+)?\s+)"),
-                           "maven": re.compile(r"^(--?\w+( ?[^-\s]+)?\s+)")}
+build_argument_matchers = {"bazel": re.compile(r"^(--[\w_]+(=[^\s]+)?\s+)"),
+                           "maven": re.compile(r"^(--?[-\w]+( ?[^-\s]+)?\s+)")}
 build_subcommands = {"bazel": ["build", "test", "run", "coverage"],
-                     "maven": ["clean", "compile", "test", "package", "integration-test", "install", "deploy"]}
+                     "maven": ["clean", "compile", "test", "package", "integration-test", "install", "verify", "deploy"]}
 
-manually_checked_remote_cahce_projects=["tensorflow_tensorflow", "bazelbuild_bazel-toolchains", "rabbitmq_rabbitmq-server", "grpc_grpc", "dfinity_ic", "scionproto_scion", "buildbuddy-io_rules_xcodeproj", "angular_components", "buildbuddy-io_buildbuddy", "formatjs_formatjs", "dropbox_dbx_build_tools", "mwitkow_go-proto-validators", "vaticle_biograkn", "bazelbuild_rules_docker", "rabbitmq_ra", "kythe_kythe", "tweag_rules_haskell", "aspect-build_rules_js", "bazelbuild_rules_jvm_external", "elastic_kibana", "envoyproxy_nighthawk", "iree-org_iree", "pixie-io_pixie", "pingcap_tidb", "istio_proxy", "lewish_asciiflow", "angular_angular", "android_testing-samples", "tensorflow_federated", "carbon-language_carbon-lang", "CodeIntelligenceTesting_jazzer", "tensorflow_tfjs", "brendanhay_amazonka", "lowRISC_opentitan", "tensorflow_runtime", "envoyproxy_envoy", "GoogleCloudPlatform_esp-v2", "angular_angular-cli", "dataform-co_dataform"]
+manually_checked_remote_cahce_projects = ["tensorflow_tensorflow", "bazelbuild_bazel-toolchains",
+                                          "rabbitmq_rabbitmq-server", "grpc_grpc", "dfinity_ic", "scionproto_scion",
+                                          "buildbuddy-io_rules_xcodeproj", "angular_components",
+                                          "buildbuddy-io_buildbuddy", "formatjs_formatjs", "dropbox_dbx_build_tools",
+                                          "mwitkow_go-proto-validators", "vaticle_biograkn", "bazelbuild_rules_docker",
+                                          "rabbitmq_ra", "kythe_kythe", "tweag_rules_haskell", "aspect-build_rules_js",
+                                          "bazelbuild_rules_jvm_external", "elastic_kibana", "envoyproxy_nighthawk",
+                                          "iree-org_iree", "pixie-io_pixie", "pingcap_tidb", "istio_proxy",
+                                          "lewish_asciiflow", "angular_angular", "android_testing-samples",
+                                          "tensorflow_federated", "carbon-language_carbon-lang",
+                                          "CodeIntelligenceTesting_jazzer", "tensorflow_tfjs", "brendanhay_amazonka",
+                                          "lowRISC_opentitan", "tensorflow_runtime", "envoyproxy_envoy",
+                                          "GoogleCloudPlatform_esp-v2", "angular_angular-cli", "dataform-co_dataform"]
+
 
 def preprocess_data(data_dir: str):
     processed_data_dir = os.path.join(data_dir, "processed")
@@ -27,10 +40,12 @@ def preprocess_data(data_dir: str):
 
 
 def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, target_filename_prefix=""):
-    source_data_file_path = os.path.join(source_dir, "build_commands.csv")
+    build_commands_data_path = os.path.join(source_dir, "build_commands.csv")
+    ci_tool_usage_data_path = os.path.join(source_dir, "ci_tool_usage.csv")
     target_processed_file_path = os.path.join(target_dir, f"{target_filename_prefix}-build_tools.csv")
 
-    build_commands = pd.read_csv(source_data_file_path, sep="#")
+    build_commands = pd.read_csv(build_commands_data_path, sep="#")
+    ci_tool_usages = pd.read_csv(ci_tool_usage_data_path).drop_duplicates()
     build_commands = build_commands[build_commands["build_tool"] == build_tool]
     build_commands["subcommands"] = build_commands.apply(lambda row: label_subcommand(row, build_tool), axis=1)
     # TODO some maven projects specify their default goals in the maven pom,
@@ -41,6 +56,16 @@ def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, targe
     build_commands = build_commands.drop_duplicates(subset=["project", "ci_tool", "subcommands"], keep="first")
     build_commands = build_commands.drop(
         columns=["raw_arguments", "build_tool", "local_cache", "remote_cache", "parallelism", "cores"])
+    build_commands["use_build_tool"] = True
+    for _, row in ci_tool_usages.iterrows():
+        if build_commands.loc[(build_commands["project"] == row["project"]) &
+                              (build_commands["ci_tool"] == row["ci_tool"])].any().all():
+            continue
+
+        build_commands = build_commands.append(
+            {"project": row["project"], "ci_tool": row["ci_tool"], "use_build_tool": False, "subcommands": ""},
+            ignore_index=True)
+
     build_commands.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
 
@@ -52,7 +77,8 @@ def preprocess_feature_usage(source_dir: str, target_dir: str, build_tool: str, 
     build_commands = build_commands[build_commands["build_tool"] == build_tool]
     build_commands["use_parallelization"] = build_commands.apply(lambda row: int(row["parallelism"]) > 1, axis=1)
 
-    build_commands["remote_cache"] = build_commands.apply(lambda row: row["remote_cache"] or row["project"] in manually_checked_remote_cahce_projects, axis=1)
+    build_commands["remote_cache"] = build_commands.apply(
+        lambda row: row["remote_cache"] or row["project"] in manually_checked_remote_cahce_projects, axis=1)
 
     build_commands = build_commands.drop(columns=["raw_arguments", "build_tool", "parallelism", "cores"])
     build_commands = build_commands.drop_duplicates()
@@ -72,7 +98,7 @@ def label_subcommand(row, build_tool) -> str:
         args = args.replace(matched_argument, "")
 
     subcommands = []
-    # TODO make codes more graceful
+    # TODO replace the while True!!!
     while True:
         matched = False
         for subcommand in build_subcommands[build_tool]:
@@ -87,3 +113,8 @@ def label_subcommand(row, build_tool) -> str:
             break
 
     return ",".join(subcommands)
+
+
+
+if __name__ == "__main__":
+    label_subcommand({"raw_arguments": "--batch-mode --update-snapshots verify"}, "maven")

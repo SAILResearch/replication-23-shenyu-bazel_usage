@@ -14,7 +14,7 @@ def analyze(project_root):
         ci_config_analyzer = CIConfigAnalyzer()
         ci_config_analyzer.analyze_ci_configs(f"{project_root}/{base_dir_name}",
                                                           f"data/{base_dir_name}-projects")
-        #
+
         # build_config_analyzer = BuildFileAnalyzer()
         # build_config_analyzer.analyze_build_files(f"{project_root}/{base_dir_name}",
         #                                           f"data/{base_dir_name}-projects")

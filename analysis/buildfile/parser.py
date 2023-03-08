@@ -11,6 +11,7 @@ from lark.exceptions import UnexpectedToken
 from lark.indenter import PythonIndenter
 
 from lxml import etree
+from lxml.etree import XMLSyntaxError
 
 from utils import fileutils
 
@@ -224,7 +225,12 @@ class MavenBuildFileParser(BuildFileParser):
 
     # TODO process parent pom?
     def parse_build_file(self, build_file_str: str) -> BuildFileConfig:
-        root = etree.fromstring(build_file_str)
+        try:
+            root = etree.fromstring(bytes(build_file_str, encoding='utf-8'))
+        except XMLSyntaxError as e:
+            logging.warning(f"error when parsing the xml file, reason {e}")
+            return None
+
         project_group_id = root.xpath("/project/groupId/text()")
         if not project_group_id:
             logging.error(
