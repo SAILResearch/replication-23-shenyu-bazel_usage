@@ -10,9 +10,9 @@ def visualize_data(data_dir: str):
     sns.set_style("whitegrid")
 
     data_dir = os.path.join(data_dir, "processed")
-    # visualize_ci_tools(data_dir)
-    # visualize_parallelization_usage(data_dir)
-    # visualize_cache_usage(data_dir)
+    visualize_ci_tools(data_dir)
+    visualize_parallelization_usage(data_dir)
+    visualize_cache_usage(data_dir)
     visualize_test_usage(data_dir)
 
 
@@ -157,6 +157,16 @@ def visualize_cache_usage(data_dir: str):
     plt.show()
 
 
+def subcommand_filter(ci_tool, target_subcommand):
+    def filter_func(row):
+        if row["ci_tool"] == ci_tool and intersect(row["subcommands"].split(","), target_subcommand):
+            return True
+        else:
+            return False
+
+    return filter_func
+
+
 def visualize_test_usage(data_dir: str):
     test_goals = ["test", "integration-test", "package", "verify", "install", "deploy"]
 
@@ -169,38 +179,33 @@ def visualize_test_usage(data_dir: str):
                       "CI/CD Services": ["GitHub Actions", "CirCleCI", "Buildkite"]}
 
         df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-build_tools.csv"))
-        gha_test = df.loc[(df["ci_tool"] == "github_actions") & df["subcommands"].str.split(",").apply(
-            lambda x: intersect(x, test_goals))]
-        gha_no_test = df.loc[(df["ci_tool"] == "github_actions") & ~df["subcommands"].str.split(",").apply(
-            lambda x: intersect(x, test_goals))]
+        df = df.loc[df["use_build_tool"]]
 
-        gha_test = gha_test["project"].unique()
-        gha_no_test = gha_no_test["project"].unique()
-        test_usage["Execute Tests"].append(len(gha_test))
-        test_usage["Not Execute Tests"].append(len(gha_no_test))
+        gha_test = df.loc[df.apply(subcommand_filter("github_actions", test_goals), axis=1)]
+        total_gha_projects = len(df.loc[df["ci_tool"] == "github_actions"]["project"].unique())
+        gha_test_projects = len(gha_test["project"].unique())
 
-        circleci_test = df.loc[(df["ci_tool"] == "circle_ci") & df["subcommands"].str.split(",").apply(
-            lambda x: intersect(x, test_goals))]
-        circleci_no_test = df.loc[(df["ci_tool"] == "circle_ci") & ~df["subcommands"].str.split(",").apply(
-            lambda x: intersect(x, test_goals))]
-        circleci_test = circleci_test["project"].unique()
-        circleci_no_test = circleci_no_test["project"].unique()
-        test_usage["Execute Tests"].append(len(circleci_test))
-        test_usage["Not Execute Tests"].append(len(circleci_no_test))
+        test_usage["Execute Tests"].append(gha_test_projects)
+        test_usage["Not Execute Tests"].append(total_gha_projects - gha_test_projects)
 
-        buildkite_test = df.loc[(df["ci_tool"] == "buildkite") & df["subcommands"].str.split(",").apply(
-            lambda x: intersect(x, test_goals))]
-        buildkite_no_test = df.loc[(df["ci_tool"] == "buildkite") & ~df["subcommands"].str.split(",").apply(
-            lambda x: intersect(x, test_goals))]
-        buildkite_test = buildkite_test["project"].unique()
-        buildkite_no_test = buildkite_no_test["project"].unique()
-        test_usage["Execute Tests"].append(len(buildkite_test))
-        test_usage["Not Execute Tests"].append(len(buildkite_no_test))
+        circleci_test = df.loc[df.apply(subcommand_filter("circle_ci", test_goals), axis=1)]
+        total_circleci_projects = len(df.loc[df["ci_tool"] == "circle_ci"]["project"].unique())
+        circleci_test_projects = len(circleci_test["project"].unique())
+
+        test_usage["Execute Tests"].append(circleci_test_projects)
+        test_usage["Not Execute Tests"].append(total_circleci_projects - circleci_test_projects)
+
+        buildkite_test = df.loc[df.apply(subcommand_filter("buildkite", test_goals), axis=1)]
+        total_buildkite_projects = len(df.loc[df["ci_tool"] == "buildkite"]["project"].unique())
+        buildkite_test_projects = len(buildkite_test["project"].unique())
+
+        test_usage["Execute Tests"].append(buildkite_test_projects)
+        test_usage["Not Execute Tests"].append(total_buildkite_projects - buildkite_test_projects)
 
         test_usage = pd.DataFrame(test_usage)
         test_usage = test_usage.melt(id_vars="CI/CD Services")
         ax = sns.histplot(data=test_usage, x="CI/CD Services", hue="variable", weights="value", discrete=True,
-                          multiple="stack", ax=axs[idx])
+                          hue_order=["Not Execute Tests", "Execute Tests"], multiple="stack", ax=axs[idx])
         idx += 1
 
         for c in ax.containers:
