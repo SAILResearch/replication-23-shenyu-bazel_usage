@@ -12,6 +12,6 @@ if __name__ == '__main__':
         datefmt='%m/%d/%Y %I:%M:%S %p')
     # projects = project.retrieve_projects()
 
-    # analysis.analyze.analyze("./repos")
+    analysis.analyze.analyze("./repos")
     # preprocess_data("./data")
-    visualize_data("./data")
+    # visualize_data("./data")

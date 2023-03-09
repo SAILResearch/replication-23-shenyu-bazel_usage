@@ -52,7 +52,11 @@ class BuildFileParser:
         build_configs = []
         for build_file in self._scan_build_files():
             with open(build_file.path, "r") as f:
-                build_file_str = f.read()
+                try:
+                    build_file_str = f.read()
+                except UnicodeDecodeError as e:
+                    logging.warning(f"skipping {build_file.path} due to UnicodeDecodeError, reason {e}")
+                    continue
             print(f"parsing file {build_file.path}")
             build_config = self.parse_build_file(build_file_str)
             if not build_config:
@@ -230,19 +234,35 @@ class MavenBuildFileParser(BuildFileParser):
         except XMLSyntaxError as e:
             logging.warning(f"error when parsing the xml file, reason {e}")
             return None
-
-        project_group_id = root.xpath("/project/groupId/text()")
-        if not project_group_id:
-            logging.error(
-                f"{self.project_dir} is not a valid Maven projects, reason: cannot find groupId in the project.")
+        except UnicodeDecodeError as e:
+            logging.warning(f"error when using utf-8 to parse the xml file, reason {e}")
             return None
+
+        ns = {"pom": "http://maven.apache.org/POM/4.0.0"}
+
+        project_group_id_res = root.xpath("/pom:project/pom:groupId/text()", namespaces=ns)
+        if not project_group_id_res:
+            parent_group_id_res = root.xpath("/pom:project/pom:parent/pom:groupId/text()", namespaces=ns)
+            if parent_group_id_res:
+                project_group_id = parent_group_id_res[0]
+            else:
+                logging.error(
+                    f"{self.project_dir} is not a valid Maven projects, reason: cannot find groupId in the project.")
+                return None
+        else:
+            project_group_id = project_group_id_res[0]
 
         build_rules = []
 
-        plugins = root.xpath("/project/build/plugins/plugin")
+        plugins = root.xpath("/pom:project/pom:build/pom:plugins/pom:plugin", namespaces=ns)
         for plugin in plugins:
-            plugin_group_id = plugin.xpath("./groupId/text()")
-            plugin_artifact_id = plugin.xpath("./artifactId/text()")
+            plugin_group_id_res = plugin.xpath("./pom:groupId/text()", namespaces=ns)
+            plugin_artifact_id_res = plugin.xpath("./pom:artifactId/text()", namespaces=ns)
+            if not plugin_group_id_res or not plugin_artifact_id_res:
+                continue
+
+            plugin_group_id = plugin_group_id_res[0]
+            plugin_artifact_id = plugin_artifact_id_res[0]
 
             category = "external"
             if plugin_group_id == "org.apache.maven.plugins":
@@ -252,6 +272,10 @@ class MavenBuildFileParser(BuildFileParser):
 
             # TODO parse the arguments
             build_rules.append(BuildRule(f"{plugin_group_id}:{plugin_artifact_id}", category, []))
+
+        bf_config = BuildFileConfig(self.build_tool_type())
+        bf_config.rules.extend(build_rules)
+        return bf_config
 
     def build_tool_type(self) -> str:
         return "maven"
