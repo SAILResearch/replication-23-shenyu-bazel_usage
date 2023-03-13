@@ -3,7 +3,7 @@ import os
 import re
 
 from analysis.ciconfig.parser import GitHubActionConfigParser, CIConfig, CircleCIConfigParser, \
-    BuildkiteConfigParser
+    BuildkiteConfigParser, TravisCIConfigParser
 
 
 class CIConfigAnalyzer:
@@ -12,7 +12,7 @@ class CIConfigAnalyzer:
 
     def _analyze_project_ci_configs(self, project_dir: str) -> [CIConfig]:
         ci_config_parsers = [GitHubActionConfigParser(project_dir), CircleCIConfigParser(project_dir),
-                             BuildkiteConfigParser(project_dir)]
+                             BuildkiteConfigParser(project_dir), TravisCIConfigParser(project_dir)]
         ci_configs = []
         for p in ci_config_parsers:
             ci_configs.extend(p.parse())
@@ -24,7 +24,7 @@ class CIConfigAnalyzer:
 
         with open(f"{output_dir}/build_commands.csv", "w") as bzl_cmd_file, open(f"{output_dir}/ci_tool_usage.csv", "w") as ci_tool_usage_file:
             # we use '#' as the separator of the csv file
-            bzl_cmd_file.write("project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores\n")
+            bzl_cmd_file.write("project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores#invoked_by_script\n")
             ci_tool_usage_file.write("project,ci_tool\n")
             for entry in os.scandir(project_base_dir):
                 if not entry.is_dir():
@@ -65,7 +65,7 @@ class CIConfigAnalyzer:
                             continue
                         # we use '#' as the separator of the csv file
                         bzl_cmd_file.write(
-                            f"{entry.name}#{ci_config.ci_tool}#{cmd.build_tool}#{cmd.raw_arguments}#{use_local_cache}#{use_remote_cache}#{parallelism}#{cmd.cores}\n")
+                            f"{entry.name}#{ci_config.ci_tool}#{cmd.build_tool}#{cmd.raw_arguments}#{use_local_cache}#{use_remote_cache}#{parallelism}#{cmd.cores}#{cmd.invoked_by_script}\n")
 
 
 if __name__ == "__main__":

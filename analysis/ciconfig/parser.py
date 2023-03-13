@@ -17,7 +17,7 @@ class CIToolType(Enum):
 
 class BuildCommand:
     def __init__(self, build_tool: str, raw_arguments: str, local_cache: bool = False, local_cache_paths=None,
-                 cores: int = 2, bazelci_project=False):
+                 cores: int = 2, bazelci_project=False, invoked_by_script=False):
         if local_cache_paths is None:
             local_cache_paths = []
         self.build_tool = build_tool
@@ -26,6 +26,7 @@ class BuildCommand:
         self.local_cache_paths = local_cache_paths
         self.cores = cores
         self.bazelci_project = bazelci_project
+        self.invoked_by_script = invoked_by_script
 
 
 class CIConfig:
@@ -153,7 +154,7 @@ class CIConfigParser:
                                 if match.group().startswith("#"):
                                     continue
                                 cmds.append(
-                                    BuildCommand(build_tool, match.group(1)))
+                                    BuildCommand(build_tool, match.group(1), invoked_by_script=True))
 
         filtered = []
         for cmd in cmds:
@@ -545,3 +546,66 @@ class BuildkiteConfigParser(CIConfigParser):
     def _ci_file_pattern(self) -> str:
         project_dir_regex_literal = re.escape(str.rstrip(self.project_dir, "/"))
         return rf"^{project_dir_regex_literal}/\.(buildkite|bazelci)/.*\.ya?ml$"
+
+
+class TravisCIConfigParser(CIConfigParser):
+    def __init__(self, project_dir: str):
+        super().__init__(project_dir)
+
+    def parse_ci_file(self, ci_config_str: str) -> CIConfig:
+        tc_cfg = CIConfig(self.ci_tool_type())
+
+        try:
+            cfgs = yaml.full_load(ci_config_str)
+        except yaml.error.YAMLError as e:
+            logging.error(f"error when load yaml {ci_config_str}, reason {e}")
+            return None
+
+        local_cache = False
+        local_cache_paths = []
+        bazel_cmds = []
+        if "script" in cfgs:
+            bazel_cmds.extend(self._parse_script(cfgs["script"]))
+
+        if "jobs" in cfgs:
+            jobs = cfgs["jobs"]
+            stages = []
+            if "include" in jobs:
+                stages = jobs["include"]
+            elif "exclude" in jobs:
+                stages = stages.extend(jobs["exclude"]) if stages else jobs["exclude"]
+
+            for stage in stages:
+                if "script" in stage:
+                    bazel_cmds.extend(self._parse_script(stage["script"]))
+
+        if "cache" in cfgs:
+            cache = cfgs["cache"]
+            if "directories" in cache:
+                local_cache = True
+                local_cache_paths = cache["directories"]
+
+        for cmd in bazel_cmds:
+            cmd.local_cache = local_cache
+            cmd.local_cache_paths = local_cache_paths
+            tc_cfg.build_commands.append(cmd)
+
+        return tc_cfg
+
+    def _parse_script(self, script) -> list[BuildCommand]:
+        if type(script) is str:
+            return self._parse_commands(script)
+        elif type(script) is list:
+            bazel_cmds = []
+            for cmd in script:
+                bazel_cmds.extend(self._parse_commands(cmd))
+            return bazel_cmds
+        else:
+            return []
+
+    def ci_tool_type(self) -> str:
+        return "travis_ci"
+
+    def _ci_file_pattern(self) -> str:
+        project_dir_regex_literal = re.escape(str.rstrip(self.project_dir, "/"))
+        return rf"^{project_dir_regex_literal}/.travis.ya?ml$"

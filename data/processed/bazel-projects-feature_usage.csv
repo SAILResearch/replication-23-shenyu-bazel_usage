@@ -2,6 +2,7 @@ project,ci_tool,local_cache,remote_cache,use_parallelization
 google_fruit,github_actions,False,False,True
 google_fully-homomorphic-encryption,github_actions,False,False,True
 baidu_braft,github_actions,False,False,True
+baidu_braft,travis_ci,False,False,True
 google_crubit,buildkite,False,True,True
 dreal_dreal4,github_actions,False,False,True
 bazelbuild_vscode-bazel,buildkite,False,True,True
@@ -27,9 +28,11 @@ jesec_rtorrent,github_actions,False,False,True
 grpc_grpc,buildkite,False,True,True
 cloudflare_workerd,github_actions,False,True,True
 batfish_batfish,github_actions,False,False,True
+googlecodelabs_tools,travis_ci,False,False,True
 firedancer-io_firedancer,github_actions,False,False,True
 martian-lang_martian,github_actions,False,False,True
 eclipse-iceoryx_iceoryx,github_actions,False,False,True
+google_promises,travis_ci,False,False,True
 oppia_oppia-android,github_actions,False,False,True
 google_go-jsonnet,github_actions,False,False,True
 alibaba_DeepRec,github_actions,False,False,True
@@ -94,12 +97,14 @@ autodiff_autodiff,github_actions,False,False,True
 CodeIntelligenceTesting_jazzer,github_actions,False,True,True
 grpc-ecosystem_grpc-gateway,github_actions,False,False,True
 evilcorpltd_aTox,github_actions,False,False,True
+davido_gerrit-oauth-provider,travis_ci,False,False,True
 google_incremental-dom,circle_ci,False,False,True
 google_santa,github_actions,False,False,True
 google_re2,github_actions,False,False,True
 envoyproxy_data-plane-api,circle_ci,False,False,True
 p4lang_p4c,github_actions,False,False,True
 google_benchmark,github_actions,False,False,True
+google_benchmark,travis_ci,False,False,True
 livegrep_livegrep,github_actions,False,False,True
 livegrep_livegrep,circle_ci,False,False,True
 google_cpu_features,github_actions,False,False,True
@@ -124,6 +129,7 @@ quantumlib_Stim,github_actions,False,False,True
 gTile_gTile,github_actions,False,False,True
 gTile_gTile,buildkite,False,False,True
 VeriSilicon_TIM-VX,github_actions,False,False,True
+google_guetzli,travis_ci,False,False,True
 deepmind_lab,github_actions,False,False,True
 envoyproxy_envoy,github_actions,False,True,True
 envoyproxy_envoy,buildkite,False,True,True
@@ -135,11 +141,14 @@ tweag_sparkle,github_actions,False,False,True
 stratum_stratum,circle_ci,False,False,True
 google_jni-bind,github_actions,False,False,True
 bazelbuild_rules_apple,buildkite,False,True,True
+Snowflake-Labs_sfquickstarts,travis_ci,False,False,True
 GoogleContainerTools_distroless,github_actions,False,False,True
+GoogleContainerTools_distroless,travis_ci,False,False,True
 snuspl_nimble,circle_ci,False,False,True
 angular_angular-cli,circle_ci,False,True,True
 libjxl_libjxl,github_actions,False,False,True
 bazeltools_bazel-deps,github_actions,False,False,True
+bazeltools_bazel-deps,travis_ci,False,False,True
 bazelbuild_bazel-watcher,buildkite,False,True,True
 KhronosGroup_SPIRV-Reflect,github_actions,False,False,True
 google_nucleus,github_actions,False,False,True

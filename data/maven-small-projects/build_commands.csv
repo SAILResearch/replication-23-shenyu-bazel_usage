@@ -1,191 +1,249 @@
-project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores
-agroal_agroal#github_actions#maven#-B install#True#False#-1#2
-agroal_agroal#github_actions#maven#--projects agroal-test verify -Dversion.org.springframework.boot=2.6.1#True#False#-1#2
-agroal_agroal#github_actions#maven#help:evaluate -Dexpression=project.version -q -DforceStdout)#True#False#-1#2
-agroal_agroal#github_actions#maven#-B deploy#True#False#-1#2
-NationalSecurityAgency_emissary#github_actions#maven#-B --no-transfer-progress verify --file pom.xml#True#False#-1#2
-vidstige_jadb#github_actions#maven#-B package --file pom.xml#True#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#clean install -DskipTests#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#clean test jacoco:report coveralls:report sonar:sonar -DrepoToken=${COVERALLS_REPOTOKEN} -Dsonar.projectKey=${SONAR_PROJECTKEY} -Dsonar.organization=${SONAR_ORG} -Dsonar.host.url=${SONAR_HOST} -Dsonar.login=${SONAR_LOGIN}#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#-s ./.circleci/.circleci.settings.xml -DskipTests deploy#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#clean install -DskipTests#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec | sed 's/-SNAPSHOT//g')#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#clean install -DskipTests#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec | sed 's/-SNAPSHOT//g')#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec | sed 's/-SNAPSHOT//g')#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#-B release:prepare -DreleaseVersion=$RELEASE_VERSION -DdevelopmentVersion=$NEW_DEV_VERSION-SNAPSHOT#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#-s ./.circleci/.circleci.settings.xml release:perform -Darguments="-Dmaven.javadoc.skip=true" -DskipTests#False#False#-1#2
-ConsenSys_Mahuta#circle_ci#maven#--batch-mode release:update-versions#False#False#-1#2
-dasniko_testcontainers-keycloak#github_actions#maven#-B package#True#False#-1#2
-playframework_netty-reactive-streams#github_actions#maven#--no-transfer-progress -B clean package#True#False#-1#2
-myndocs_kotlin-oauth2-server#github_actions#maven#-B package --file pom.xml#True#False#-1#2
-aliyun_aliyun-odps-jdbc#github_actions#maven#-U -B package --file pom.xml -DskipTests#False#False#-1#2
-aliyun_aliyun-odps-jdbc#github_actions#maven#clean package -DskipTests#False#False#-1#2
-mitre_HTTP-Proxy-Servlet#github_actions#maven#-B -Dhttpclient.version=$HTTPCLIENT_VERSION -Dhttpclient.test.version=$HTTPCLIENT_TEST_VERSION verify $JDOC#False#False#-1#2
-mitre_HTTP-Proxy-Servlet#github_actions#maven#-B -Dhttpclient.version=$HTTPCLIENT_VERSION -Dhttpclient.test.version=$HTTPCLIENT_TEST_VERSION verify $JDOC#False#False#-1#2
-wiverson_maven-jpackage-template#github_actions#maven#-B clean install --file pom.xml#True#False#-1#2
-wiverson_maven-jpackage-template#github_actions#maven#-B clean install --file pom.xml#True#False#-1#2
-wiverson_maven-jpackage-template#github_actions#maven#-B clean package --file pom.xml#True#False#-1#3
-Yorubaname_yorubaname-website#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-paultuckey_urlrewritefilter#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-bujiio_buji-pac4j#github_actions#maven#-B clean install#False#False#-1#2
-bujiio_buji-pac4j#github_actions#maven#-B -DskipTests deploy#False#False#-1#2
-thomasdarimont_embedded-spring-boot-keycloak-server#github_actions#maven#package --batch-mode --no-transfer-progress#False#False#-1#2
-kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-kafka-ops_julie#github_actions#maven#verify -Dgpg.passphrase="$GPG_PASSPHRASE" --batch-mode deploy#False#False#-1#2
-kafka-ops_julie#github_actions#maven#rpm:rpm#False#False#-1#2
-kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-kafka-ops_julie#github_actions#maven#verify -Dgpg.passphrase="$GPG_PASSPHRASE" --batch-mode deploy#False#False#-1#2
-kafka-ops_julie#github_actions#maven#rpm:rpm#False#False#-1#2
-kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-kafka-ops_julie#github_actions#maven#rpm:rpm#False#False#-1#2
-kafka-ops_julie#github_actions#maven#-B clean integration-test -Pacls -Dcp.version=${{matrix.cpversion}} --file pom.xml#False#False#-1#2
-kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-kafka-ops_julie#github_actions#maven#-B clean integration-test -Pacls -Dcp.version=${{matrix.cpversion}} --file pom.xml#False#False#-1#2
-bytedance_bitsail#github_actions#maven#clean verify -pl bitsail-dist -am -DskipUT=true -DskipITCase=true#True#False#-1#2
-bytedance_bitsail#github_actions#maven#clean verify -pl bitsail-dist -am -DskipUT=false -DskipITCase=true#True#False#-1#2
-bytedance_bitsail#github_actions#maven#clean verify -pl bitsail-dist -am -DskipUT=true -DskipITCase=false#True#False#-1#2
-jpmml_jpmml-lightgbm#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-lemire_externalsortinginjava#github_actions#maven#-B package#False#False#-1#2
-projectdiscovery_nuclei-burp-plugin#github_actions#maven#--batch-mode --update-snapshots verify#False#False#-1#2
-majusko_pulsar-java-spring-boot-starter#github_actions#maven#-B install#False#False#-1#2
-majusko_pulsar-java-spring-boot-starter#github_actions#maven#-B test#False#False#-1#2
-MarcGiffing_bucket4j-spring-boot-starter#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-dependency-check_dependency-check-sonar-plugin#github_actions#maven#-B clean verify#False#False#-1#2
-dependency-check_dependency-check-sonar-plugin#github_actions#maven#-B sonar:sonar#False#False#-1#2
-apache_flink-benchmarks#github_actions#maven#install -P test -DskipTests=true -Dmaven.javadoc.skip=true -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2 -B -V#True#False#-1#2
-apache_flink-benchmarks#github_actions#maven#test -P test -B#True#False#-1#2
-alexcheng1982_happyride#github_actions#maven#-B -ntp package --file pom.xml#False#False#-1#2
-ClickHouse_clickhouse-jdbc-bridge#github_actions#maven#--batch-mode --update-snapshots verify#False#False#-1#2
-samuelcampos_usbdrivedetector#github_actions#maven#clean test -Dtest=!WindowsStorageDeviceDetectorTest#False#False#-1#2
-samuelcampos_usbdrivedetector#github_actions#maven#clean test -Dtest=WindowsStorageDeviceDetectorTest#False#False#-1#2
-samuelcampos_usbdrivedetector#github_actions#maven#help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')#True#False#-1#2
-samuelcampos_usbdrivedetector#github_actions#maven#--batch-mode build-helper:parse-version release:prepare \#True#False#-1#2
-samuelcampos_usbdrivedetector#github_actions#maven#--batch-mode --no-transfer-progress \#True#False#-1#2
-phybros_servertap#github_actions#maven#-B package --file pom.xml#True#False#-1#2
-Nextdoor_bender#circle_ci#maven#dependency:resolve-plugins#False#False#-1#2
-Nextdoor_bender#circle_ci#maven#clean compile -Dmaven.main.skip -Dexec.skip#False#False#-1#2
-Nextdoor_bender#circle_ci#maven#install -DskipTests -Dgpg.skip#False#False#-1#2
-Nextdoor_bender#circle_ci#maven#package#False#False#-1#2
-Nextdoor_bender#circle_ci#maven#compile javadoc:aggregate#False#False#-1#2
-hb0730_boot-admin#github_actions#maven# -B clean compile#False#False#-1#2
-corona-warn-app_cwa-verification-server#github_actions#maven#--batch-mode versions:set -DgenerateBackupPoms=false -DnewVersion=${VERSION}#False#False#-1#2
-corona-warn-app_cwa-verification-server#github_actions#maven#--batch-mode deploy#False#False#-1#2
-corona-warn-app_cwa-verification-server#github_actions#maven#--batch-mode verify sonar:sonar \#False#False#-1#2
-corona-warn-app_cwa-verification-server#github_actions#maven#--batch-mode package#False#False#-1#2
-j256_two-factor-auth#circle_ci#maven#-U dependency:go-offline compile#False#False#-1#2
-j256_two-factor-auth#circle_ci#maven#package#False#False#-1#2
-j256_two-factor-auth#circle_ci#maven#jacoco:report#False#False#-1#2
-j256_two-factor-auth#circle_ci#maven#-X test-check-publisher:publish#False#False#-1#2
-apache_bahir#github_actions#maven#-Pdistribution clean install#True#False#-1#2
-apache_bahir#github_actions#maven#-B clean verify -Dscala-${{ matrix.scala-version }} -Dspark.version=${{ matrix.spark-version }}#True#False#-1#2
-fridujo_rabbitmq-mock#github_actions#maven#help:effective-settings#False#False#-1#2
-r2dbc_r2dbc-spi#github_actions#maven#}} -B deploy -P snapshot -s settings.xml#True#False#-1#2
-r2dbc_r2dbc-spi#github_actions#maven#}} -B verify#True#False#-1#2
-jreijn_spring-comparing-template-engines#github_actions#maven#-B package --file pom.xml -DskipTests#True#False#-1#2
-jreijn_spring-comparing-template-engines#github_actions#maven#-B verify --file pom.xml#True#False#-1#2
-quicktheories_QuickTheories#circle_ci#maven#-X verify#False#False#-1#2
-WinterChenS_my-site#github_actions#maven#-DskipTests=true package docker:build &&#False#False#-1#2
-abstracta_jmeter-java-dsl#github_actions#maven#--batch-mode --no-transfer-progress versions:set -DnewVersion=${{ inputs.version }} --settings .github/settings.xml#False#False#-1#2
-abstracta_jmeter-java-dsl#github_actions#maven#--batch-mode --no-transfer-progress clean install --settings .github/settings.xml#False#False#-1#2
-abstracta_jmeter-java-dsl#github_actions#maven#--batch-mode deploy -Prelease -DskipTests --settings .github/settings.xml#False#False#-1#2
-abstracta_jmeter-java-dsl#github_actions#maven#--batch-mode --no-transfer-progress versions:set -DnewVersion=${{ env.SNAPSHOT_VERSION }}#False#False#-1#2
-abstracta_jmeter-java-dsl#github_actions#maven#--batch-mode --no-transfer-progress clean install#False#False#-1#2
-apache_dubbo-spi-extensions#github_actions#maven#clean' failed with 'Permission denied' in github actions#False#False#-1#2
-apache_dubbo-spi-extensions#github_actions#maven#$BUILD_OPTS &>$project_home/mvn.log#False#False#-1#2
-apache_dubbo-spi-extensions#github_actions#maven#$BUILD_OPTS &>$SCENARIO_BUILDER_DIR/mvn.log#False#False#-1#2
-lemire_JavaFastPFOR#github_actions#maven#package#False#False#-1#2
-grimsi_gameyfin#github_actions#maven#release:prepare release:perform -B -s .maven_settings.xml -DreleaseVersion=${{ github.event.inputs.releaseVersion }} -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} -Darguments="-Dmaven.deploy.skip=true -Dmaven.test.skip=true -Dmaven.javadoc.skip=true"#True#False#-1#2
-grimsi_gameyfin#github_actions#maven#help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT#False#False#-1#2
-grimsi_gameyfin#github_actions#maven#-B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=grimsi_gameyfin#False#False#-1#2
-BastiaanJansen_OTP-Java#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-BastiaanJansen_OTP-Java#github_actions#maven#-B test --file pom.xml#False#False#-1#2
-BastiaanJansen_OTP-Java#github_actions#maven#--batch-mode --activate-profiles "deploy-github-registry" deploy#False#False#-1#2
-BastiaanJansen_OTP-Java#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-BastiaanJansen_OTP-Java#github_actions#maven#-B test --file pom.xml#False#False#-1#2
-intoolswetrust_jd-cli#github_actions#maven#-q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)#False#False#-1#2
-intoolswetrust_jd-cli#github_actions#maven#--batch-mode clean install#False#False#-1#2
-intoolswetrust_jd-cli#github_actions#maven#--batch-mode --update-snapshots verify#False#False#-1#2
-daniel-frak_keycloak-user-migration#github_actions#maven#-B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -P code-coverage -P sonar-cloud --file pom.xml#False#False#-1#2
-reficio_p2-maven-plugin#github_actions#maven#-V --batch-mode apache-rat:check "-Drat.consoleOutput"#False#False#-1#2
-reficio_p2-maven-plugin#github_actions#maven#--batch-mode --errors verify --file pom.xml '-Dinvoker.streamLogs=true' '-Pit'#False#False#-1#2
-reficio_p2-maven-plugin#github_actions#maven#--batch-mode --errors verify --file pom.xml '-Pspotbugs'#False#False#-1#2
-reficio_p2-maven-plugin#github_actions#maven#--batch-mode --errors jacoco:report --file pom.xml#False#False#-1#2
-didi_sds#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-socketio_engine.io-client-java#github_actions#maven#verify -Dgpg.skip=true#False#False#-1#2
-zentity-io_zentity#github_actions#maven#--batch-mode clean install -Dzentity.version=$ZENTITY_VERSION -Delasticsearch.version=$ELASTICSEARCH_VERSION --file pom.xml#False#False#-1#2
-zentity-io_zentity#github_actions#maven#--batch-mode clean install "-Delasticsearch.version=$ELASTICSEARCH_VERSION" --file pom.xml#False#False#-1#2
-young-datafan-ooooo1_data-integration#github_actions#maven#--batch-mode deploy -Dmaven.test.skip=true -Dcheckstyle.skip=true#False#False#-1#2
-young-datafan-ooooo1_data-integration#github_actions#maven#-B clean compile install -Prelease -Dmaven.test.skip=true -Dcheckstyle.skip=true#False#False#-1#2
-GideonLeGrange_mikrotik-java#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-eclipse-ee4j_grizzly#github_actions#maven#--show-version \#False#False#-1#2
-eclipse-ee4j_grizzly#github_actions#maven#--show-version \#False#False#-1#2
-4ra1n_super-xray#github_actions#maven#-B package --file pom.xml#True#False#-1#2
-HiveRunner_HiveRunner#github_actions#maven#release:prepare release:perform --settings $GITHUB_WORKSPACE/settings.xml --activate-profiles oss-release --batch-mode --show-version --no-transfer-progress#False#False#-1#2
-HiveRunner_HiveRunner#github_actions#maven#deploy --settings $GITHUB_WORKSPACE/settings.xml --batch-mode --show-version --no-transfer-progress --activate-profiles oss-release#False#False#-1#2
-HiveRunner_HiveRunner#github_actions#maven#package --batch-mode --show-version --no-transfer-progress#False#False#-1#2
-logpresso_CVE-2021-44228-Scanner#github_actions#maven#-e --batch-mode --update-snapshots verify#False#False#-1#2
-logpresso_CVE-2021-44228-Scanner#github_actions#maven#-B clean package -Pnative --file pom.xml#False#False#-1#2
-logpresso_CVE-2021-44228-Scanner#github_actions#maven#-B clean package -Pnative --file pom.xml#False#False#-1#3
-logpresso_CVE-2021-44228-Scanner#github_actions#maven#-B clean package -Pnative --file pom.xml#False#False#-1#2
-EsotericSoftware_yamlbeans#github_actions#maven#test#False#False#-1#2
-EsotericSoftware_yamlbeans#github_actions#maven#test#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#clean install -DskipTests -Dcheckstyle.skip#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.0.0 versions:commit#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.0 versions:commit#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#clean install -DskipTests -Dcheckstyle.skip#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#install -DskipTests#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#org.jacoco:jacoco-maven-plugin:prepare-agent install -Pcoverage-per-test#False#False#-1#2
-WasiqB_coteafs-appium#github_actions#maven#-B sonar:sonar -DskipTests -Dcheckstyle.skip#False#False#-1#2
-jfree_fxgraphics2d#github_actions#maven#test -B --file pom.xml#False#False#-1#2
-sofastack_sofa-boot#github_actions#maven#clean test -Pdefault#False#False#-1#2
-sofastack_sofa-boot#github_actions#maven#--batch-mode deploy -DskipTests -Prelease#True#False#-1#2
-osalvador_ReplicaDB#github_actions#maven#-q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) " >> $GITHUB_ENV#False#False#-1#2
-osalvador_ReplicaDB#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-osalvador_ReplicaDB#github_actions#maven#-q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) " >> $GITHUB_ENV#False#False#-1#2
-osalvador_ReplicaDB#github_actions#maven#-DskipTests -B package --file pom.xml#False#False#-1#2
-libetl_curl#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-liuyueyi_quick-media#github_actions#maven#-B package -Dmaven.test.skip --file pom.xml#False#False#-1#2
-liuyueyi_quick-media#github_actions#maven#deploy -Dmaven.test.skip -s $GITHUB_WORKSPACE/settings.xml#False#False#-1#2
-bjornharrtell_jts2geojson#github_actions#maven#-Dmaven.javadoc.skip=true -Dgpg.skip=true -B test#True#False#-1#2
-bjornharrtell_jts2geojson#github_actions#maven#-Dmaven.javadoc.skip=true -Dgpg.skip=true -B test#True#False#-1#2
-wyt1215819315_autoplan#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-salesforce_mirus#github_actions#maven#deploy -s $GITHUB_WORKSPACE/settings.xml#False#False#-1#2
-salesforce_mirus#github_actions#maven#package#False#False#-1#2
-castor-software_depclean#github_actions#maven#deploy -P deploy -Djacoco.skip=true#False#False#-1#2
-castor-software_depclean#github_actions#maven#validate --errors#False#False#-1#2
-castor-software_depclean#github_actions#maven#clean install -DskipTests --errors#False#False#-1#2
-castor-software_depclean#github_actions#maven#test --errors --fail-at-end#False#False#-1#2
-castor-software_depclean#github_actions#maven#failsafe:integration-test --errors --fail-at-end#False#False#-1#2
-castor-software_depclean#github_actions#maven#jacoco:report#False#False#-1#2
-castor-software_depclean#github_actions#maven#sonar:sonar -Dsonar.projectKey=castor-software_depclean -Dsonar.organization=castor-software -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.java.source=17 -Dsonar.java.target=17#False#False#-1#2
-castor-software_depclean#github_actions#maven#clean install -q#False#False#-1#2
-GoSimpleLLC_nbvcxz#github_actions#maven#-B install --no-transfer-progress#True#False#-1#2
-mircokroon_minecraft-world-downloader#github_actions#maven#package -DskipTests#False#False#-1#2
-mircokroon_minecraft-world-downloader#github_actions#maven#test#False#False#-1#2
-adgadev_jplusone#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-mikaelgrev_miglayout#github_actions#maven#--no-transfer-progress -B --file pom.xml verify#False#False#-1#2
-rayokota_kareldb#github_actions#maven#-B package --file pom.xml#False#False#-1#2
-SourceLabOrg_kafka-webview#github_actions#maven#clean install -DskipTests=true -DskipCheckStyle=false -Dmaven.javadoc.skip=true -B -V#False#False#-1#2
-SourceLabOrg_kafka-webview#github_actions#maven#test -B -DskipCheckStyle=true -Dmaven.javadoc.skip=true -Djava.security.auth.login.config=${PWD}/kafka-webview-ui/src/test/resources/jaas.conf#False#False#-1#2
-SourceLabOrg_kafka-webview#github_actions#maven#package -DskipCheckStyle=true -DskipTests=true -Dmaven.javadoc.skip=true#False#False#-1#2
-tenlee2012_elasticsearch-analysis-hao#github_actions#maven#clean package -Dmaven.test.skip=true#False#False#-1#2
-intoolswetrust_jsignpdf#github_actions#maven#-q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)#False#False#-1#2
-intoolswetrust_jsignpdf#github_actions#maven#--batch-mode --update-snapshots verify#False#False#-1#2
-CleverTap_apns-http2#github_actions#maven#-B -P jacoco verify#False#False#-1#2
-CleverTap_apns-http2#github_actions#maven#-B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar#False#False#-1#2
-CleverTap_apns-http2#github_actions#maven#-P gpg_verify \#False#False#-1#2
-DanielYWoo_fast-object-pool#github_actions#maven#-B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar#False#False#-1#2
-Captain-P-Goldfish_scim-for-keycloak#circle_ci#maven#clean package#False#False#-1#2
-jakartaee_rest#github_actions#maven#-B verify#False#False#-1#2
+project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores#invoked_by_script
+agroal_agroal#github_actions#maven#-B install#True#False#-1#2#False
+agroal_agroal#github_actions#maven#--projects agroal-test verify -Dversion.org.springframework.boot=2.6.1#True#False#-1#2#False
+agroal_agroal#github_actions#maven#help:evaluate -Dexpression=project.version -q -DforceStdout)#True#False#-1#2#False
+agroal_agroal#github_actions#maven#-B deploy#True#False#-1#2#False
+NationalSecurityAgency_emissary#github_actions#maven#-B --no-transfer-progress verify --file pom.xml#True#False#-1#2#False
+InventivetalentDev_AnimatedFrames#travis_ci#maven#deploy --settings settings.xml#False#False#-1#2#False
+vidstige_jadb#github_actions#maven#-B package --file pom.xml#True#False#-1#2#False
+ripple-unmaintained_ripple-lib-java#travis_ci#maven#-X -e install#False#False#-1#2#False
+atilika_kuromoji#travis_ci#maven#test -DskipCompileDictionary -pl kuromoji-ipadic -pl kuromoji-unidic -am#False#False#-1#2#False
+medcl_elasticsearch-analysis-ik#travis_ci#maven#clean package#False#False#-1#2#False
+ConsenSys_Mahuta#circle_ci#maven#clean install -DskipTests#False#False#-1#2#False
+ConsenSys_Mahuta#circle_ci#maven#clean test jacoco:report coveralls:report sonar:sonar -DrepoToken=${COVERALLS_REPOTOKEN} -Dsonar.projectKey=${SONAR_PROJECTKEY} -Dsonar.organization=${SONAR_ORG} -Dsonar.host.url=${SONAR_HOST} -Dsonar.login=${SONAR_LOGIN}#False#False#-1#2#False
+ConsenSys_Mahuta#circle_ci#maven#-s ./.circleci/.circleci.settings.xml -DskipTests deploy#False#False#-1#2#False
+ConsenSys_Mahuta#circle_ci#maven#clean install -DskipTests#False#False#-1#2#False
+ConsenSys_Mahuta#circle_ci#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec | sed 's/-SNAPSHOT//g')#False#False#-1#2#True
+ConsenSys_Mahuta#circle_ci#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)#False#False#-1#2#True
+ConsenSys_Mahuta#circle_ci#maven#clean install -DskipTests#False#False#-1#2#False
+ConsenSys_Mahuta#circle_ci#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec | sed 's/-SNAPSHOT//g')#False#False#-1#2#True
+ConsenSys_Mahuta#circle_ci#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)#False#False#-1#2#True
+ConsenSys_Mahuta#circle_ci#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec | sed 's/-SNAPSHOT//g')#False#False#-1#2#True
+ConsenSys_Mahuta#circle_ci#maven#-B release:prepare -DreleaseVersion=$RELEASE_VERSION -DdevelopmentVersion=$NEW_DEV_VERSION-SNAPSHOT#False#False#-1#2#True
+ConsenSys_Mahuta#circle_ci#maven#-s ./.circleci/.circleci.settings.xml release:perform -Darguments="-Dmaven.javadoc.skip=true" -DskipTests#False#False#-1#2#True
+ConsenSys_Mahuta#circle_ci#maven#--batch-mode release:update-versions#False#False#-1#2#True
+niefy_wx-api#travis_ci#maven#clean package -Dmaven.test.skip=true#False#False#-1#2#False
+madeye_gaeproxy#travis_ci#maven#clean install -DTRAVIS=true#False#False#-1#2#False
+dasniko_testcontainers-keycloak#github_actions#maven#-B package#True#False#-1#2#False
+playframework_netty-reactive-streams#github_actions#maven#--no-transfer-progress -B clean package#True#False#-1#2#False
+myndocs_kotlin-oauth2-server#github_actions#maven#-B package --file pom.xml#True#False#-1#2#False
+aliyun_aliyun-odps-jdbc#github_actions#maven#-U -B package --file pom.xml -DskipTests#False#False#-1#2#False
+aliyun_aliyun-odps-jdbc#github_actions#maven#clean package -DskipTests#False#False#-1#2#False
+fakereplace_fakereplace#travis_ci#maven#integration-test -Dmaven.javadoc.skip=true --settings=.settings.xml -DredirectTestOutput=false#True#False#-1#2#False
+mitre_HTTP-Proxy-Servlet#github_actions#maven#-B -Dhttpclient.version=$HTTPCLIENT_VERSION -Dhttpclient.test.version=$HTTPCLIENT_TEST_VERSION verify $JDOC#False#False#-1#2#False
+mitre_HTTP-Proxy-Servlet#github_actions#maven#-B -Dhttpclient.version=$HTTPCLIENT_VERSION -Dhttpclient.test.version=$HTTPCLIENT_TEST_VERSION verify $JDOC#False#False#-1#2#False
+lexs_webimageloader#travis_ci#maven#install -Dandroid.device=test#False#False#-1#2#False
+graalvm_graal-js-jdk11-maven-demo#travis_ci#maven#clean#False#False#-1#2#False
+graalvm_graal-js-jdk11-maven-demo#travis_ci#maven#package#False#False#-1#2#False
+graalvm_graal-js-jdk11-maven-demo#travis_ci#maven#exec:exec#False#False#-1#2#False
+graalvm_graal-js-jdk11-maven-demo#travis_ci#maven#exec:exec@nograal; fi#False#False#-1#2#False
+graalvm_graal-js-jdk11-maven-demo#travis_ci#maven#clean#False#False#-1#2#False
+graalvm_graal-js-jdk11-maven-demo#travis_ci#maven#package#False#False#-1#2#False
+graalvm_graal-js-jdk11-maven-demo#travis_ci#maven#exec:exec#False#False#-1#2#False
+wiverson_maven-jpackage-template#github_actions#maven#-B clean install --file pom.xml#True#False#-1#2#False
+wiverson_maven-jpackage-template#github_actions#maven#-B clean install --file pom.xml#True#False#-1#2#False
+wiverson_maven-jpackage-template#github_actions#maven#-B clean package --file pom.xml#True#False#-1#3#False
+ozlerhakan_mongolastic#travis_ci#maven#install#False#False#-1#2#False
+Yorubaname_yorubaname-website#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+paultuckey_urlrewritefilter#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+bujiio_buji-pac4j#github_actions#maven#-B clean install#False#False#-1#2#False
+bujiio_buji-pac4j#github_actions#maven#-B -DskipTests deploy#False#False#-1#2#False
+thomasdarimont_embedded-spring-boot-keycloak-server#github_actions#maven#package --batch-mode --no-transfer-progress#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#verify -Dgpg.passphrase="$GPG_PASSPHRASE" --batch-mode deploy#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#rpm:rpm#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#verify -Dgpg.passphrase="$GPG_PASSPHRASE" --batch-mode deploy#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#rpm:rpm#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#rpm:rpm#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#-B clean integration-test -Pacls -Dcp.version=${{matrix.cpversion}} --file pom.xml#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+kafka-ops_julie#github_actions#maven#-B clean integration-test -Pacls -Dcp.version=${{matrix.cpversion}} --file pom.xml#False#False#-1#2#False
+bytedance_bitsail#github_actions#maven#clean verify -pl bitsail-dist -am -DskipUT=true -DskipITCase=true#True#False#-1#2#False
+bytedance_bitsail#github_actions#maven#clean verify -pl bitsail-dist -am -DskipUT=false -DskipITCase=true#True#False#-1#2#False
+bytedance_bitsail#github_actions#maven#clean verify -pl bitsail-dist -am -DskipUT=true -DskipITCase=false#True#False#-1#2#False
+jpmml_jpmml-lightgbm#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+lemire_externalsortinginjava#github_actions#maven#-B package#False#False#-1#2#False
+lemire_externalsortinginjava#travis_ci#maven#clean test jacoco:report#False#False#-1#2#False
+projectdiscovery_nuclei-burp-plugin#github_actions#maven#--batch-mode --update-snapshots verify#False#False#-1#2#False
+spring-guides_tut-spring-security-and-angular-js#travis_ci#maven#install#False#False#-1#2#False
+majusko_pulsar-java-spring-boot-starter#github_actions#maven#-B install#False#False#-1#2#False
+majusko_pulsar-java-spring-boot-starter#github_actions#maven#-B test#False#False#-1#2#False
+MarcGiffing_bucket4j-spring-boot-starter#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+eclipsesource_jshint-eclipse#travis_ci#maven#integration-test -B#False#False#-1#2#False
+dstl_baleen#travis_ci#maven#-B -Pdisable-logging clean package -Dgpg.skip#False#False#-1#2#False
+dependency-check_dependency-check-sonar-plugin#github_actions#maven#-B clean verify#False#False#-1#2#False
+dependency-check_dependency-check-sonar-plugin#github_actions#maven#-B sonar:sonar#False#False#-1#2#False
+apache_flink-benchmarks#github_actions#maven#install -P test -DskipTests=true -Dmaven.javadoc.skip=true -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2 -B -V#True#False#-1#2#False
+apache_flink-benchmarks#github_actions#maven#test -P test -B#True#False#-1#2#False
+alexcheng1982_happyride#github_actions#maven#-B -ntp package --file pom.xml#False#False#-1#2#False
+ClickHouse_clickhouse-jdbc-bridge#github_actions#maven#--batch-mode --update-snapshots verify#False#False#-1#2#False
+samuelcampos_usbdrivedetector#github_actions#maven#clean test -Dtest=!WindowsStorageDeviceDetectorTest#False#False#-1#2#False
+samuelcampos_usbdrivedetector#github_actions#maven#clean test -Dtest=WindowsStorageDeviceDetectorTest#False#False#-1#2#False
+samuelcampos_usbdrivedetector#github_actions#maven#help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')#True#False#-1#2#True
+samuelcampos_usbdrivedetector#github_actions#maven#--batch-mode build-helper:parse-version release:prepare \#True#False#-1#2#False
+samuelcampos_usbdrivedetector#github_actions#maven#--batch-mode --no-transfer-progress \#True#False#-1#2#False
+phybros_servertap#github_actions#maven#-B package --file pom.xml#True#False#-1#2#False
+Nextdoor_bender#circle_ci#maven#dependency:resolve-plugins#False#False#-1#2#False
+Nextdoor_bender#circle_ci#maven#clean compile -Dmaven.main.skip -Dexec.skip#False#False#-1#2#False
+Nextdoor_bender#circle_ci#maven#install -DskipTests -Dgpg.skip#False#False#-1#2#False
+Nextdoor_bender#circle_ci#maven#package#False#False#-1#2#False
+Nextdoor_bender#circle_ci#maven#compile javadoc:aggregate#False#False#-1#2#False
+hb0730_boot-admin#github_actions#maven# -B clean compile#False#False#-1#2#False
+samskivert_jmustache#travis_ci#maven#test -B#True#False#-1#2#False
+corona-warn-app_cwa-verification-server#github_actions#maven#--batch-mode versions:set -DgenerateBackupPoms=false -DnewVersion=${VERSION}#False#False#-1#2#False
+corona-warn-app_cwa-verification-server#github_actions#maven#--batch-mode deploy#False#False#-1#2#False
+corona-warn-app_cwa-verification-server#github_actions#maven#--batch-mode verify sonar:sonar \#False#False#-1#2#False
+corona-warn-app_cwa-verification-server#github_actions#maven#--batch-mode package#False#False#-1#2#False
+j256_two-factor-auth#circle_ci#maven#-U dependency:go-offline compile#False#False#-1#2#False
+j256_two-factor-auth#circle_ci#maven#package#False#False#-1#2#False
+j256_two-factor-auth#circle_ci#maven#jacoco:report#False#False#-1#2#False
+j256_two-factor-auth#circle_ci#maven#-X test-check-publisher:publish#False#False#-1#2#False
+cdimascio_dotenv-java#travis_ci#maven#clean test#False#False#-1#2#False
+apache_bahir#github_actions#maven#-Pdistribution clean install#True#False#-1#2#False
+apache_bahir#github_actions#maven#-B clean verify -Dscala-${{ matrix.scala-version }} -Dspark.version=${{ matrix.spark-version }}#True#False#-1#2#False
+vanilladb_vanillacore#travis_ci#maven#test#False#False#-1#2#False
+owlike_genson#travis_ci#maven#-T 1C test#True#False#2.0#2#False
+hs-web_hsweb-platform#travis_ci#maven#package -DskipTests#False#False#-1#2#False
+fridujo_rabbitmq-mock#github_actions#maven#help:effective-settings#False#False#-1#2#False
+apache_rocketmq-exporter#travis_ci#maven#-B clean apache-rat:check#False#False#-1#2#False
+apache_rocketmq-exporter#travis_ci#maven#-B clean install#False#False#-1#2#False
+jetlinks_rule-engine#travis_ci#maven#-Dredis.host=redis://127.0.0.1:6379 test#True#False#-1#2#False
+r2dbc_r2dbc-spi#github_actions#maven#}} -B deploy -P snapshot -s settings.xml#True#False#-1#2#False
+r2dbc_r2dbc-spi#github_actions#maven#}} -B verify#True#False#-1#2#False
+jreijn_spring-comparing-template-engines#github_actions#maven#-B package --file pom.xml -DskipTests#True#False#-1#2#False
+jreijn_spring-comparing-template-engines#github_actions#maven#-B verify --file pom.xml#True#False#-1#2#False
+quicktheories_QuickTheories#circle_ci#maven#-X verify#False#False#-1#2#False
+quicktheories_QuickTheories#travis_ci#maven#-e clean verify#False#False#-1#2#False
+WinterChenS_my-site#github_actions#maven#-DskipTests=true package docker:build &&#False#False#-1#2#True
+libgdx_box2dlights#travis_ci#maven#clean deploy --settings .maven.settings#True#False#-1#2#False
+abstracta_jmeter-java-dsl#github_actions#maven#--batch-mode --no-transfer-progress versions:set -DnewVersion=${{ inputs.version }} --settings .github/settings.xml#False#False#-1#2#False
+abstracta_jmeter-java-dsl#github_actions#maven#--batch-mode --no-transfer-progress clean install --settings .github/settings.xml#False#False#-1#2#False
+abstracta_jmeter-java-dsl#github_actions#maven#--batch-mode deploy -Prelease -DskipTests --settings .github/settings.xml#False#False#-1#2#True
+abstracta_jmeter-java-dsl#github_actions#maven#--batch-mode --no-transfer-progress versions:set -DnewVersion=${{ env.SNAPSHOT_VERSION }}#False#False#-1#2#False
+abstracta_jmeter-java-dsl#github_actions#maven#--batch-mode --no-transfer-progress clean install#False#False#-1#2#False
+walkmod_walkmod-core#travis_ci#maven#test#False#False#-1#2#False
+apache_dubbo-spi-extensions#github_actions#maven#clean' failed with 'Permission denied' in github actions#False#False#-1#2#True
+apache_dubbo-spi-extensions#github_actions#maven#$BUILD_OPTS &>$project_home/mvn.log#False#False#-1#2#True
+apache_dubbo-spi-extensions#github_actions#maven#$BUILD_OPTS &>$SCENARIO_BUILDER_DIR/mvn.log#False#False#-1#2#True
+artsok_rerunner-jupiter#travis_ci#maven#test sonar:sonar#True#False#-1#2#False
+lemire_JavaFastPFOR#github_actions#maven#package#False#False#-1#2#False
+lemire_JavaFastPFOR#travis_ci#maven#clean test jacoco:report#False#False#-1#2#False
+LodLive_LodView#travis_ci#maven#compile war:war#False#False#-1#2#False
+grimsi_gameyfin#github_actions#maven#release:prepare release:perform -B -s .maven_settings.xml -DreleaseVersion=${{ github.event.inputs.releaseVersion }} -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} -Darguments="-Dmaven.deploy.skip=true -Dmaven.test.skip=true -Dmaven.javadoc.skip=true"#True#False#-1#2#False
+grimsi_gameyfin#github_actions#maven#help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT#False#False#-1#2#False
+grimsi_gameyfin#github_actions#maven#-B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=grimsi_gameyfin#False#False#-1#2#False
+BastiaanJansen_OTP-Java#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+BastiaanJansen_OTP-Java#github_actions#maven#-B test --file pom.xml#False#False#-1#2#False
+BastiaanJansen_OTP-Java#github_actions#maven#--batch-mode --activate-profiles "deploy-github-registry" deploy#False#False#-1#2#False
+BastiaanJansen_OTP-Java#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+BastiaanJansen_OTP-Java#github_actions#maven#-B test --file pom.xml#False#False#-1#2#False
+intoolswetrust_jd-cli#github_actions#maven#-q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)#False#False#-1#2#False
+intoolswetrust_jd-cli#github_actions#maven#--batch-mode clean install#False#False#-1#2#False
+intoolswetrust_jd-cli#github_actions#maven#--batch-mode --update-snapshots verify#False#False#-1#2#False
+daniel-frak_keycloak-user-migration#github_actions#maven#-B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -P code-coverage -P sonar-cloud --file pom.xml#False#False#-1#2#False
+reficio_p2-maven-plugin#github_actions#maven#-V --batch-mode apache-rat:check "-Drat.consoleOutput"#False#False#-1#2#False
+reficio_p2-maven-plugin#github_actions#maven#--batch-mode --errors verify --file pom.xml '-Dinvoker.streamLogs=true' '-Pit'#False#False#-1#2#False
+reficio_p2-maven-plugin#github_actions#maven#--batch-mode --errors verify --file pom.xml '-Pspotbugs'#False#False#-1#2#False
+reficio_p2-maven-plugin#github_actions#maven#--batch-mode --errors jacoco:report --file pom.xml#False#False#-1#2#False
+stephanenicolas_boundbox#travis_ci#maven#clean install -Pcoveralls -Dandroid.device=test -Dmaven.javadoc.skip=true#False#False#-1#2#False
+mmolimar_kafka-connect-fs#travis_ci#maven#test jacoco:report#False#False#-1#2#False
+sldeditor_sldeditor#travis_ci#maven#clean test#True#False#-1#2#False
+sldeditor_sldeditor#travis_ci#maven#test -P IntegrationTests#True#False#-1#2#False
+sldeditor_sldeditor#travis_ci#maven#clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar#True#False#-1#2#False
+didi_sds#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+didi_sds#travis_ci#maven#clean install -P#True#False#-1#2#False
+socketio_engine.io-client-java#github_actions#maven#verify -Dgpg.skip=true#False#False#-1#2#False
+zentity-io_zentity#github_actions#maven#--batch-mode clean install -Dzentity.version=$ZENTITY_VERSION -Delasticsearch.version=$ELASTICSEARCH_VERSION --file pom.xml#False#False#-1#2#False
+zentity-io_zentity#github_actions#maven#--batch-mode clean install "-Delasticsearch.version=$ELASTICSEARCH_VERSION" --file pom.xml#False#False#-1#2#False
+young-datafan-ooooo1_data-integration#github_actions#maven#--batch-mode deploy -Dmaven.test.skip=true -Dcheckstyle.skip=true#False#False#-1#2#False
+young-datafan-ooooo1_data-integration#github_actions#maven#-B clean compile install -Prelease -Dmaven.test.skip=true -Dcheckstyle.skip=true#False#False#-1#2#False
+openmessaging_openchaos#travis_ci#maven#clean install#False#False#-1#2#False
+GideonLeGrange_mikrotik-java#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+eclipse-ee4j_grizzly#github_actions#maven#--show-version \#False#False#-1#2#False
+eclipse-ee4j_grizzly#github_actions#maven#--show-version \#False#False#-1#2#False
+traneio_future#travis_ci#maven#-B clean release:prepare --settings build/settings.xml -DreleaseVersion=$RELEASE_VERSION#True#False#-1#2#True
+traneio_future#travis_ci#maven#release:perform --settings build/settings.xml#True#False#-1#2#True
+traneio_future#travis_ci#maven#clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar deploy --settings build/settings.xml#True#False#-1#2#True
+traneio_future#travis_ci#maven#clean versions:set -DnewVersion=$TRAVIS_BRANCH-SNAPSHOT#True#False#-1#2#True
+traneio_future#travis_ci#maven#org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar deploy --settings build/settings.xml #True#False#-1#2#True
+traneio_future#travis_ci#maven#clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar#True#False#-1#2#True
+4ra1n_super-xray#github_actions#maven#-B package --file pom.xml#True#False#-1#2#False
+HiveRunner_HiveRunner#github_actions#maven#release:prepare release:perform --settings $GITHUB_WORKSPACE/settings.xml --activate-profiles oss-release --batch-mode --show-version --no-transfer-progress#False#False#-1#2#False
+HiveRunner_HiveRunner#github_actions#maven#deploy --settings $GITHUB_WORKSPACE/settings.xml --batch-mode --show-version --no-transfer-progress --activate-profiles oss-release#False#False#-1#2#False
+HiveRunner_HiveRunner#github_actions#maven#package --batch-mode --show-version --no-transfer-progress#False#False#-1#2#False
+logpresso_CVE-2021-44228-Scanner#github_actions#maven#-e --batch-mode --update-snapshots verify#False#False#-1#2#False
+logpresso_CVE-2021-44228-Scanner#github_actions#maven#-B clean package -Pnative --file pom.xml#False#False#-1#2#False
+logpresso_CVE-2021-44228-Scanner#github_actions#maven#-B clean package -Pnative --file pom.xml#False#False#-1#3#False
+logpresso_CVE-2021-44228-Scanner#github_actions#maven#-B clean package -Pnative --file pom.xml#False#False#-1#2#False
+EsotericSoftware_yamlbeans#github_actions#maven#test#False#False#-1#2#False
+EsotericSoftware_yamlbeans#github_actions#maven#test#False#False#-1#2#False
+EsotericSoftware_yamlbeans#travis_ci#maven#--show-version --errors --batch-mode clean verify#True#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#clean install -DskipTests -Dcheckstyle.skip#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.0.0 versions:commit#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.0 versions:commit#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion} versions:commit#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#clean install -DskipTests -Dcheckstyle.skip#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#-q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#install -DskipTests#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#org.jacoco:jacoco-maven-plugin:prepare-agent install -Pcoverage-per-test#False#False#-1#2#False
+WasiqB_coteafs-appium#github_actions#maven#-B sonar:sonar -DskipTests -Dcheckstyle.skip#False#False#-1#2#False
+jfree_fxgraphics2d#github_actions#maven#test -B --file pom.xml#False#False#-1#2#False
+sofastack_sofa-boot#github_actions#maven#clean test -Pdefault#False#False#-1#2#False
+sofastack_sofa-boot#github_actions#maven#--batch-mode deploy -DskipTests -Prelease#True#False#-1#2#False
+osalvador_ReplicaDB#github_actions#maven#-q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) " >> $GITHUB_ENV#False#False#-1#2#False
+osalvador_ReplicaDB#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+osalvador_ReplicaDB#github_actions#maven#-q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec) " >> $GITHUB_ENV#False#False#-1#2#False
+osalvador_ReplicaDB#github_actions#maven#-DskipTests -B package --file pom.xml#False#False#-1#2#False
+libetl_curl#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+liuyueyi_quick-media#github_actions#maven#-B package -Dmaven.test.skip --file pom.xml#False#False#-1#2#False
+liuyueyi_quick-media#github_actions#maven#deploy -Dmaven.test.skip -s $GITHUB_WORKSPACE/settings.xml#False#False#-1#2#False
+liuyueyi_quick-media#travis_ci#maven#cobertura:cobertura#False#False#-1#2#False
+leonoel_missionary#travis_ci#maven#compile#False#False#-1#2#False
+bjornharrtell_jts2geojson#github_actions#maven#-Dmaven.javadoc.skip=true -Dgpg.skip=true -B test#True#False#-1#2#False
+bjornharrtell_jts2geojson#github_actions#maven#-Dmaven.javadoc.skip=true -Dgpg.skip=true -B test#True#False#-1#2#False
+wyt1215819315_autoplan#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+salesforce_mirus#github_actions#maven#deploy -s $GITHUB_WORKSPACE/settings.xml#False#False#-1#2#False
+salesforce_mirus#github_actions#maven#package#False#False#-1#2#False
+Wechat-Group_weixin-java-demo-springmvc#travis_ci#maven#clean package -Dmaven.test.skip=true#False#False#-1#2#False
+castor-software_depclean#github_actions#maven#deploy -P deploy -Djacoco.skip=true#False#False#-1#2#False
+castor-software_depclean#github_actions#maven#validate --errors#False#False#-1#2#False
+castor-software_depclean#github_actions#maven#clean install -DskipTests --errors#False#False#-1#2#False
+castor-software_depclean#github_actions#maven#test --errors --fail-at-end#False#False#-1#2#False
+castor-software_depclean#github_actions#maven#failsafe:integration-test --errors --fail-at-end#False#False#-1#2#False
+castor-software_depclean#github_actions#maven#jacoco:report#False#False#-1#2#False
+castor-software_depclean#github_actions#maven#sonar:sonar -Dsonar.projectKey=castor-software_depclean -Dsonar.organization=castor-software -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.java.source=17 -Dsonar.java.target=17#False#False#-1#2#False
+castor-software_depclean#github_actions#maven#clean install -q#False#False#-1#2#False
+k-tamura_easybuggy#travis_ci#maven#-DskipTests=true clean verify#False#False#-1#2#False
+GoSimpleLLC_nbvcxz#github_actions#maven#-B install --no-transfer-progress#True#False#-1#2#False
+mircokroon_minecraft-world-downloader#github_actions#maven#package -DskipTests#False#False#-1#2#False
+mircokroon_minecraft-world-downloader#github_actions#maven#test#False#False#-1#2#False
+adgadev_jplusone#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+mikaelgrev_miglayout#github_actions#maven#--no-transfer-progress -B --file pom.xml verify#False#False#-1#2#False
+IBM_janusgraph-utils#travis_ci#maven#package \#False#False#-1#2#True
+graphstream_gs-algo#travis_ci#maven#clean install#True#False#-1#2#False
+apache_rocketmq-dashboard#travis_ci#maven#-B clean apache-rat:check#False#False#-1#2#False
+apache_rocketmq-dashboard#travis_ci#maven#-B package findbugs:findbugs jacoco:report coveralls:report#False#False#-1#2#False
+rayokota_kareldb#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+SourceLabOrg_kafka-webview#github_actions#maven#clean install -DskipTests=true -DskipCheckStyle=false -Dmaven.javadoc.skip=true -B -V#False#False#-1#2#False
+SourceLabOrg_kafka-webview#github_actions#maven#test -B -DskipCheckStyle=true -Dmaven.javadoc.skip=true -Djava.security.auth.login.config=${PWD}/kafka-webview-ui/src/test/resources/jaas.conf#False#False#-1#2#False
+SourceLabOrg_kafka-webview#github_actions#maven#package -DskipCheckStyle=true -DskipTests=true -Dmaven.javadoc.skip=true#False#False#-1#2#False
+tenlee2012_elasticsearch-analysis-hao#github_actions#maven#clean package -Dmaven.test.skip=true#False#False#-1#2#False
+intoolswetrust_jsignpdf#github_actions#maven#-q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)#False#False#-1#2#False
+intoolswetrust_jsignpdf#github_actions#maven#--batch-mode --update-snapshots verify#False#False#-1#2#False
+CleverTap_apns-http2#github_actions#maven#-B -P jacoco verify#False#False#-1#2#False
+CleverTap_apns-http2#github_actions#maven#-B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar#False#False#-1#2#False
+CleverTap_apns-http2#github_actions#maven#-P gpg_verify \#False#False#-1#2#False
+DanielYWoo_fast-object-pool#github_actions#maven#-B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar#False#False#-1#2#False
+Captain-P-Goldfish_scim-for-keycloak#circle_ci#maven#clean package#False#False#-1#2#False
+gabrie-allaigre_sonar-gitlab-plugin#travis_ci#maven#--batch-mode clean verify#False#False#-1#2#False
+zhaojun1998_Shiro-Action#travis_ci#maven#test#False#False#-1#2#False
+jakartaee_rest#github_actions#maven#-B verify#False#False#-1#2#False

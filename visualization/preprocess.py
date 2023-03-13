@@ -8,7 +8,8 @@ from utils import fileutils
 build_argument_matchers = {"bazel": re.compile(r"^(--[\w_]+(=[^\s]+)?\s+)"),
                            "maven": re.compile(r"^(--?[-\w]+( ?[^-\s]+)?\s+)")}
 build_subcommands = {"bazel": ["build", "test", "run", "coverage"],
-                     "maven": ["clean", "compile", "test", "package", "integration-test", "install", "verify", "deploy"]}
+                     "maven": ["clean", "compile", "test", "package", "integration-test", "install", "verify",
+                               "deploy"]}
 
 manually_checked_remote_cahce_projects = ["tensorflow_tensorflow", "bazelbuild_bazel-toolchains",
                                           "rabbitmq_rabbitmq-server", "grpc_grpc", "dfinity_ic", "scionproto_scion",
@@ -37,6 +38,15 @@ def preprocess_data(data_dir: str):
 
         preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
         preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
+
+
+def preprocess_build_rules(source_dir: str, processed_data_dir: str, build_tool: str, target_filename_prefix=""):
+    build_rules_data_path = os.path.join(source_dir, "build_rules.csv")
+    target_processed_file_path = os.path.join(processed_data_dir, f"{target_filename_prefix}-build_rules.csv")
+
+    build_rules = pd.read_csv(build_rules_data_path)
+    build_rules.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
 
 def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, target_filename_prefix=""):
@@ -113,7 +123,6 @@ def label_subcommand(row, build_tool) -> str:
             break
 
     return ",".join(subcommands)
-
 
 
 if __name__ == "__main__":
