@@ -133,7 +133,7 @@ class BazelBuildFileParser(BuildFileParser):
                                                       transformer=StarlarkTransformer(), **kwargs)
 
     def _build_file_pattern(self) -> str:
-        return r"^BUILD(\.bazel)$"
+        return r"^BUILD(\.bazel)?$"
 
     # For a Bazel build file, its AST structure typically likes this.
     # So, we will only parse the expr_stmt node that has the node funccall and under the root node.
@@ -169,7 +169,11 @@ class BazelBuildFileParser(BuildFileParser):
         # TODO fix it in the future
         build_file_str = build_file_str.replace('if target != "1.13"', "")
 
-        ast_tree = self.starlark_parser.parse(build_file_str, on_error=starlark_parsing_on_errors)
+        try:
+            ast_tree = self.starlark_parser.parse(build_file_str, on_error=starlark_parsing_on_errors)
+        except UnexpectedToken as e:
+            logging.warning(f"skipping parse a build file in {self.project_dir} due to UnexpectedToken, reason {e}")
+            return None
 
         build_rules = []
         third_party_rule_names = []

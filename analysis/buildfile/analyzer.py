@@ -13,6 +13,8 @@ class BuildFileAnalyzer:
         build_configs = []
         for p in build_file_parsers:
             build_configs.extend(p.parse())
+        if len(build_configs) == 0:
+            logging.warning(f"no build rules found for project {project_dir}")
         return build_configs
 
     def analyze_build_files(self, project_base_dir: str, output_dir: str):

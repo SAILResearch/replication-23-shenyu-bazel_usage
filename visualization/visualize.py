@@ -16,8 +16,9 @@ def visualize_data(data_dir: str):
     # visualize_ci_tools(data_dir)
     # visualize_parallelization_usage(data_dir)
     # visualize_cache_usage(data_dir)
-    visualize_subcommand_usage(data_dir)
+    # visualize_subcommand_usage(data_dir)
     # visualize_build_rule_categories(data_dir)
+    visualize_script_usage(data_dir)
 
 
 def visualize_ci_tools(data_dir: str):
@@ -40,8 +41,7 @@ def visualize_ci_tools(data_dir: str):
 
         build_tool_usage = build_tool_usage.melt(id_vars="CI/CD Services")
         ax = sns.histplot(data=build_tool_usage, x="CI/CD Services", hue="variable", weights="value", discrete=True,
-                          palette="Set2",
-                          multiple="stack", ax=axs[idx])
+                          palette="Set2", multiple="stack", ax=axs[idx])
         idx += 1
         for c in ax.containers:
             ax.bar_label(c, label_type='center')
@@ -85,7 +85,6 @@ def visualize_parallelization_usage(data_dir: str):
         travisci_serial = df.loc[(df["ci_tool"] == "travis_ci") & ~df["use_parallelization"]]
         parallelization_usage["Parallel"].append(len(travisci_parallel))
         parallelization_usage["Serial"].append(len(travisci_serial))
-
 
         parallelization_usage = pd.DataFrame(parallelization_usage)
         parallelization_usage = parallelization_usage.melt(id_vars="CI/CD Services")
@@ -188,8 +187,8 @@ def visualize_subcommand_usage(data_dir: str):
                                       df.loc[df["ci_tool"] == "buildkite"],
                                       subcommand_usage, subcommand_usage_arr_idx=2)
         count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names,
-                                        df.loc[df["ci_tool"] == "travis_ci"],
-                                        subcommand_usage, subcommand_usage_arr_idx=3)
+                                      df.loc[df["ci_tool"] == "travis_ci"],
+                                      subcommand_usage, subcommand_usage_arr_idx=3)
 
         subcommand_usage = pd.DataFrame(subcommand_usage)
 
@@ -198,21 +197,19 @@ def visualize_subcommand_usage(data_dir: str):
         total_buildkite_projects_count = (df.loc[df["ci_tool"] == "buildkite"]["project"]).unique().size
         total_travisci_projects_count = (df.loc[df["ci_tool"] == "travis_ci"]["project"]).unique().size
         subcommand_usage["Total Projects"] = [total_gha_projects_count, total_circleci_projects_count,
-                                                  total_buildkite_projects_count, total_travisci_projects_count]
+                                              total_buildkite_projects_count, total_travisci_projects_count]
 
         subcommand_usage = subcommand_usage.melt(id_vars="CI/CD Services")
 
         palette = "Set2" if correspondent_build_tool == "maven" else ["#66c2a5", "#fc8d62", "#8da0cb", "#b3b3b3"]
         ax = sns.histplot(data=subcommand_usage, x="CI/CD Services", hue="variable", weights="value", discrete=True,
                           shrink=0.8, palette=palette, multiple="dodge", ax=axs[idx],
-                          hue_order=["Total Projects"] + build_tool_subcommand_names[correspondent_build_tool] + ["Other Subcommands"])
+                          hue_order=["Total Projects"] + build_tool_subcommand_names[correspondent_build_tool] + [
+                              "Other Subcommands"])
         idx += 1
 
         for c in ax.containers:
             ax.bar_label(c, label_type='center')
-
-
-
 
         ax.set_title(f"{parent_dir_name} subcommands usage in CI/CD services")
         ax.set_xlabel("CI/CD Service")
@@ -234,7 +231,8 @@ def count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcomman
 
         if correspondent_build_tool == "bazel":
             subcommands = set(
-                [subcommand if subcommand in build_tool_subcommand_names["bazel"] else "Other Subcommands" for subcommand in
+                [subcommand if subcommand in build_tool_subcommand_names["bazel"] else "Other Subcommands" for
+                 subcommand in
                  subcommands])
         elif correspondent_build_tool == "maven":
             new_subcommands = set()
@@ -275,6 +273,19 @@ def visualize_build_rule_categories(data_dir: str):
         else:
             build_rule_categories = pd.concat([build_rule_categories, df])
 
+        print(f"mean of {parent_dir_name} is {df['count'].mean()}")
+        print(f"median of {parent_dir_name} is {df['count'].median()}")
+        print("------------------")
+
+        print(f"total number of projects in {parent_dir_name} is {df['project'].unique().size}")
+        print(
+            f"number of projects that use custom rule in {parent_dir_name} is {df.loc[df['category'] == 'custom']['project'].unique().size}")
+        print("------------------")
+
+        print(f"mean of custom rules in {parent_dir_name} is {df.loc[df['category'] == 'custom']['count'].mean()}")
+        print(f"median of custom rules in {parent_dir_name} is {df.loc[df['category'] == 'custom']['count'].median()}")
+        print("------------------")
+
     # g = sns.catplot(data=build_rule_categories, x="dataset", y="count", hue="category", kind="boxen", palette="Set2", scale="exponential",
     #                 showfliers=False, k_depth="trustworthy", legend=False, dodge=True)
 
@@ -302,4 +313,61 @@ def visualize_build_rule_categories(data_dir: str):
     fig.autofmt_xdate()
 
     plt.savefig("./images/build_rule_categories")
+    plt.show()
+
+
+def visualize_script_usage(data_dir: str):
+    fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 10), tight_layout=True, sharey=True)
+
+    parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
+    idx = 0
+    for parent_dir_name in parent_dir_names:
+        script_usage = {"Used": [], "Not Used": [],
+                        "CI/CD Services": ["GitHub Actions", "CirCleCI", "Buildkite", "TravisCI"]}
+
+        df = pd.read_csv(f"{data_dir}/{parent_dir_name}-script_usage.csv")
+        df["script"] = df.apply(lambda row: sum(
+            df.loc[(df["project"] == row["project"]) & (df["invoked_by_script"])]["invoked_by_script"]) != 0,
+                                axis=1)
+
+        df = df.drop(columns=["invoked_by_script"])
+        df = df.drop_duplicates()
+
+        total_gha_projects = df.loc[df["ci_tool"] == "github_actions"]["project"].unique().size
+        used_script_gha_projects = df.loc[(df["ci_tool"] == "github_actions") & df["script"]]["project"].unique().size
+        script_usage["Used"].append(used_script_gha_projects)
+        script_usage["Not Used"].append(total_gha_projects - used_script_gha_projects)
+
+        total_circleci_projects = df.loc[df["ci_tool"] == "circle_ci"]["project"].unique().size
+        used_script_circleci_projects = df.loc[(df["ci_tool"] == "circle_ci") & df["script"]]["project"].unique().size
+        script_usage["Used"].append(used_script_circleci_projects)
+        script_usage["Not Used"].append(total_circleci_projects - used_script_circleci_projects)
+
+        total_buildkite_projects = df.loc[df["ci_tool"] == "buildkite"]["project"].unique().size
+        used_script_buildkite_projects = df.loc[(df["ci_tool"] == "buildkite") & df["script"]]["project"].unique().size
+        script_usage["Used"].append(used_script_buildkite_projects)
+        script_usage["Not Used"].append(total_buildkite_projects - used_script_buildkite_projects)
+
+        total_travisci_projects = df.loc[df["ci_tool"] == "travis_ci"]["project"].unique().size
+        used_script_travisci_projects = df.loc[(df["ci_tool"] == "travis_ci") & df["script"]]["project"].unique().size
+        script_usage["Used"].append(used_script_travisci_projects)
+        script_usage["Not Used"].append(total_travisci_projects - used_script_travisci_projects)
+
+        script_usage = pd.DataFrame(script_usage)
+        script_usage = script_usage.melt(id_vars="CI/CD Services")
+
+        ax = sns.histplot(data=script_usage, x="CI/CD Services", hue="variable", weights="value", discrete=True,
+                          palette="Set2", multiple="stack", ax=axs[idx], legend=0)
+        idx += 1
+        for c in ax.containers:
+            ax.bar_label(c, label_type='center')
+
+        ax.set_title(f"{parent_dir_name} Script Usage in CI/CD services")
+        ax.set_xlabel("CI/CD Service")
+        ax.set_ylabel("Number of Projects")
+
+    fig.legend(title="Whether use shell script to run build systems", labels=["Yes", "No"], loc="center right", bbox_to_anchor=(1, 0.9))
+
+    fig.autofmt_xdate()
+    plt.savefig("./images/script_usage")
     plt.show()
