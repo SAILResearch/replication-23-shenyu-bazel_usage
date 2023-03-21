@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, ticker
 import matplotlib.ticker as mticker
 
 from visualization.preprocess import *
@@ -14,16 +14,16 @@ def visualize_data(data_dir: str):
 
     data_dir = os.path.join(data_dir, "processed")
     # visualize_ci_tools(data_dir)
+    visualize_subcommand_usage(data_dir)
     # visualize_parallelization_usage(data_dir)
     # visualize_cache_usage(data_dir)
-    # visualize_subcommand_usage(data_dir)
     # visualize_build_rule_categories(data_dir)
     # visualize_script_usage(data_dir)
-    visualize_arg_size(data_dir)
+    # visualize_arg_size(data_dir)
 
 
 def visualize_ci_tools(data_dir: str):
-    fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 10), tight_layout=True, sharey=True)
+    fig, axs = plt.subplots(ncols=3, nrows=2, figsize=(15, 10), sharex=True)
     parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
     idx = 0
     for parent_dir_name, correspondent_build_tool in parent_dir_names.items():
@@ -40,18 +40,60 @@ def visualize_ci_tools(data_dir: str):
                 build_tool_usage.loc[
                     build_tool_usage["CI/CD Services"] == ci_tool, "CI" if used_in_tool else "Local"] += 1
 
-        build_tool_usage = build_tool_usage.melt(id_vars="CI/CD Services")
-        ax = sns.histplot(data=build_tool_usage, x="CI/CD Services", hue="variable", weights="value", discrete=True,
-                          palette="Set2", multiple="stack", ax=axs[idx])
-        idx += 1
+        build_tool_usage["total"] = build_tool_usage["Local"] + build_tool_usage["CI"]
+        build_tool_usage["CI_percentage"] = build_tool_usage["CI"] / build_tool_usage["total"]
+        build_tool_usage["Local_percentage"] = build_tool_usage["Local"] / build_tool_usage["total"]
+
+        ax = sns.histplot(data=build_tool_usage, weights="CI_percentage", x="CI/CD Services",
+                          shrink=.8, ax=axs[0][idx], color="#66c2a5")
+
+        ax.set_title(f"{correspondent_build_tool} ({parent_dir_name})")
+
+        ax.set(ylim=(0, 1))
+        if idx == 0:
+            ax.set_ylabel("Percentage of projects using the build tool in CI")
+        else:
+            ax.set_ylabel("")
+
         for c in ax.containers:
-            ax.bar_label(c, label_type='center')
+            labels = []
+            for p, bar_idx in zip(c.patches, range(len(c.patches))):
+                if p.get_height() == 0:
+                    labels.append("")
+                else:
+                    labels.append(f"{int(p.get_height() * 10000) / 100}% ({build_tool_usage['CI'][bar_idx]})")
 
-        ax.set_title(f"{parent_dir_name} usage in CI/CD services")
-        ax.set_xlabel("CI/CD Service")
-        ax.set_ylabel("Number of Projects")
+            ax.bar_label(c, labels=labels, padding=1)
 
-    fig.autofmt_xdate()
+        ax = sns.histplot(data=build_tool_usage, weights="Local_percentage", x="CI/CD Services", shrink=.8,
+                          ax=axs[1][idx], color="#fc8d62")
+        ax.set(ylim=(0, 1))
+        if idx == 0:
+            ax.set_ylabel("Percentage of projects only using the build tool locally")
+            yticks = ax.get_yticklabels()
+            yticks[-1].set_visible(False)
+        else:
+            ax.set_ylabel(None)
+
+        ax.invert_yaxis()
+
+        for c in ax.containers:
+            labels = []
+            for p, bar_idx in zip(c.patches, range(len(c.patches))):
+                if p.get_height() == 0:
+                    labels.append("0%")
+                else:
+                    labels.append(f"{int(p.get_height() * 10000) / 100}% ({build_tool_usage['Local'][bar_idx]})")
+
+            ax.bar_label(c, labels=labels, padding=1)
+        idx += 1
+
+    for ax in axs.flat:
+        ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
+
+    plt.suptitle("Build tool usage in CI/CD services")
+    plt.tight_layout()
+    plt.subplots_adjust(hspace=0)
     plt.savefig("./images/ci_tool_usage")
     plt.show()
 
@@ -173,49 +215,34 @@ def visualize_subcommand_usage(data_dir: str):
 
     idx = 0
     for parent_dir_name, correspondent_build_tool in parent_dir_names.items():
-        subcommand_usage = {"CI/CD Services": ["GitHub Actions", "CirCleCI", "Buildkite", "TravisCI"]}
+        subcommand_usage = {}
 
         df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-build_tools.csv"))
         df = df.loc[df["use_build_tool"]]
+        count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names, df, subcommand_usage)
 
-        count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names,
-                                      df.loc[df["ci_tool"] == "github_actions"],
-                                      subcommand_usage, subcommand_usage_arr_idx=0)
-        count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names,
-                                      df.loc[df["ci_tool"] == "circle_ci"],
-                                      subcommand_usage, subcommand_usage_arr_idx=1)
-        count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names,
-                                      df.loc[df["ci_tool"] == "buildkite"],
-                                      subcommand_usage, subcommand_usage_arr_idx=2)
-        count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names,
-                                      df.loc[df["ci_tool"] == "travis_ci"],
-                                      subcommand_usage, subcommand_usage_arr_idx=3)
+        subcommand_usage = pd.DataFrame(subcommand_usage.items(), columns=["Subcommand", "Count"])
+        total_projects = df["project"].unique().size
+        subcommand_usage["Usage Percentage"] = subcommand_usage["Count"] / total_projects
+        subcommand_usage["Subcommand"] = pd.Categorical(subcommand_usage["Subcommand"],
+                                                        categories=build_tool_subcommand_names[correspondent_build_tool] + ["Other Subcommands"])
 
-        subcommand_usage = pd.DataFrame(subcommand_usage)
+        ax = sns.histplot(data=subcommand_usage, x="Subcommand", weights="Usage Percentage", shrink=.8, ax=axs[idx], color="#66c2a5")
 
-        total_gha_projects_count = (df.loc[df["ci_tool"] == "github_actions"]["project"]).unique().size
-        total_circleci_projects_count = (df.loc[df["ci_tool"] == "circle_ci"]["project"]).unique().size
-        total_buildkite_projects_count = (df.loc[df["ci_tool"] == "buildkite"]["project"]).unique().size
-        total_travisci_projects_count = (df.loc[df["ci_tool"] == "travis_ci"]["project"]).unique().size
-        subcommand_usage["Total Projects"] = [total_gha_projects_count, total_circleci_projects_count,
-                                              total_buildkite_projects_count, total_travisci_projects_count]
-
-        subcommand_usage = subcommand_usage.melt(id_vars="CI/CD Services")
-
-        palette = "Set2" if correspondent_build_tool == "maven" else ["#66c2a5", "#fc8d62", "#8da0cb", "#b3b3b3"]
-        ax = sns.histplot(data=subcommand_usage, x="CI/CD Services", hue="variable", weights="value", discrete=True,
-                          shrink=0.8, palette=palette, multiple="dodge", ax=axs[idx],
-                          hue_order=["Total Projects"] + build_tool_subcommand_names[correspondent_build_tool] + [
-                              "Other Subcommands"])
         idx += 1
 
         for c in ax.containers:
-            ax.bar_label(c, label_type='center')
+            ax.bar_label(c, labels=[f"{round(p.get_height() * 100, 2)}%" for p in c.patches], label_type='edge')
 
-        ax.set_title(f"{parent_dir_name} subcommands usage in CI/CD services")
+        ax.set_title(f"{correspondent_build_tool} ({parent_dir_name})")
         ax.set_xlabel("CI/CD Service")
-        ax.set_ylabel("Number of Projects")
+        ax.set_ylabel("Percentage of Projects Using Subcommand")
 
+    for ax in axs:
+        ax.set_ylim(0, 1)
+        ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
+
+    plt.suptitle("Subcommands usage in CI/CD services")
     plt.tight_layout()
     figs.autofmt_xdate()
     plt.savefig("./images/command_usage")
@@ -223,8 +250,8 @@ def visualize_subcommand_usage(data_dir: str):
 
 
 # TODO we need to check the -Dmaven.test.skip=true flag or -DskipTests flag in the build commands!
-def count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names, gha_projects, subcommand_usage,
-                                  subcommand_usage_arr_idx):
+def count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names, gha_projects,
+                                  subcommand_usage):
     for project in gha_projects["project"].unique():
         project_df = gha_projects.loc[gha_projects["project"] == project]
         subcommands = set()
@@ -252,9 +279,9 @@ def count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcomman
 
         for subcommand in subcommands:
             if subcommand not in subcommand_usage:
-                subcommand_usage[subcommand] = [0, 0, 0, 0]
+                subcommand_usage[subcommand] = 0
 
-            subcommand_usage[subcommand][subcommand_usage_arr_idx] += 1
+            subcommand_usage[subcommand] += 1
 
 
 def visualize_build_rule_categories(data_dir: str):
@@ -367,7 +394,8 @@ def visualize_script_usage(data_dir: str):
         ax.set_xlabel("CI/CD Service")
         ax.set_ylabel("Number of Projects")
 
-    fig.legend(title="Whether use shell script to run build systems", labels=["Yes", "No"], loc="center right", bbox_to_anchor=(1, 0.9))
+    fig.legend(title="Whether use shell script to run build systems", labels=["Yes", "No"], loc="center right",
+               bbox_to_anchor=(1, 0.9))
 
     fig.autofmt_xdate()
     plt.savefig("./images/script_usage")
