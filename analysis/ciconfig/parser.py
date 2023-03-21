@@ -17,7 +17,8 @@ class CIToolType(Enum):
 
 class BuildCommand:
     def __init__(self, build_tool: str, raw_arguments: str, local_cache: bool = False, local_cache_paths=None,
-                 cores: int = 2, bazelci_project=False, invoked_by_script=False):
+                 cores: int = 2, bazelci_project=False, invoked_by_script=False, non_expended_arg_size=None,
+                 expanded_arg_size=None):
         if local_cache_paths is None:
             local_cache_paths = []
         self.build_tool = build_tool
@@ -27,6 +28,8 @@ class BuildCommand:
         self.cores = cores
         self.bazelci_project = bazelci_project
         self.invoked_by_script = invoked_by_script
+        self.non_expended_arg_size = non_expended_arg_size
+        self.expanded_arg_size = expanded_arg_size
 
 
 class CIConfig:
@@ -158,6 +161,10 @@ class CIConfigParser:
 
         filtered = []
         for cmd in cmds:
+            non_expanded_arg_size = len([arg_name for arg_name in cmd.raw_arguments.split() if
+                                         arg_name.startswith("--") or arg_name.startswith("-")])
+            cmd.non_expended_arg_size = non_expanded_arg_size
+
             if cmd.build_tool == "bazel":
                 # we only analyze the following commands.
                 # Also, we add a space to each command to try to improve the precision of the results.
@@ -170,6 +177,11 @@ class CIConfigParser:
                 continue
 
             cmd.raw_arguments = self._apply_default_bazelrc_configs(cmd.raw_arguments)
+
+            expanded_arg_size = len([arg_name for arg_name in cmd.raw_arguments.split() if
+                                     arg_name.startswith("--") or arg_name.startswith("-")])
+            cmd.expanded_arg_size = expanded_arg_size
+
             filtered.append(cmd)
 
         return filtered
@@ -522,21 +534,31 @@ class BuildkiteConfigParser(CIConfigParser):
 
                     build_flags = task["build_flags"] if "build_flags" in task else []
                     build_flags.extend(self.default_bazelci_build_flags)
+                    non_expanded_arg_size = len(build_flags)
 
                     raw_arguments = self._apply_default_bazelrc_configs(
                         "build " + " ".join(build_flags) + " " + " ".join(targets))
+
+                    expanded_arg_size = len(
+                        [arg for arg in raw_arguments if arg.startswith("--") or arg.startswith("-")])
                     bb_cfg.build_commands.append(
-                        BuildCommand("bazel", raw_arguments, bazelci_project=True))
+                        BuildCommand("bazel", raw_arguments, bazelci_project=True,
+                                     non_expended_arg_size=non_expanded_arg_size, expanded_arg_size=expanded_arg_size))
                 if "test_targets" in task:
                     targets = task["test_targets"]
 
                     test_flags = task["test_flags"] if "test_flags" in task else []
                     test_flags.extend(self.default_bazelci_test_flags)
+                    non_expanded_arg_size = len(test_flags)
+
                     raw_arguments = self._apply_default_bazelrc_configs(
                         "test " + " ".join(test_flags) + " " + " ".join(targets))
+                    expanded_arg_size = len(
+                        [arg for arg in raw_arguments if arg.startswith("--") or arg.startswith("-")])
 
                     bb_cfg.build_commands.append(
-                        BuildCommand("bazel", raw_arguments, bazelci_project=True))
+                        BuildCommand("bazel", raw_arguments, bazelci_project=True,
+                                     non_expended_arg_size=non_expanded_arg_size, expanded_arg_size=expanded_arg_size))
 
             return bb_cfg
 

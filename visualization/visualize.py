@@ -18,7 +18,8 @@ def visualize_data(data_dir: str):
     # visualize_cache_usage(data_dir)
     # visualize_subcommand_usage(data_dir)
     # visualize_build_rule_categories(data_dir)
-    visualize_script_usage(data_dir)
+    # visualize_script_usage(data_dir)
+    visualize_arg_size(data_dir)
 
 
 def visualize_ci_tools(data_dir: str):
@@ -370,4 +371,36 @@ def visualize_script_usage(data_dir: str):
 
     fig.autofmt_xdate()
     plt.savefig("./images/script_usage")
+    plt.show()
+
+
+def visualize_arg_size(data_dir: str):
+    build_arg_size = None
+
+    fig = plt.figure(figsize=(20, 10))
+
+    parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
+    for parent_dir_name in parent_dir_names:
+        df = pd.read_csv(f"{data_dir}/{parent_dir_name}-arg_size.csv").drop(columns=["expanded_command_size"])
+        df = df.drop_duplicates()
+        df["dataset"] = parent_dir_name
+
+        if build_arg_size is None:
+            build_arg_size = df
+        else:
+            build_arg_size = build_arg_size.append(df)
+
+    g = sns.catplot(data=build_arg_size, x="dataset", y="non_expanded_command_size", hue="ci_tool", palette="Set2",
+                    kind="violin", inner="box", scale_hue=True, legend=False)
+
+    g.set_xlabels("Dataset")
+    g.set_ylabels("Count of Arguments in Build Commands")
+    g.despine(left=True)
+    plt.legend(loc='upper right', title="CI Tool")
+
+    g.ax.set_title("Count of Arguments in Build Commands by CI Tool")
+
+    plt.tight_layout()
+    fig.autofmt_xdate()
+    plt.savefig("./images/build_arg_size")
     plt.show()

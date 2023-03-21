@@ -40,6 +40,7 @@ def preprocess_data(data_dir: str):
         preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
         preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
         preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
 
 
 def preprocess_build_rules(source_dir: str, processed_data_dir: str, build_tool: str, target_filename_prefix=""):
@@ -66,7 +67,8 @@ def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, targe
 
     build_commands = build_commands.drop_duplicates(subset=["project", "ci_tool", "subcommands"], keep="first")
     build_commands = build_commands.drop(
-        columns=["raw_arguments", "build_tool", "local_cache", "remote_cache", "parallelism", "cores", "invoked_by_script"])
+        columns=["raw_arguments", "build_tool", "local_cache", "remote_cache", "parallelism", "cores",
+                 "invoked_by_script"])
     build_commands["use_build_tool"] = True
     for _, row in ci_tool_usages.iterrows():
         if build_commands.loc[(build_commands["project"] == row["project"]) &
@@ -91,7 +93,8 @@ def preprocess_feature_usage(source_dir: str, target_dir: str, build_tool: str, 
     build_commands["remote_cache"] = build_commands.apply(
         lambda row: row["remote_cache"] or row["project"] in manually_checked_remote_cahce_projects, axis=1)
 
-    build_commands = build_commands.drop(columns=["raw_arguments", "build_tool", "parallelism", "cores", "invoked_by_script"])
+    build_commands = build_commands.drop(
+        columns=["raw_arguments", "build_tool", "parallelism", "cores", "invoked_by_script"])
     build_commands = build_commands.drop_duplicates()
     build_commands.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
@@ -136,6 +139,17 @@ def preprocess_script_usage(source_dir: str, target_dir: str, build_tool: str, t
         columns=["raw_arguments", "build_tool", "parallelism", "cores", "local_cache", "remote_cache"])
     build_commands = build_commands.drop_duplicates()
     build_commands.to_csv(target_processed_file_path, encoding="utf-8", index=False)
+
+
+def preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name):
+    source_data_file_path = os.path.join(source_dir, "build_command_arg_size.csv")
+    target_processed_file_path = os.path.join(processed_data_dir, f"{parent_dir_name}-arg_size.csv")
+
+    build_command_arg_size = pd.read_csv(source_data_file_path, sep="#")
+    build_command_arg_size = build_command_arg_size[build_command_arg_size["build_tool"] == build_tool]
+    build_command_arg_size = build_command_arg_size.drop(columns=["build_tool"])
+    build_command_arg_size = build_command_arg_size.drop_duplicates()
+    build_command_arg_size.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
 
 if __name__ == "__main__":

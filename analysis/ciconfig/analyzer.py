@@ -22,9 +22,13 @@ class CIConfigAnalyzer:
         bazel_job_regex = re.compile(r"--jobs=(\d+)")
         maven_parallel_options_regex = re.compile(r"-T (\d+(\.\d+)?C?)")
 
-        with open(f"{output_dir}/build_commands.csv", "w") as bzl_cmd_file, open(f"{output_dir}/ci_tool_usage.csv", "w") as ci_tool_usage_file:
+        with open(f"{output_dir}/build_commands.csv", "w") as build_cmd_file, \
+                open(f"{output_dir}/ci_tool_usage.csv", "w") as ci_tool_usage_file, \
+                open(f"{output_dir}/build_command_arg_size.csv", "w") as build_cmd_size_file:
             # we use '#' as the separator of the csv file
-            bzl_cmd_file.write("project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores#invoked_by_script\n")
+            build_cmd_file.write(
+                "project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores#invoked_by_script\n")
+            build_cmd_size_file.write("project#ci_tool#build_tool#non_expanded_command_size#expanded_command_size\n")
             ci_tool_usage_file.write("project,ci_tool\n")
             for entry in os.scandir(project_base_dir):
                 if not entry.is_dir():
@@ -43,7 +47,8 @@ class CIConfigAnalyzer:
                             if cmd.local_cache and any(path.endswith(".cache/bazel") for path in cmd.local_cache_paths):
                                 use_local_cache = True
                             # TODO by default all projects that use bazelci verison of buildkite use cache, but we need to add the exception list here
-                            if "--remote_cache" in cmd.raw_arguments or (cmd.bazelci_project and cmd.build_tool == "bazel"):
+                            if "--remote_cache" in cmd.raw_arguments or (
+                                    cmd.bazelci_project and cmd.build_tool == "bazel"):
                                 use_remote_cache = True
                             if match := bazel_job_regex.search(cmd.raw_arguments):
                                 parallelism = float(match.group(1))
@@ -64,11 +69,13 @@ class CIConfigAnalyzer:
                             logging.error(f"unsupported build tool {cmd.build_tool} in project {entry.name}, skip it")
                             continue
                         # we use '#' as the separator of the csv file
-                        bzl_cmd_file.write(
+                        build_cmd_file.write(
                             f"{entry.name}#{ci_config.ci_tool}#{cmd.build_tool}#{cmd.raw_arguments}#{use_local_cache}#{use_remote_cache}#{parallelism}#{cmd.cores}#{cmd.invoked_by_script}\n")
+                        build_cmd_size_file.write(
+                            f"{entry.name}#{ci_config.ci_tool}#{cmd.build_tool}#{cmd.non_expended_arg_size}#{cmd.expanded_arg_size}\n")
 
 
 if __name__ == "__main__":
     results = CIConfigAnalyzer()._analyze_project_ci_configs(
-        "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/bazel/pytorch_pytorch")
-    print(results)
+        "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/bazel/google_crubit")
+    print(results[0].build_commands)
