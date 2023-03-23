@@ -14,8 +14,8 @@ def visualize_data(data_dir: str):
 
     data_dir = os.path.join(data_dir, "processed")
     # visualize_ci_tools(data_dir)
-    visualize_subcommand_usage(data_dir)
-    # visualize_parallelization_usage(data_dir)
+    # visualize_subcommand_usage(data_dir)
+    visualize_parallelization_usage(data_dir)
     # visualize_cache_usage(data_dir)
     # visualize_build_rule_categories(data_dir)
     # visualize_script_usage(data_dir)
@@ -99,51 +99,36 @@ def visualize_ci_tools(data_dir: str):
 
 
 def visualize_parallelization_usage(data_dir: str):
-    fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 10), tight_layout=True, sharey=True)
-
     parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
-    idx = 0
+    parallelization_usage = {"Parallel": [], "Serial": [], "Dataset": []}
     for parent_dir_name, correspondent_build_tool in parent_dir_names.items():
-        parallelization_usage = {"Parallel": [], "Serial": [],
-                                 "CI/CD Services": ["GitHub Actions", "CirCleCI", "Buildkite", "TravisCI"]}
-
         df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-feature_usage.csv")).drop(
-            columns=["local_cache", "remote_cache"])
-        gha_parallel = df.loc[(df["ci_tool"] == "github_actions") & df["use_parallelization"]]
-        gha_serial = df.loc[(df["ci_tool"] == "github_actions") & ~df["use_parallelization"]]
-        parallelization_usage["Parallel"].append(len(gha_parallel))
-        parallelization_usage["Serial"].append(len(gha_serial))
+            columns=["local_cache", "remote_cache", "ci_tool"]).drop_duplicates()
 
-        circleci_parallel = df.loc[(df["ci_tool"] == "circle_ci") & df["use_parallelization"]]
-        circleci_serial = df.loc[(df["ci_tool"] == "circle_ci") & ~df["use_parallelization"]]
-        parallelization_usage["Parallel"].append(len(circleci_parallel))
-        parallelization_usage["Serial"].append(len(circleci_serial))
+        total_projects = df["project"].nunique()
+        parallelized_projects = df.loc[(df["use_parallelization"])]["project"].nunique()
+        serial_projects = total_projects - parallelized_projects
 
-        buildkite_parallel = df.loc[(df["ci_tool"] == "buildkite") & df["use_parallelization"]]
-        buildkite_serial = df.loc[(df["ci_tool"] == "buildkite") & ~df["use_parallelization"]]
-        parallelization_usage["Parallel"].append(len(buildkite_parallel))
-        parallelization_usage["Serial"].append(len(buildkite_serial))
+        parallelization_usage["Dataset"].append(parent_dir_name)
+        parallelization_usage["Parallel"].append(parallelized_projects)
+        parallelization_usage["Serial"].append(serial_projects)
 
-        travisci_parallel = df.loc[(df["ci_tool"] == "travis_ci") & df["use_parallelization"]]
-        travisci_serial = df.loc[(df["ci_tool"] == "travis_ci") & ~df["use_parallelization"]]
-        parallelization_usage["Parallel"].append(len(travisci_parallel))
-        parallelization_usage["Serial"].append(len(travisci_serial))
+    parallelization_usage = pd.DataFrame(parallelization_usage)
+    parallelization_usage = parallelization_usage.melt(id_vars="Dataset")
+    ax = sns.histplot(data=parallelization_usage, x="Dataset", hue="variable", weights="value",
+                      palette="Set2", shrink=.8, multiple="fill")
 
-        parallelization_usage = pd.DataFrame(parallelization_usage)
-        parallelization_usage = parallelization_usage.melt(id_vars="CI/CD Services")
-        ax = sns.histplot(data=parallelization_usage, x="CI/CD Services", hue="variable", weights="value",
-                          palette="Set2",
-                          discrete=True, multiple="stack", ax=axs[idx])
-        idx += 1
+    for c in ax.containers:
+        labels = [f"{p.get_height() * 100:.2f}%" for p in c.patches]
+        ax.bar_label(c, labels=labels, label_type='center')
 
-        for c in ax.containers:
-            ax.bar_label(c, label_type='center')
+    ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
+    ax.set_title(f"Parallelization usage of build tools in CI/CD services")
+    ax.set_xlabel("Dataset")
+    ax.set_ylabel("Number of Projects")
+    sns.move_legend(ax, loc="upper right", title="How the build tool is used", bbox_to_anchor=(1.0, 0.9))
 
-        ax.set_title(f"{parent_dir_name} parallelization usage in CI/CD services")
-        ax.set_xlabel("CI/CD Service")
-        ax.set_ylabel("Number of Projects")
-
-    fig.autofmt_xdate()
+    plt.tight_layout()
     plt.savefig("./images/parallelization_usage")
     plt.show()
 
@@ -225,9 +210,12 @@ def visualize_subcommand_usage(data_dir: str):
         total_projects = df["project"].unique().size
         subcommand_usage["Usage Percentage"] = subcommand_usage["Count"] / total_projects
         subcommand_usage["Subcommand"] = pd.Categorical(subcommand_usage["Subcommand"],
-                                                        categories=build_tool_subcommand_names[correspondent_build_tool] + ["Other Subcommands"])
+                                                        categories=build_tool_subcommand_names[
+                                                                       correspondent_build_tool] + [
+                                                                       "Other Subcommands"])
 
-        ax = sns.histplot(data=subcommand_usage, x="Subcommand", weights="Usage Percentage", shrink=.8, ax=axs[idx], color="#66c2a5")
+        ax = sns.histplot(data=subcommand_usage, x="Subcommand", weights="Usage Percentage", shrink=.8, ax=axs[idx],
+                          color="#66c2a5")
 
         idx += 1
 
