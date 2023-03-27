@@ -41,6 +41,7 @@ def preprocess_data(data_dir: str):
         preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
         preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
         preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
 
 
 def preprocess_build_rules(source_dir: str, processed_data_dir: str, build_tool: str, target_filename_prefix=""):
@@ -49,6 +50,14 @@ def preprocess_build_rules(source_dir: str, processed_data_dir: str, build_tool:
 
     build_rules = pd.read_csv(build_rules_data_path)
     build_rules.to_csv(target_processed_file_path, encoding="utf-8", index=False)
+
+
+def preprocess_project_data(source_dir, processed_data_dir, build_tool, target_filename_prefix=""):
+    project_data_path = os.path.join(source_dir, "projects.csv")
+    target_processed_file_path = os.path.join(processed_data_dir, f"{target_filename_prefix}-projects.csv")
+
+    projects = pd.read_csv(project_data_path, sep="#")
+    projects.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
 
 def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, target_filename_prefix=""):

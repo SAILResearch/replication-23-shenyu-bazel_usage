@@ -44,7 +44,7 @@ class CIConfigParser:
         self.ci_file_pattern = re.compile(self._ci_file_pattern())
         self.sh_scripts = list(fileutils.scan_tree(project_dir, re.compile(r".*\.sh"), match_path=False))
         self.bazelrc_configs = self._extract_bazelrc_configs()
-        self.bazel_command_matcher = re.compile(".*bazel (.+)")
+        self.bazel_command_matcher = re.compile(".*(bazel|bazelisk) (.+)")
         self.maven_command_matcher = re.compile(".*mvn (.*)")
 
     def parse(self) -> [CIConfig]:

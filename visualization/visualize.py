@@ -15,10 +15,10 @@ def visualize_data(data_dir: str):
     data_dir = os.path.join(data_dir, "processed")
     # visualize_ci_tools(data_dir)
     # visualize_subcommand_usage(data_dir)
-    visualize_parallelization_usage(data_dir)
+    # visualize_parallelization_usage(data_dir)
     # visualize_cache_usage(data_dir)
     # visualize_build_rule_categories(data_dir)
-    # visualize_script_usage(data_dir)
+    visualize_script_usage(data_dir)
     # visualize_arg_size(data_dir)
 
 
@@ -125,8 +125,8 @@ def visualize_parallelization_usage(data_dir: str):
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
     ax.set_title(f"Parallelization usage of build tools in CI/CD services")
     ax.set_xlabel("Dataset")
-    ax.set_ylabel("Number of Projects")
-    sns.move_legend(ax, loc="upper right", title="How the build tool is used", bbox_to_anchor=(1.0, 0.9))
+    ax.set_ylabel("Percentage of Projects")
+    sns.move_legend(ax, loc="upper left", title="How the build tool is used", bbox_to_anchor=(1, 1))
 
     plt.tight_layout()
     plt.savefig("./images/parallelization_usage")
@@ -134,59 +134,36 @@ def visualize_parallelization_usage(data_dir: str):
 
 
 def visualize_cache_usage(data_dir: str):
-    fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 10), tight_layout=True, sharey=True)
-
     parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
-    idx = 0
-    for parent_dir_name, correspondent_build_tool in parent_dir_names.items():
-        cache_usage = {"Disk Cache": [], "Remote Cache": [], "No Cache": [],
-                       "CI/CD Services": ["GitHub Actions", "CirCleCI", "Buildkite", "TravisCI"]}
-
+    cache_usage = {"Use Cache": [], "No Cache": [], "Dataset": []}
+    for parent_dir_name, build_tool in parent_dir_names.items():
         df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-feature_usage.csv")).drop(
-            columns=["use_parallelization"])
-        gha_disk_cache = df.loc[(df["ci_tool"] == "github_actions") & df["local_cache"]]
-        gha_remote_cache = df.loc[(df["ci_tool"] == "github_actions") & df["remote_cache"]]
-        gha_no_cache = df.loc[(df["ci_tool"] == "github_actions") & ~df["local_cache"] & ~df["remote_cache"]]
-        cache_usage["Disk Cache"].append(len(gha_disk_cache))
-        cache_usage["Remote Cache"].append(len(gha_remote_cache))
-        cache_usage["No Cache"].append(len(gha_no_cache))
+            columns=["use_parallelization", "ci_tool"]).drop_duplicates()
 
-        circleci_disk_cache = df.loc[(df["ci_tool"] == "circle_ci") & df["local_cache"]]
-        circleci_remote_cache = df.loc[(df["ci_tool"] == "circle_ci") & df["remote_cache"]]
-        circleci_no_cache = df.loc[(df["ci_tool"] == "circle_ci") & ~df["local_cache"] & ~df["remote_cache"]]
-        cache_usage["Disk Cache"].append(len(circleci_disk_cache))
-        cache_usage["Remote Cache"].append(len(circleci_remote_cache))
-        cache_usage["No Cache"].append(len(circleci_no_cache))
+        total_projects = df["project"].nunique()
+        cache_projects = df.loc[(df["local_cache"]) | (df["remote_cache"])]["project"].nunique()
+        non_cache_projects = total_projects - cache_projects
 
-        buildkite_disk_cache = df.loc[(df["ci_tool"] == "buildkite") & df["local_cache"]]
-        buildkite_remote_cache = df.loc[(df["ci_tool"] == "buildkite") & df["remote_cache"]]
-        buildkite_no_cache = df.loc[(df["ci_tool"] == "buildkite") & ~df["local_cache"] & ~df["remote_cache"]]
-        cache_usage["Disk Cache"].append(len(buildkite_disk_cache))
-        cache_usage["Remote Cache"].append(len(buildkite_remote_cache))
-        cache_usage["No Cache"].append(len(buildkite_no_cache))
+        cache_usage["Dataset"].append(parent_dir_name)
+        cache_usage["Use Cache"].append(cache_projects)
+        cache_usage["No Cache"].append(non_cache_projects)
 
-        travisci_disk_cache = df.loc[(df["ci_tool"] == "travis_ci") & df["local_cache"]]
-        travisci_remote_cache = df.loc[(df["ci_tool"] == "travis_ci") & df["remote_cache"]]
-        travisci_no_cache = df.loc[(df["ci_tool"] == "travis_ci") & ~df["local_cache"] & ~df["remote_cache"]]
-        cache_usage["Disk Cache"].append(len(travisci_disk_cache))
-        cache_usage["Remote Cache"].append(len(travisci_remote_cache))
-        cache_usage["No Cache"].append(len(travisci_no_cache))
+    cache_usage = pd.DataFrame(cache_usage)
+    cache_usage = cache_usage.melt(id_vars="Dataset")
+    ax = sns.histplot(data=cache_usage, x="Dataset", hue="variable", weights="value", palette="Set2",
+                      shrink=0.8, multiple="fill")
 
-        cache_usage = pd.DataFrame(cache_usage)
-        cache_usage = cache_usage.melt(id_vars="CI/CD Services")
-        ax = sns.histplot(data=cache_usage, x="CI/CD Services", hue="variable", weights="value", discrete=True,
-                          palette="Set2",
-                          multiple="stack", ax=axs[idx])
-        idx += 1
+    for c in ax.containers:
+        labels = [f"{p.get_height() * 100:.2f}%" for p in c.patches]
+        ax.bar_label(c, labels=labels, label_type='center')
 
-        for c in ax.containers:
-            ax.bar_label(c, label_type='center')
+    ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
+    ax.set_title(f"Cache usage of build tools in CI/CD services")
+    ax.set_xlabel("Dataset")
+    ax.set_ylabel("Percentage of Projects")
+    sns.move_legend(ax, loc="upper left", title="How the build tool is used", bbox_to_anchor=(1, 1))
 
-        ax.set_title(f"{parent_dir_name} cache usage in CI/CD services")
-        ax.set_xlabel("CI/CD Service")
-        ax.set_ylabel("Number of Projects")
-
-    fig.autofmt_xdate()
+    plt.tight_layout()
     plt.savefig("./images/cache_usage")
     plt.show()
 
@@ -275,7 +252,7 @@ def count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcomman
 def visualize_build_rule_categories(data_dir: str):
     build_rule_categories = None
 
-    fig = plt.figure(figsize=(20, 10))
+    fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 10))
 
     parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
     for parent_dir_name in parent_dir_names:
@@ -283,6 +260,9 @@ def visualize_build_rule_categories(data_dir: str):
         df["count"] = df.groupby(by=["project", "category"])["category"].transform("count")
         df["dataset"] = parent_dir_name
         df = df.drop_duplicates()
+
+        project_data = pd.read_csv(f"{data_dir}/{parent_dir_name}-projects.csv")
+        df = df.merge(project_data, on="project", how="inner")
 
         if build_rule_categories is None:
             build_rule_categories = df
@@ -302,90 +282,154 @@ def visualize_build_rule_categories(data_dir: str):
         print(f"median of custom rules in {parent_dir_name} is {df.loc[df['category'] == 'custom']['count'].median()}")
         print("------------------")
 
-    # g = sns.catplot(data=build_rule_categories, x="dataset", y="count", hue="category", kind="boxen", palette="Set2", scale="exponential",
-    #                 showfliers=False, k_depth="trustworthy", legend=False, dodge=True)
+    build_rule_categories["total_count"] = build_rule_categories.apply(
+        lambda row: sum(build_rule_categories.loc[build_rule_categories["project"] == row["project"]]["count"]),
+        axis=1)
 
-    build_rule_categories["count_log"] = np.log10(build_rule_categories["count"])
-    g = sns.catplot(data=build_rule_categories, x="dataset", y="count_log", hue="category", palette="Set2",
-                    scale="count",
-                    kind="violin", inner="box", scale_hue=True, legend=False)
+    total_build_rules = build_rule_categories.drop(columns=["category", "count"]).drop_duplicates()
+    total_build_rules["total_count_per_source_file"] = total_build_rules["total_count"] / total_build_rules["num_files"]
+    total_build_rules["total_count_per_line_of_code"] = total_build_rules["total_count"] / total_build_rules[
+        "num_lines"]
 
-    g.set_xlabels("Dataset")
-    g.set_ylabels("Number of Build Rules (log10)")
-    g.despine(left=True)
-    plt.legend(loc='upper right', title="Category")
+    # in total 1127 projects, there is only 8 projects that has more than 6 total_count_per_source_file.
+    # So, we removed these outliers.
+    total_build_rules = total_build_rules[total_build_rules["total_count_per_source_file"] < 6].reset_index(drop=True)
 
-    ax = g.ax
-    ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
-    ymin, ymax = ax.get_ylim()
-    tick_range = np.arange(0, ymax)
-    ax.yaxis.set_ticks(tick_range)
-    ax.yaxis.set_ticks([np.log10(x) for p in tick_range for x in np.linspace(10 ** p, 10 ** (p + 1), 10)],
-                       minor=True)
+    ax = sns.violinplot(data=total_build_rules, x="dataset", y="total_count_per_source_file", color="#e78ac3",
+                        scale="count", inner="box", ax=axs[0])
 
-    g.ax.set_title("The Number of Build Rules per project by category")
+    ax.set_xlabel("Dataset")
+    ax.set_ylabel("Number of Build Rules Per Source File")
+
+    ax.set_title("The Number of Build Rules Per Source File in Projects")
+
+    # plot percentage of projects that use custom build rules
+    total_bazel_projects = build_rule_categories.loc[build_rule_categories["dataset"] == "bazel-projects"][
+        "project"].nunique()
+    custom_rule_bazel_projects = build_rule_categories.loc[(build_rule_categories["dataset"] == "bazel-projects") & (
+            build_rule_categories["category"] == "custom")]["project"].nunique()
+
+    total_maven_large_projects = build_rule_categories.loc[build_rule_categories["dataset"] == "maven-large-projects"][
+        "project"].nunique()
+    custom_rule_maven_large_projects = \
+        build_rule_categories.loc[(build_rule_categories["dataset"] == "maven-large-projects") & (
+                build_rule_categories["category"] == "custom")]["project"].nunique()
+
+    total_maven_small_projects = build_rule_categories.loc[build_rule_categories["dataset"] == "maven-small-projects"][
+        "project"].nunique()
+    custom_rule_maven_small_projects = \
+        build_rule_categories.loc[(build_rule_categories["dataset"] == "maven-small-projects") & (
+                build_rule_categories["category"] == "custom")]["project"].nunique()
+
+    custom_rule_percentages = pd.DataFrame(
+        {"dataset": ["bazel-projects", "maven-large-projects", "maven-small-projects"], "percentage": [
+            custom_rule_bazel_projects / total_bazel_projects,
+            custom_rule_maven_large_projects / total_maven_large_projects,
+            custom_rule_maven_small_projects / total_maven_small_projects
+        ]})
+
+    ax = sns.histplot(data=custom_rule_percentages, x="dataset", weights="percentage", color="#e78ac3", ax=axs[1])
+    ax.set_xlabel("Dataset")
+    ax.set_ylabel("Percentage of Projects that Use Custom Build Rules")
+    ax.set_title("Percentage of Projects that Use Custom Build Rules")
+    ax.set_ylim(0, 1)
+    ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
+
+    for c in ax.containers:
+        labels = [f"{p.get_height() * 100:.2f}%" for p in c.patches]
+
+        ax.bar_label(c, labels=labels, label_type="center")
+
+    # plot the distribution of percentage of build rule categories in projects
+    build_category_percentages = build_rule_categories[["project", "dataset"]].copy().drop_duplicates().reset_index(
+        drop=True)
+
+    custom_rule_percentages = build_category_percentages.copy()
+    custom_rule_percentages["category"] = "custom"
+    native_rule_percentages = build_category_percentages.copy()
+    native_rule_percentages["category"] = "native"
+    external_rule_percentages = build_category_percentages.copy()
+    external_rule_percentages["category"] = "external"
+
+    build_category_percentages = pd.concat(
+        [custom_rule_percentages, native_rule_percentages, external_rule_percentages],
+        axis=0, ignore_index=True).reset_index(drop=True)
+    build_category_percentages["percentage"] = build_category_percentages.apply(
+        lambda row: calculate_build_rule_percentage_for_row(row, build_rule_categories), axis=1)
+
+    build_category_percentages = build_category_percentages[build_category_percentages["percentage"] != 0]
+    ax = sns.boxplot(data=build_category_percentages, x="dataset", y="percentage", hue="category", palette="Set2",
+                     ax=axs[2], dodge=True)
+
+    ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
+    ax.set_xlabel("Dataset")
+    ax.set_ylabel("Percentage of Build Rules")
+    ax.set_title("Percentage of Build Rules in Projects")
+
+    sns.move_legend(ax, loc="upper left", title="Category", bbox_to_anchor=(1, 1))
 
     plt.tight_layout()
     fig.autofmt_xdate()
 
-    plt.savefig("./images/build_rule_categories")
+    plt.savefig("./images/build_rules")
     plt.show()
 
 
+def calculate_build_rule_percentage_for_row(row, build_rule_categories):
+    project = row["project"]
+    dataset = row["dataset"]
+    category = row["category"]
+
+    total_count = build_rule_categories[(build_rule_categories["project"] == project) & (
+            build_rule_categories["dataset"] == dataset)]["count"].sum()
+
+    category_rows = build_rule_categories[(build_rule_categories["project"] == project) & (
+            build_rule_categories["dataset"] == dataset) & (build_rule_categories["category"] == category)]
+    if len(category_rows) == 0:
+        category_count = 0
+    else:
+        category_count = category_rows["count"].sum()
+
+    return category_count / total_count
+
+
 def visualize_script_usage(data_dir: str):
-    fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 10), tight_layout=True, sharey=True)
-
     parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
-    idx = 0
-    for parent_dir_name in parent_dir_names:
-        script_usage = {"Used": [], "Not Used": [],
-                        "CI/CD Services": ["GitHub Actions", "CirCleCI", "Buildkite", "TravisCI"]}
+    script_usage = {"Used": [], "Not Used": [], "Dataset": []}
 
+    for parent_dir_name in parent_dir_names:
         df = pd.read_csv(f"{data_dir}/{parent_dir_name}-script_usage.csv")
         df["script"] = df.apply(lambda row: sum(
             df.loc[(df["project"] == row["project"]) & (df["invoked_by_script"])]["invoked_by_script"]) != 0,
                                 axis=1)
-
         df = df.drop(columns=["invoked_by_script"])
         df = df.drop_duplicates()
 
-        total_gha_projects = df.loc[df["ci_tool"] == "github_actions"]["project"].unique().size
-        used_script_gha_projects = df.loc[(df["ci_tool"] == "github_actions") & df["script"]]["project"].unique().size
-        script_usage["Used"].append(used_script_gha_projects)
-        script_usage["Not Used"].append(total_gha_projects - used_script_gha_projects)
+        total_projects = df["project"].unique().size
+        used_script_projects = df.loc[(df["script"])]["project"].nunique()
+        not_used_script_projects = total_projects - used_script_projects
 
-        total_circleci_projects = df.loc[df["ci_tool"] == "circle_ci"]["project"].unique().size
-        used_script_circleci_projects = df.loc[(df["ci_tool"] == "circle_ci") & df["script"]]["project"].unique().size
-        script_usage["Used"].append(used_script_circleci_projects)
-        script_usage["Not Used"].append(total_circleci_projects - used_script_circleci_projects)
+        script_usage["Dataset"].append(parent_dir_name)
+        script_usage["Used"].append(used_script_projects)
+        script_usage["Not Used"].append(not_used_script_projects)
 
-        total_buildkite_projects = df.loc[df["ci_tool"] == "buildkite"]["project"].unique().size
-        used_script_buildkite_projects = df.loc[(df["ci_tool"] == "buildkite") & df["script"]]["project"].unique().size
-        script_usage["Used"].append(used_script_buildkite_projects)
-        script_usage["Not Used"].append(total_buildkite_projects - used_script_buildkite_projects)
+    script_usage = pd.DataFrame(script_usage)
+    script_usage = script_usage.melt(id_vars="Dataset")
+    ax = sns.histplot(data=script_usage, x="Dataset", hue="variable", weights="value", multiple="fill",
+                      palette="Set2", shrink=0.8)
 
-        total_travisci_projects = df.loc[df["ci_tool"] == "travis_ci"]["project"].unique().size
-        used_script_travisci_projects = df.loc[(df["ci_tool"] == "travis_ci") & df["script"]]["project"].unique().size
-        script_usage["Used"].append(used_script_travisci_projects)
-        script_usage["Not Used"].append(total_travisci_projects - used_script_travisci_projects)
+    for c in ax.containers:
+        labels = [f"{p.get_height() * 100:.2f}%" for p in c.patches]
+        ax.bar_label(c, labels=labels, label_type='center')
 
-        script_usage = pd.DataFrame(script_usage)
-        script_usage = script_usage.melt(id_vars="CI/CD Services")
+    ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
+    ax.set_xlabel("Dataset")
+    ax.set_ylabel("Percentage of Projects")
+    ax.set_title("Percentage of Projects that Use Shell Scripts to Run Build Systems")
+    ax.set_ylim(0, 1)
+    sns.move_legend(ax, loc="upper left", title="", bbox_to_anchor=(1, 1))
 
-        ax = sns.histplot(data=script_usage, x="CI/CD Services", hue="variable", weights="value", discrete=True,
-                          palette="Set2", multiple="stack", ax=axs[idx], legend=0)
-        idx += 1
-        for c in ax.containers:
-            ax.bar_label(c, label_type='center')
-
-        ax.set_title(f"{parent_dir_name} Script Usage in CI/CD services")
-        ax.set_xlabel("CI/CD Service")
-        ax.set_ylabel("Number of Projects")
-
-    fig.legend(title="Whether use shell script to run build systems", labels=["Yes", "No"], loc="center right",
-               bbox_to_anchor=(1, 0.9))
-
-    fig.autofmt_xdate()
+    plt.tight_layout()
     plt.savefig("./images/script_usage")
     plt.show()
 
