@@ -13,13 +13,13 @@ def visualize_data(data_dir: str):
     sns.set_style("whitegrid")
 
     data_dir = os.path.join(data_dir, "processed")
-    # visualize_ci_tools(data_dir)
-    # visualize_subcommand_usage(data_dir)
-    # visualize_parallelization_usage(data_dir)
-    # visualize_cache_usage(data_dir)
-    # visualize_build_rule_categories(data_dir)
+    visualize_ci_tools(data_dir)
+    visualize_subcommand_usage(data_dir)
+    visualize_parallelization_usage(data_dir)
+    visualize_cache_usage(data_dir)
+    visualize_build_rule_categories(data_dir)
     visualize_script_usage(data_dir)
-    # visualize_arg_size(data_dir)
+    visualize_arg_size(data_dir)
 
 
 def visualize_ci_tools(data_dir: str):
@@ -28,7 +28,7 @@ def visualize_ci_tools(data_dir: str):
     idx = 0
     for parent_dir_name, correspondent_build_tool in parent_dir_names.items():
         df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-build_tools.csv")).drop(
-            columns=["subcommands"]).drop_duplicates()
+            columns=["subcommands", "skip_tests"]).drop_duplicates()
 
         build_tool_usage = pd.DataFrame({"Local": [0, 0, 0, 0], "CI": [0, 0, 0, 0],
                                          "CI/CD Services": ["github_actions", "circle_ci", "buildkite", "travis_ci"]})
@@ -135,17 +135,19 @@ def visualize_parallelization_usage(data_dir: str):
 
 def visualize_cache_usage(data_dir: str):
     parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
-    cache_usage = {"Use Cache": [], "No Cache": [], "Dataset": []}
+    cache_usage = {"Remote Cache": [], "Local Cache": [], "No Cache": [], "Dataset": []}
     for parent_dir_name, build_tool in parent_dir_names.items():
         df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-feature_usage.csv")).drop(
             columns=["use_parallelization", "ci_tool"]).drop_duplicates()
 
         total_projects = df["project"].nunique()
         cache_projects = df.loc[(df["local_cache"]) | (df["remote_cache"])]["project"].nunique()
+        remote_cache_projects = df.loc[(df["remote_cache"])]["project"].nunique()
         non_cache_projects = total_projects - cache_projects
 
         cache_usage["Dataset"].append(parent_dir_name)
-        cache_usage["Use Cache"].append(cache_projects)
+        cache_usage["Remote Cache"].append(remote_cache_projects)
+        cache_usage["Local Cache"].append(cache_projects - remote_cache_projects)
         cache_usage["No Cache"].append(non_cache_projects)
 
     cache_usage = pd.DataFrame(cache_usage)
@@ -222,6 +224,8 @@ def count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcomman
         subcommands = set()
         project_df.apply(lambda row: subcommands.update(row["subcommands"].split(",")), axis=1)
 
+        skipTest = False not in project_df["skip_tests"].unique()
+
         if correspondent_build_tool == "bazel":
             subcommands = set(
                 [subcommand if subcommand in build_tool_subcommand_names["bazel"] else "Other Subcommands" for
@@ -241,6 +245,9 @@ def count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcomman
                         break
 
             subcommands = new_subcommands
+
+        if skipTest and "test" in subcommands:
+            subcommands.remove("test")
 
         for subcommand in subcommands:
             if subcommand not in subcommand_usage:

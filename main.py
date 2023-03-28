@@ -13,5 +13,5 @@ if __name__ == '__main__':
     # projects = project.retrieve_projects()
 
     # analysis.analyze.analyze("./repos")
-    # preprocess_data("./data")
+    preprocess_data("./data")
     visualize_data("./data")

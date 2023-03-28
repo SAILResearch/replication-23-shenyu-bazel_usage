@@ -44,8 +44,9 @@ class CIConfigParser:
         self.ci_file_pattern = re.compile(self._ci_file_pattern())
         self.sh_scripts = list(fileutils.scan_tree(project_dir, re.compile(r".*\.sh"), match_path=False))
         self.bazelrc_configs = self._extract_bazelrc_configs()
-        self.bazel_command_matcher = re.compile(".*(bazel|bazelisk) (.+)")
-        self.maven_command_matcher = re.compile(".*mvn (.*)")
+        self.bazel_command_matcher = re.compile(".*bazel (.+)")
+        self.bazelisk_command_matcher = re.compile(".*bazelisk (.+)")
+        self.maven_command_matcher = re.compile(".*mvnw? (.*)")
 
     def parse(self) -> [CIConfig]:
         ci_configs = []
@@ -142,11 +143,17 @@ class CIConfigParser:
 
     def _parse_commands(self, command) -> [BuildCommand]:
         cmds = []
-        command_matchers = {"maven": self.maven_command_matcher, "bazel": self.bazel_command_matcher}
+        command_matchers = {"maven": self.maven_command_matcher, "bazel": self.bazel_command_matcher, "bazelisk": self.bazelisk_command_matcher}
         for build_tool, matcher in command_matchers.items():
-            if match := matcher.match(command):
-                cmds.append(
-                    BuildCommand(build_tool, match.group(1)))
+            if build_tool == "bazelisk":
+                build_tool = "bazel"
+
+            if matcher.search(command):
+                for match in matcher.finditer(command):
+                    if match.group().startswith("#"):
+                        continue
+                    cmds.append(
+                        BuildCommand(build_tool, match.group(1)))
             else:
                 # if this step invoke a script, we look at that script to check if they run any Bazel command within
                 for script_file in self.sh_scripts:
@@ -232,6 +239,9 @@ class GitHubActionConfigParser(CIConfigParser):
             logging.error(f"error when load yaml {ci_config_str}, reason {e}")
             return None
         if "jobs" not in cfgs:
+            # if this is an action file
+            if "runs" in cfgs and "steps" in cfgs["runs"]:
+                self._analyze_job(2, gha_cfg, cfgs["runs"])
             return gha_cfg
 
         for job in cfgs["jobs"].values():
@@ -263,47 +273,48 @@ class GitHubActionConfigParser(CIConfigParser):
                 if match := self.runner_cores_pattern.search(runner):
                     cores = int(match.group(1))
 
-            local_cache_enable = False
-            local_cache_paths = None
-
-            local_maven_cache = False
-
-            for step in job["steps"]:
-                # this step uses cache action
-                if "uses" in step:
-                    if step["uses"].startswith("actions@cache"):
-                        if "with" in step and "path" in step["with"]:
-                            local_cache_enable = True
-                            local_cache_paths = step["with"]["path"].splitlines()
-                        continue
-
-                    if step["uses"].startswith("actions/setup-java"):
-                        if "with" in step and "cache" in step["with"] and step["with"]["cache"] == "maven":
-                            local_maven_cache = True
-
-                # this step runs command
-                if "run" in step:
-                    command = step["run"]
-                    for cmd in self._parse_commands(command):
-                        cmd.cores = cores
-                        if cmd.build_tool == "maven" and local_maven_cache:
-                            local_cache_enable = True
-                            if not local_cache_paths:
-                                local_cache_paths = []
-                            local_cache_paths.append("~/.m2/repository")
-
-                        cmd.local_cache = local_cache_enable
-                        cmd.local_cache_paths = local_cache_paths
-                        gha_cfg.build_commands.append(cmd)
+            self._analyze_job(cores, gha_cfg, job)
 
         return gha_cfg
+
+    def _analyze_job(self, cores, gha_cfg, job):
+        local_cache_enable = False
+        local_cache_paths = None
+        local_maven_cache = False
+        for step in job["steps"]:
+            # this step uses cache action
+            if "uses" in step:
+                if step["uses"].startswith("actions/cache"):
+                    if "with" in step and "path" in step["with"]:
+                        local_cache_enable = True
+                        local_cache_paths = step["with"]["path"].splitlines()
+                    continue
+
+                if step["uses"].startswith("actions/setup-java"):
+                    if "with" in step and "cache" in step["with"] and step["with"]["cache"] == "maven":
+                        local_maven_cache = True
+
+            # this step runs command
+            if "run" in step:
+                command = step["run"]
+                for cmd in self._parse_commands(command):
+                    cmd.cores = cores
+                    if cmd.build_tool == "maven" and local_maven_cache:
+                        local_cache_enable = True
+                        if not local_cache_paths:
+                            local_cache_paths = []
+                        local_cache_paths.append("~/.m2/repository")
+
+                    cmd.local_cache = local_cache_enable
+                    cmd.local_cache_paths = local_cache_paths
+                    gha_cfg.build_commands.append(cmd)
 
     def ci_tool_type(self) -> str:
         return "github_actions"
 
     def _ci_file_pattern(self) -> str:
         project_dir_regex_literal = re.escape(str.rstrip(self.project_dir, "/"))
-        return rf"^{project_dir_regex_literal}/\.github/workflows/.*\.ya?ml$"
+        return rf"^{project_dir_regex_literal}/\.github/(workflows|actions)/.*\.ya?ml$"
 
 
 class CircleCIConfigParser(CIConfigParser):

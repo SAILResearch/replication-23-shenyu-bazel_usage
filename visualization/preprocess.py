@@ -68,7 +68,9 @@ def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, targe
     build_commands = pd.read_csv(build_commands_data_path, sep="#")
     ci_tool_usages = pd.read_csv(ci_tool_usage_data_path).drop_duplicates()
     build_commands = build_commands[build_commands["build_tool"] == build_tool]
-    build_commands["subcommands"] = build_commands.apply(lambda row: label_subcommand(row, build_tool), axis=1)
+    build_commands["subcommands"] = build_commands.apply(lambda row: label_subcommand(row, build_tool)[0], axis=1)
+    build_commands["skip_tests"] = build_commands.apply(lambda row: label_subcommand(row, build_tool)[1], axis=1)
+
     # TODO some maven projects specify their default goals in the maven pom,
     # so we need to read the default goals from the pom file as the subcommands.
     # for example: https://github.com/apache/commons-codec/blob/master/pom.xml
@@ -108,9 +110,11 @@ def preprocess_feature_usage(source_dir: str, target_dir: str, build_tool: str, 
     build_commands.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
 
-def label_subcommand(row, build_tool) -> str:
+def label_subcommand(row, build_tool) -> (str, bool):
     args = row["raw_arguments"]
 
+    skipTest = "-DskipTests" in args or "-Dmaven.test.skip" in args
+    # skipITs = "-DskipITs" in args or "-DskipIT" in args
     args = args.lstrip()
     while match := build_argument_matchers[build_tool].search(args):
         matched_argument = match.group(1)
@@ -135,7 +139,7 @@ def label_subcommand(row, build_tool) -> str:
         if not matched:
             break
 
-    return ",".join(subcommands)
+    return ",".join(subcommands), skipTest
 
 
 def preprocess_script_usage(source_dir: str, target_dir: str, build_tool: str, target_filename_prefix=""):
