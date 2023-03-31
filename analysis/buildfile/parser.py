@@ -131,6 +131,14 @@ class BazelBuildFileParser(BuildFileParser):
         # so we should be able to use python parser to parse the starlark codes.
         self.starlark_parser = Lark.open_from_package("lark", "python.lark", ["grammars"], parser="lalr",
                                                       transformer=StarlarkTransformer(), **kwargs)
+        # rules published and maintained by Bazel development team
+        self.bazelbuild_rules = ["rules_rust", "rules_apple", "rules_nodejs", "rules_pkg", "rules_docker",
+                                 "rules_license", "rules_go", "rules_swift", "rules_scala", "rules_cc",
+                                 "rules_jvm_external", "rules_android", "rules_d", "rules_java", "rules_python",
+                                 "rules_fuzzing", "rules_appengine", "rules_sass", "rules_kotlin", "rules_dotnet",
+                                 "rules_testing", "rules_foreign_cc", "rules_proto", "rules_closure", "rules_k8s",
+                                 "rules_jsonnet",  "rules_webtesting", "rules_gwt", "rules_perl", "rules_postcss",
+                                 "rules_groovy" , "io_bazel_rules_go"]
 
     def _build_file_pattern(self) -> str:
         return r"^BUILD(\.bazel)?$"
@@ -203,10 +211,17 @@ class BazelBuildFileParser(BuildFileParser):
                 if load_path.startswith(("//", ":")):
                     custom_rule_names.extend(loaded_symbols)
                 elif load_path.startswith("@"):
-                    # TODO we need to check if the external rules under the same group as the current project.
-                    third_party_rule_names.extend(loaded_symbols)
+                    paths = load_path.split("//")
+                    if len(paths) < 2:
+                        logging.warning(f"the load path should look like @<extension_name>//<others>, but got {load_path}")
+                        continue
+
+                    extension_name = paths[0].replace("@", "")
+                    if extension_name not in self.bazelbuild_rules:
+                        third_party_rule_names.extend(loaded_symbols)
                 else:
                     logging.warning(f"unknown load type: {load_path}, {loaded_symbols}")
+                continue
 
             category = "native"
             if name in third_party_rule_names:

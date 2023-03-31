@@ -13,13 +13,13 @@ def visualize_data(data_dir: str):
     sns.set_style("whitegrid")
 
     data_dir = os.path.join(data_dir, "processed")
-    visualize_ci_tools(data_dir)
-    visualize_subcommand_usage(data_dir)
-    visualize_parallelization_usage(data_dir)
-    visualize_cache_usage(data_dir)
+    # visualize_ci_tools(data_dir)
+    # visualize_subcommand_usage(data_dir)
+    # visualize_parallelization_usage(data_dir)
+    # visualize_cache_usage(data_dir)
     visualize_build_rule_categories(data_dir)
-    visualize_script_usage(data_dir)
-    visualize_arg_size(data_dir)
+    # visualize_script_usage(data_dir)
+    # visualize_arg_size(data_dir)
 
 
 def visualize_ci_tools(data_dir: str):
@@ -302,7 +302,7 @@ def visualize_build_rule_categories(data_dir: str):
     # So, we removed these outliers.
     total_build_rules = total_build_rules[total_build_rules["total_count_per_source_file"] < 6].reset_index(drop=True)
 
-    ax = sns.violinplot(data=total_build_rules, x="dataset", y="total_count_per_source_file", color="#e78ac3",
+    ax = sns.violinplot(data=total_build_rules, x="dataset", y="total_count_per_source_file", color="#66c2a5",
                         scale="count", inner="box", ax=axs[0])
 
     ax.set_xlabel("Dataset")
@@ -335,7 +335,7 @@ def visualize_build_rule_categories(data_dir: str):
             custom_rule_maven_small_projects / total_maven_small_projects
         ]})
 
-    ax = sns.histplot(data=custom_rule_percentages, x="dataset", weights="percentage", color="#e78ac3", ax=axs[1])
+    ax = sns.histplot(data=custom_rule_percentages, x="dataset", weights="percentage", color="#66c2a5", ax=axs[1])
     ax.set_xlabel("Dataset")
     ax.set_ylabel("Percentage of Projects that Use Custom Build Rules")
     ax.set_title("Percentage of Projects that Use Custom Build Rules")
@@ -364,7 +364,7 @@ def visualize_build_rule_categories(data_dir: str):
     build_category_percentages["percentage"] = build_category_percentages.apply(
         lambda row: calculate_build_rule_percentage_for_row(row, build_rule_categories), axis=1)
 
-    build_category_percentages = build_category_percentages[build_category_percentages["percentage"] != 0]
+    # build_category_percentages = build_category_percentages[build_category_percentages["percentage"] != 0]
     ax = sns.boxplot(data=build_category_percentages, x="dataset", y="percentage", hue="category", palette="Set2",
                      ax=axs[2], dodge=True)
 
