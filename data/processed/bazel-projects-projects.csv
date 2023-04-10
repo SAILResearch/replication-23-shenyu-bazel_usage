@@ -1,7 +1,7 @@
 project,num_files,num_lines
 google_fruit,281,18361
 google_fully-homomorphic-encryption,245,16696
-baidu_braft,116,26171
+baidu_braft,116,28900
 google_crubit,436,61631
 google_closure-compiler,1923,518625
 pytorch_cpuinfo,251,296835
@@ -35,7 +35,6 @@ bazelbuild_bazel-toolchains,14,2064
 GoogleCloudPlatform_k8s-cluster-bundle,141,10976
 tensorflow_model-optimization,211,27291
 tensorflow_recommenders-addons,269,56577
-emperror_emperror,30,1734
 google_ruy,109,27147
 pytorch_TensorRT,2214,1064873
 ddiakopoulos_tinyply,6,5799
@@ -60,7 +59,6 @@ chipsalliance_verible,850,161893
 uber_ios-snapshot-test-case,29,1565
 skypjack_entt,184,71487
 nfomon_shok,252,18088
-thought-machine_please,551,56848
 google_allocation-instrumenter,18,1787
 openconfig_gnmi,89,23986
 keras-team_keras,726,195925
@@ -68,7 +66,6 @@ tensorflow_mlir-hlo,354,72194
 rabbitmq_rabbitmq-server,1758,279929
 sourcegraph_sourcegraph,8280,1248315
 jpsim_SourceKitten,130,8375
-pantsbuild_pants,1491,222587
 jesec_rtorrent,210,27574
 v8_v8,12523,2493764
 grpc_grpc,4996,672637
@@ -80,7 +77,6 @@ batfish_batfish,5314,689269
 SeleniumHQ_selenium-ide,534,41502
 googlecodelabs_tools,661,85422
 firedancer-io_firedancer,264,40564
-StackStorm_st2,1071,124937
 nlohmann_json,460,103040
 KhronosGroup_SPIRV-Headers,43,28871
 bentoml_BentoML,695,54976
@@ -112,7 +108,6 @@ angular_vscode-ng-language-service,62,4984
 buildbuddy-io_rules_xcodeproj,200,20913
 bazelbuild_bazel-buildfarm,465,63070
 bazelbuild_bazel-skylib,8,883
-lablup_backend.ai,803,106806
 angular_components,3672,376324
 kubernetes-sigs_kubebuilder,525,36602
 bazelbuild_rules_swift,54,1764
@@ -149,7 +144,6 @@ go-resty_resty,18,5683
 jleyba_js-dossier,216,25205
 ForetagInc_Alchemy,57,4152
 google_marl,86,8068
-eudev-project_eudev,118,26182
 google_schedviz,205,25480
 google_gitiles,132,15952
 mwitkow_go-proto-validators,20,2545
@@ -191,7 +185,6 @@ oneapi-src_oneDAL,5456,447039
 envoyproxy_nighthawk,330,27542
 iree-org_iree,1838,273789
 google_silifuzz,340,28489
-memcached_memcached,186,39657
 tensorflow_tflite-micro,807,148665
 euphoria-io_heim,324,38145
 dsharlet_array,34,7099
@@ -201,7 +194,7 @@ gerrit-review_gerrit,3709,377337
 primihub_primihub,995,232832
 pixie-io_pixie,2755,612662
 tweag_rules_nixpkgs,40,704
-googleapis_googleapis,3375,188713
+googleapis_googleapis,3375,187163
 Kong_kong,959,199750
 neurodroid_cryptonite,185,39859
 google_cel-spec,15,4307
@@ -213,7 +206,6 @@ google_tensorstore,1218,209630
 google_tf-quant-finance,388,76667
 masc-ucsc_livehd,1227,429804
 jpsim_Yams,41,12765
-logur_logur,43,2574
 google_tink,2687,300579
 pingcap_tidb,2941,942537
 tensorflow_profiler,334,20031
@@ -278,7 +270,6 @@ evilcorpltd_aTox,111,7352
 google_ghost-userspace,160,221421
 davido_gerrit-oauth-provider,42,2609
 google_incremental-dom,78,5134
-baidu_tera,823,123880
 google_google-toolbox-for-mac,121,15449
 arximboldi_zug,158,19712
 google_santa,312,27688
@@ -387,7 +378,6 @@ bazeltools_bazel-deps,35,4915
 hedronvision_bazel-compile-commands-extractor,1,540
 GoogleContainerTools_base-images-docker,5,189
 SeleniumHQ_selenium,4993,679720
-emperror_errors,27,2702
 bazelbuild_bazel-watcher,69,8926
 KhronosGroup_SPIRV-Reflect,82,14414
 project-oak_oak,6406,905760

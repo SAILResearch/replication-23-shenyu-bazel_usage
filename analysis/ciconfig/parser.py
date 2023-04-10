@@ -372,7 +372,7 @@ class GitHubActionConfigParser(CIConfigParser):
 
     def _analyze_job(self, cores, gha_cfg, job):
         local_cache_enable = False
-        local_cache_paths = None
+        local_cache_paths = []
         local_maven_cache = False
         for step in job["steps"]:
             # this step uses cache action
@@ -383,22 +383,26 @@ class GitHubActionConfigParser(CIConfigParser):
                         local_cache_paths = step["with"]["path"].splitlines()
                     continue
 
+                if step["uses"].startswith("github/codeql-action/autobuild"):
+                    if "strategy" in job and "matrix" in job["strategy"] and "language" in job["strategy"]["matrix"]:
+                        if "java" in job["strategy"]["matrix"]["language"]:
+                            for cmd in self._parse_commands('mvn clean package -f "pom.xml" -B -V -e -Dfindbugs.skip -Dcheckstyle.skip -Dpmd.skip=true -Dspotbugs.skip -Denforcer.skip -Dmaven.javadoc.skip -DskipTests -Dmaven.test.skip.exec -Dlicense.skip=true -Drat.skip=true -Dspotless.check.skip=true'):
+                                cmd.cores = cores
+                                cmd.local_cache = (cmd.build_tool == "maven" and local_maven_cache) or local_cache_enable
+                                cmd.local_cache_paths = local_cache_paths
+                                gha_cfg.build_commands.append(cmd)
+
                 if step["uses"].startswith("actions/setup-java"):
                     if "with" in step and "cache" in step["with"] and step["with"]["cache"] == "maven":
                         local_maven_cache = True
+                        local_cache_paths.append("~/.m2/repository")
 
             # this step runs command
             if "run" in step:
                 command = step["run"]
                 for cmd in self._parse_commands(command):
                     cmd.cores = cores
-                    if cmd.build_tool == "maven" and local_maven_cache:
-                        local_cache_enable = True
-                        if not local_cache_paths:
-                            local_cache_paths = []
-                        local_cache_paths.append("~/.m2/repository")
-
-                    cmd.local_cache = local_cache_enable
+                    cmd.local_cache = (cmd.build_tool == "maven" and local_maven_cache) or local_cache_enable
                     cmd.local_cache_paths = local_cache_paths
                     gha_cfg.build_commands.append(cmd)
 
@@ -453,7 +457,7 @@ class CircleCIConfigParser(CIConfigParser):
                 cores = self._convert_res_class_to_cores(job)
 
             if not cores:
-                continue
+                cores = -1
 
             local_cache_enable = False
             local_cache_paths = []
@@ -717,12 +721,12 @@ class TravisCIConfigParser(CIConfigParser):
 
         local_cache = False
         local_cache_paths = []
-        bazel_cmds = []
+        build_cmds = []
         if "script" in cfgs:
-            bazel_cmds.extend(self._parse_script(cfgs["script"]))
+            build_cmds.extend(self._parse_script(cfgs["script"]))
 
-        if "jobs" in cfgs:
-            jobs = cfgs["jobs"]
+        if "jobs" in cfgs or "matrix" in cfgs:
+            jobs = cfgs["jobs"] if "jobs" in cfgs else cfgs["matrix"]
             stages = []
             if "include" in jobs:
                 stages = jobs["include"]
@@ -731,7 +735,7 @@ class TravisCIConfigParser(CIConfigParser):
 
             for stage in stages:
                 if "script" in stage:
-                    bazel_cmds.extend(self._parse_script(stage["script"]))
+                    build_cmds.extend(self._parse_script(stage["script"]))
 
         if "install" in cfgs and (type(cfgs["install"]) is list or type(cfgs["install"]) is str):
             install_cmds = cfgs["install"]
@@ -740,7 +744,7 @@ class TravisCIConfigParser(CIConfigParser):
             for cmd in install_cmds:
                 if type(cmd) is not str:
                     continue
-                bazel_cmds.extend(self._parse_commands(cmd))
+                build_cmds.extend(self._parse_commands(cmd))
 
         if "deploy" in cfgs:
             deployments = []
@@ -751,7 +755,7 @@ class TravisCIConfigParser(CIConfigParser):
 
             for deployment in deployments:
                 if "script" in deployment:
-                    bazel_cmds.extend(self._parse_script(deployment["script"]))
+                    build_cmds.extend(self._parse_script(deployment["script"]))
 
         if "cache" in cfgs:
             cache = cfgs["cache"]
@@ -759,7 +763,17 @@ class TravisCIConfigParser(CIConfigParser):
                 local_cache = True
                 local_cache_paths = cache["directories"]
 
-        for cmd in bazel_cmds:
+        if "language" in cfgs and cfgs["language"] == "java":
+            if "script" not in cfgs and "jobs" not in cfgs:
+                # if not script is defined, and it is a java project, travis will run mvn test -B by default
+                build_cmds.extend(self._parse_commands("mvn test -B"))
+
+            if "install" not in cfgs:
+                # if not install is defined, and it is a java project, travis will run mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V by default
+                build_cmds.extend(self._parse_commands("mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V"))
+
+
+        for cmd in build_cmds:
             cmd.local_cache = local_cache
             cmd.local_cache_paths = local_cache_paths
             tc_cfg.build_commands.append(cmd)

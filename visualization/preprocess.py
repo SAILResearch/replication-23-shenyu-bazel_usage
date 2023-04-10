@@ -5,9 +5,8 @@ import pandas as pd
 
 from utils import fileutils
 
-build_argument_matchers = {"bazel": re.compile(r"^(--[\w_]+(=[^\s]+)?\s+)"),
-                           "maven": re.compile(r"^(--?[-\w]+( ?[^-\s]+)?\s+)")}
-build_subcommands = {"bazel": ["build", "test", "run", "coverage"],
+build_subcommands = {"bazel": ["build", "test", "run", "coverage", "version", "sync", "query", "fetch", "info", "clean",
+                                 "shutdown", "help", "mobile-install", "aquery", "cquery", "config", "dump", "analyze-profile"],
                      "maven": ["clean", "compile", "test", "package", "integration-test", "install", "verify",
                                "deploy"]}
 
@@ -111,33 +110,18 @@ def preprocess_feature_usage(source_dir: str, target_dir: str, build_tool: str, 
 
 
 def label_subcommand(row, build_tool) -> (str, bool):
-    args = row["raw_arguments"]
-
-    skipTest = "-DskipTests" in args or "-Dmaven.test.skip" in args
     # skipITs = "-DskipITs" in args or "-DskipIT" in args
-    args = args.lstrip()
-    while match := build_argument_matchers[build_tool].search(args):
-        matched_argument = match.group(1)
-        for subcommand in build_subcommands[build_tool]:
-            if matched_argument.rstrip().endswith(f" {subcommand}"):
-                matched_argument = matched_argument.rstrip().replace(subcommand, "")
+    skipTest = "-DskipTests" in row["raw_arguments"] or "-Dmaven.test.skip" in row["raw_arguments"]
 
-        args = args.replace(matched_argument, "")
+    args = row["raw_arguments"].strip().split()
+    if len(args) == 0:
+        return "", skipTest
 
+    maven_plugin_goal_matcher = re.compile(r"(\w+:[\w@]+)(:\d+\.\d+\.\d+)?")
     subcommands = []
-    # TODO replace the while True!!!
-    while True:
-        matched = False
-        for subcommand in build_subcommands[build_tool]:
-            if args.startswith(f"{subcommand} ") or (" " not in args and args == subcommand):
-                subcommands.append(subcommand)
-                args = args.replace(f"{subcommand}", "")
-                args = args.lstrip()
-                matched = True
-                break
-
-        if not matched:
-            break
+    for arg in args:
+        if arg in build_subcommands[build_tool] or maven_plugin_goal_matcher.match(arg):
+            subcommands.append(arg)
 
     return ",".join(subcommands), skipTest
 
@@ -166,4 +150,4 @@ def preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_n
 
 
 if __name__ == "__main__":
-    label_subcommand({"raw_arguments": "--batch-mode --update-snapshots verify"}, "maven")
+    print(label_subcommand({"raw_arguments": '-B -V -e "-Dstyle.color=always" -Prun-it verify'}, "maven"))

@@ -23,7 +23,6 @@ SPLWare_esProc#3718#873394
 davidmoten_xsd-forms#68#28679
 anyascii_anyascii#682#8147
 flapdoodle-oss_de.flapdoodle.embed.process#123#4919
-terrier-org_terrier-core#822#70485
 ngageoint_mrgeo#754#99745
 idempiere_idempiere#9219#1909122
 undertow-io_undertow#1439#153128
@@ -59,7 +58,7 @@ checkstyle_checkstyle#4003#322002
 apache_dolphinscheduler#2788#217779
 OHDSI_WhiteRabbit#145#36971
 cpesch_RouteConverter#1821#158143
-HtmlUnit_htmlunit#5612#1069589
+HtmlUnit_htmlunit#5612#1069952
 apache_atlas#1557#260312
 spring-petclinic_spring-petclinic-microservices#111#3211
 Norconex_collector-http#224#18657
@@ -120,7 +119,6 @@ OpenAS2_OpenAs2App#272#22925
 revelc_formatter-maven-plugin#64#4295
 ControlSystemStudio_cs-studio#11202#952038
 jboss-fuse_fuse#118#14989
-openpnp_openpnp#717#145016
 apache_logging-log4j1#463#38926
 terasolunaorg_terasoluna-gfw#293#38224
 RWS_odata#505#31257
@@ -145,14 +143,13 @@ yahoo_maha#690#192609
 brianfrankcooper_YCSB#327#29101
 ysc_superword#148#14479
 peholmst_vaadin4spring#28#1583
-dromara_mendmix#519#37432
-cometd_cometd#648#83964
+dromara_mendmix#519#37124
+cometd_cometd#648#83666
 mycontroller-org_mycontroller-v1-legacy#642#44918
 dice-group_gerbil#456#37975
 apache_tiles#809#32028
 payara_Payara#13678#1437565
 OpenHFT_Chronicle-Map#484#57840
-yamcs_yamcs#2586#233598
 stsiushkevich_learn-reactjs#284#25907
 xerial_sqlite-jdbc#129#28608
 metosin_malli#87#15913
@@ -179,12 +176,10 @@ BentoBoxWorld_BentoBox#626#67260
 oehf_ipf#2867#229357
 mongock_mongock#467#23085
 networknt_json-schema-validator#189#14763
-hazelcast_hazelcast-jet#1525#153926
 archimatetool_archi#2552#198871
 wttech_aet#816#69009
 jfaster_mango#596#26999
 clearflask_clearflask#679#114522
-jenkinsci_jira-plugin#200#13000
 YuKongEr_panda-cloud#214#6669
 everit-org_json-schema#207#15788
 openhab_openhab-webui#976#133993
@@ -220,10 +215,8 @@ graphhopper_graphhopper#1012#101511
 apache_bigtop#952#71263
 aliyun_aliyun-emapreduce-datasources#355#35159
 running-elephant_moonbox#943#144123
-ClickHouse_clickhouse-java#442#77572
 Tillerino_Tillerinobot#289#20644
 radsz_jacop#680#92980
-microsoft_playwright-java#414#38142
 ShprAlex_SproutLife#109#8286
 SerNet_verinice#3615#326531
 locationtech_geogig#1328#139670
@@ -284,7 +277,6 @@ silentbalanceyh_vertx-zero#3776#314965
 viritin_viritin#281#20694
 Azure_azure-iot-sdk-java#737#94734
 caelum_mamute#641#44262
-apache_incubator-seatunnel#2014#127507
 karatelabs_karate#1288#63020
 confluentinc_ksql#3120#345608
 OpenLiberty_ci.maven#517#76695
@@ -330,7 +322,7 @@ bernardosulzbach_dungeon#326#15055
 rabbitmq_rabbitmq-perf-test#135#32737
 dianping_pigeon#513#60478
 jcabi_jcabi-github#479#34200
-SonarSource_sonar-dotnet#9077#841638
+SonarSource_sonar-dotnet#9077#841137
 javaparser_javaparser#1811#183241
 antlr_antlr3#1773#207816
 G-Research_siembol#851#63348
@@ -365,7 +357,6 @@ ajanata_PretendYoureXyzzy#139#35050
 fit2cloud_rackshift#1061#85529
 Flameish_Novel-Grabber#139#17794
 jacoco_jacoco#777#53120
-seata_seata#1833#197173
 apache_commons-math#1201#151781
 ballcat-projects_ballcat#918#35080
 pentaho_big-data-plugin#801#91896

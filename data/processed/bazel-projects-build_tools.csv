@@ -19,6 +19,7 @@ buchgr_bazel-remote,buildkite,build,False,True
 buchgr_bazel-remote,buildkite,test,False,True
 tensorflow_tensorflow,github_actions,build,False,True
 tensorflow_tensorflow,github_actions,test,False,True
+tensorflow_tensorflow,github_actions,"test,test",False,True
 pinterest_plank,github_actions,build,False,True
 3rdparty_stout,github_actions,build,False,True
 3rdparty_stout,github_actions,test,False,True
@@ -40,7 +41,7 @@ bazelbuild_rules_foreign_cc,github_actions,run,False,True
 bazelbuild_rules_foreign_cc,buildkite,build,False,True
 bazelbuild_rules_foreign_cc,buildkite,test,False,True
 jbeder_yaml-cpp,github_actions,build,False,True
-jbeder_yaml-cpp,github_actions,test,False,True
+jbeder_yaml-cpp,github_actions,"test,test",False,True
 ERGO-Code_HiGHS,github_actions,build,False,True
 bazelbuild_rules_kotlin,github_actions,build,False,True
 bazelbuild_rules_kotlin,buildkite,build,False,True
@@ -75,7 +76,7 @@ googlecodelabs_tools,travis_ci,test,False,True
 firedancer-io_firedancer,github_actions,build,False,True
 firedancer-io_firedancer,github_actions,coverage,False,True
 martian-lang_martian,github_actions,test,False,True
-protocolbuffers_protobuf,github_actions,build,False,True
+protocolbuffers_protobuf,github_actions,"build,php:release",False,True
 eclipse-iceoryx_iceoryx,github_actions,run,False,True
 eclipse-iceoryx_iceoryx,github_actions,build,False,True
 eclipse-iceoryx_iceoryx,github_actions,test,False,True
@@ -151,6 +152,7 @@ JetBrains_bazel-bsp,github_actions,run,False,True
 bazelbuild_rules_docker,github_actions,build,False,True
 bazelbuild_rules_docker,buildkite,test,False,True
 bazelbuild_rules_docker,buildkite,build,False,True
+bazelbuild_rules_rust,github_actions,run,False,True
 bazelbuild_rules_rust,buildkite,build,False,True
 bazelbuild_rules_rust,buildkite,test,False,True
 yuxiangw_autodp,github_actions,build,False,True
@@ -250,8 +252,9 @@ VirusTotal_yara,github_actions,build,False,True
 VirusTotal_yara,github_actions,test,False,True
 autodiff_autodiff,github_actions,build,False,True
 autodiff_autodiff,github_actions,test,False,True
-CodeIntelligenceTesting_jazzer,github_actions,build,False,True
+CodeIntelligenceTesting_jazzer,github_actions,"build,deploy:jazzer",False,True
 CodeIntelligenceTesting_jazzer,github_actions,run,False,True
+CodeIntelligenceTesting_jazzer,github_actions,build,False,True
 CodeIntelligenceTesting_jazzer,github_actions,test,False,True
 grpc-ecosystem_grpc-gateway,github_actions,run,False,True
 grpc-ecosystem_grpc-gateway,github_actions,test,False,True
@@ -316,6 +319,7 @@ KhronosGroup_SPIRV-Tools,github_actions,build,False,True
 KhronosGroup_SPIRV-Tools,github_actions,test,False,True
 ray-project_ray,buildkite,test,False,True
 ray-project_ray,buildkite,build,False,True
+ray-project_ray,buildkite,run,False,True
 nelhage_rules_boost,circle_ci,test,False,True
 nelhage_rules_boost,buildkite,build,False,True
 nelhage_rules_boost,buildkite,test,False,True
@@ -411,7 +415,6 @@ bazelbuild_bazel-toolchains,github_actions,,,False
 bazelbuild_bazel-toolchains,buildkite,,,False
 tensorflow_model-optimization,github_actions,,,False
 tensorflow_recommenders-addons,github_actions,,,False
-emperror_emperror,github_actions,,,False
 pytorch_TensorRT,github_actions,,,False
 pytorch_TensorRT,circle_ci,,,False
 ddiakopoulos_tinyply,travis_ci,,,False
@@ -433,15 +436,12 @@ chipsalliance_verible,github_actions,,,False
 uber_ios-snapshot-test-case,github_actions,,,False
 uber_ios-snapshot-test-case,travis_ci,,,False
 skypjack_entt,github_actions,,,False
-thought-machine_please,github_actions,,,False
-thought-machine_please,circle_ci,,,False
 openconfig_gnmi,github_actions,,,False
 keras-team_keras,github_actions,,,False
 rabbitmq_rabbitmq-server,github_actions,,,False
 sourcegraph_sourcegraph,github_actions,,,False
 sourcegraph_sourcegraph,buildkite,,,False
 jpsim_SourceKitten,github_actions,,,False
-pantsbuild_pants,github_actions,,,False
 jesec_rtorrent,github_actions,,,False
 grpc_grpc,github_actions,,,False
 grpc_grpc,buildkite,,,False
@@ -455,8 +455,6 @@ SeleniumHQ_selenium-ide,github_actions,,,False
 googlecodelabs_tools,github_actions,,,False
 googlecodelabs_tools,travis_ci,,,False
 firedancer-io_firedancer,github_actions,,,False
-StackStorm_st2,github_actions,,,False
-StackStorm_st2,circle_ci,,,False
 nlohmann_json,github_actions,,,False
 KhronosGroup_SPIRV-Headers,github_actions,,,False
 bentoml_BentoML,github_actions,,,False
@@ -486,7 +484,6 @@ buildbuddy-io_rules_xcodeproj,github_actions,,,False
 bazelbuild_bazel-buildfarm,github_actions,,,False
 bazelbuild_bazel-buildfarm,buildkite,,,False
 bazelbuild_bazel-skylib,buildkite,,,False
-lablup_backend.ai,github_actions,,,False
 angular_components,github_actions,,,False
 angular_components,circle_ci,,,False
 kubernetes-sigs_kubebuilder,github_actions,,,False
@@ -516,8 +513,6 @@ google_brunsli,github_actions,,,False
 krpc_krpc,travis_ci,,,False
 twitter_finagle,github_actions,,,False
 go-resty_resty,github_actions,,,False
-eudev-project_eudev,github_actions,,,False
-eudev-project_eudev,travis_ci,,,False
 google_schedviz,github_actions,,,False
 mwitkow_go-proto-validators,travis_ci,,,False
 KhronosGroup_glslang,github_actions,,,False
@@ -556,7 +551,6 @@ elastic_kibana,buildkite,,,False
 JFreegman_toxic,github_actions,,,False
 oneapi-src_oneDAL,github_actions,,,False
 iree-org_iree,github_actions,,,False
-memcached_memcached,github_actions,,,False
 tensorflow_tflite-micro,github_actions,,,False
 euphoria-io_heim,travis_ci,,,False
 dsharlet_array,travis_ci,,,False
@@ -572,7 +566,6 @@ google_cargo-raze,buildkite,,,False
 google_tensorstore,github_actions,,,False
 masc-ucsc_livehd,github_actions,,,False
 jpsim_Yams,github_actions,,,False
-logur_logur,github_actions,,,False
 google_tink,github_actions,,,False
 pingcap_tidb,github_actions,,,False
 google_elemental2,github_actions,,,False
@@ -623,7 +616,6 @@ tensorflow_tfjs,github_actions,,,False
 evilcorpltd_aTox,github_actions,,,False
 davido_gerrit-oauth-provider,travis_ci,,,False
 google_incremental-dom,circle_ci,,,False
-baidu_tera,travis_ci,,,False
 google_google-toolbox-for-mac,github_actions,,,False
 arximboldi_zug,github_actions,,,False
 google_santa,github_actions,,,False
@@ -728,7 +720,6 @@ libjxl_libjxl,github_actions,,,False
 bazeltools_bazel-deps,github_actions,,,False
 bazeltools_bazel-deps,travis_ci,,,False
 SeleniumHQ_selenium,github_actions,,,False
-emperror_errors,github_actions,,,False
 bazelbuild_bazel-watcher,github_actions,,,False
 bazelbuild_bazel-watcher,buildkite,,,False
 KhronosGroup_SPIRV-Reflect,github_actions,,,False

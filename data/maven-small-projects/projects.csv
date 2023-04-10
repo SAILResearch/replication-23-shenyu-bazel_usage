@@ -19,7 +19,7 @@ niefy_wx-api#187#6961
 madeye_gaeproxy#114#21124
 spring-cloud_spring-cloud-core-tests#89#4257
 geekidea_spring-boot-plus#270#12216
-734839030_seezoon-stack#924#71297
+734839030_seezoon-stack#924#71815
 caoxinyu_RedisClient#190#14085
 PomZWJ_database-export#65#28833
 sindaZeng_XHuiCloud#1137#98400
@@ -44,9 +44,7 @@ mitre_HTTP-Proxy-Servlet#9#1893
 2014shijina2014_open-capacity-platform#2479#419872
 lexs_webimageloader#56#3756
 oschina_kooder#138#9422
-datasift_dropwizard-extra#76#6484
 graalvm_graal-js-jdk11-maven-demo#3#381
-hao117_bee-apm#326#21601
 wiverson_maven-jpackage-template#12#713
 opentracing-contrib_java-kafka-client#34#2659
 goxr3plus_java-stream-player#29#2328
@@ -54,7 +52,6 @@ ozlerhakan_mongolastic#26#1461
 AzureAD_azure-activedirectory-library-for-java#85#6278
 opentracing_opentracing-java#93#4248
 apache_servicemix#254#11517
-dschulten_hydra-java#162#13042
 Yorubaname_yorubaname-website#138#8502
 seancfoley_IPAddress#151#71249
 paultuckey_urlrewritefilter#185#28771
@@ -67,7 +64,6 @@ highsource_jsonix-schema-compiler#376#46519
 kevinburke_doony#12#2466
 petterobam_database-oop#415#30432
 chillzhuang_blade-tool#330#15694
-kafka-ops_julie#386#25076
 Devskiller_jfairy#154#6330
 EalenXie_aop-log#14#845
 janpetryk_reddit-bot#50#2010
@@ -162,7 +158,6 @@ yindz_common-random#38#2646
 jeecgboot_jeecg#2465#748723
 apache_bahir#142#11733
 ActiveJpa_activejpa#110#6936
-Devskiller_jpa2ddl#56#2071
 sbtourist_Journal.IO#35#3810
 sitemesh_sitemesh3#171#8334
 ddf_Minim#323#22993
@@ -279,7 +274,6 @@ changmingxie_tcc-transaction#518#28431
 eshioji_trident-tutorial#59#7626
 traneio_future#51#6878
 justinbaby_seckill-demo#30#1298
-fabric8io-images_run-java-sh#8#522
 4ra1n_super-xray#65#9956
 homebaseio_homebase-react#62#5647
 ylacaute_ez-Dashing#299#11731
@@ -299,7 +293,6 @@ jfree_fxgraphics2d#11#2128
 sofastack_sofa-boot#805#38642
 osalvador_ReplicaDB#102#15176
 patriques82_alphavantage4j#150#7761
-libetl_curl#27#2679
 liuyueyi_quick-media#322#31445
 leonoel_missionary#92#8706
 BlackLabs_play-morphia#193#11065
@@ -325,7 +318,6 @@ bonigarcia_webdrivermanager-examples#47#1843
 alexruiz_fest-assert-2.x#1006#42855
 sonatype-nexus-community_nexus-repository-composer#64#4963
 jeevatkm_digitalocean-api-java#97#7122
-kakawait_cas-security-spring-boot-starter#57#3470
 castor-software_depclean#130#7387
 teeyog_IQL#2535#501712
 k-tamura_easybuggy#117#6258
@@ -346,7 +338,6 @@ mikaelgrev_miglayout#89#19264
 smart-doc-group_smart-doc-example-cn#204#8280
 IBM_janusgraph-utils#37#2057
 MarcGiffing_wicket-spring-boot#221#8446
-IanWraith_DMRDecode#32#6233
 Codecademy_EventHub#131#8998
 graphstream_gs-algo#167#15365
 apache_rocketmq-dashboard#193#18951
@@ -382,7 +373,6 @@ onyxbits_Raccoon#101#141786
 naturalprogrammer_spring-lemon#253#10781
 fusesource_hawtjni#100#11819
 zhaojun1998_Shiro-Action#189#18024
-didi_turbo#181#9252
 zerodha_javakiteconnect#60#3389
 vakinge_oneplatform#372#22357
 AxonIQ_giftcard-demo#18#1025
