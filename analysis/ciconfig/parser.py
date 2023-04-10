@@ -3,6 +3,7 @@ import os
 import re
 from abc import abstractmethod
 from enum import Enum
+from pymake import pymake
 
 import yaml
 
@@ -44,9 +45,11 @@ class CIConfigParser:
         self.ci_file_pattern = re.compile(self._ci_file_pattern())
         self.sh_scripts = list(fileutils.scan_tree(project_dir, re.compile(r".*\.sh"), match_path=False))
         self.bazelrc_configs = self._extract_bazelrc_configs()
-        self.bazel_command_matcher = re.compile(".*bazel (.+)")
+        self.make_targets = self._extract_make_targets()
+        self.bazel_command_matcher = re.compile(".*bazel[\"w]? (.+)")
         self.bazelisk_command_matcher = re.compile(".*bazelisk (.+)")
         self.maven_command_matcher = re.compile(".*mvnw? (.*)")
+        self.make_command_matcher = re.compile(".*make (.*)")
 
     def parse(self) -> [CIConfig]:
         ci_configs = []
@@ -83,11 +86,10 @@ class CIConfigParser:
         with open(bazelrc_file_path, "r") as bazelrc_file:
             for line in bazelrc_file:
                 line = line.rstrip()
-                if not line or line.startswith("#"):
+                if not line or line.lstrip().startswith("#"):
                     continue
 
-                line = self._remove_comments(line)
-                line = line.strip()
+                line = self._remove_comments(line).strip()
                 if " " not in line:
                     continue
 
@@ -135,15 +137,74 @@ class CIConfigParser:
 
         return resolved_cfgs
 
+    def _extract_make_targets(self) -> dict[str:str]:
+        make_targets = {}
+        targets_relation_graph = {}
+        makefile_path = os.path.join(self.project_dir, "Makefile")
+
+        if not fileutils.exists(makefile_path):
+            makefile_path = os.path.join(self.project_dir, "makefile")
+            if not fileutils.exists(makefile_path):
+                return make_targets
+
+        makefile_command_matcher = re.compile(r"^(\S+):(.*)$")
+        curr_cmd, curr_cmd_cfg = "", ""
+        with open(makefile_path, "r") as makefile:
+            for line in makefile:
+                line = self._remove_comments(line)
+                if not line.strip():
+                    continue
+                if line.startswith(".PHONY"):
+                    continue
+
+                if match := makefile_command_matcher.search(line):
+                    if curr_cmd:
+                        make_targets[curr_cmd] = curr_cmd_cfg
+                        curr_cmd_cfg = ""
+                    curr_cmd = match.group(1).strip()
+                    dependencies = [t.strip() for t in match.group(2).split()]
+                    if len(dependencies) > 0:
+                        targets_relation_graph[curr_cmd] = dependencies
+                    continue
+                if line.startswith("\t") and curr_cmd:
+                    curr_cmd_cfg += line.strip() + "\n"
+            if curr_cmd:
+                make_targets[curr_cmd] = curr_cmd_cfg
+
+        resolved_make_targets = {}
+
+        def resolve_dependencies_commands(build_target, visited):
+            # return if the target is already resolved
+            if build_target in resolved_make_targets:
+                return resolved_make_targets[build_target]
+
+            # avoid infinite loop
+            if build_target in visited or build_target not in make_targets:
+                return ""
+            visited.add(build_target)
+
+            dependency_commands = ""
+            if build_target in targets_relation_graph:
+                for dep in targets_relation_graph[build_target]:
+                    dependency_commands += resolve_dependencies_commands(dep, visited) + "\n"
+            resolved_make_targets[build_target] = dependency_commands + "\n" + make_targets[build_target]
+            return resolved_make_targets[build_target]
+
+        for target in make_targets:
+            resolved_make_targets[target] = resolve_dependencies_commands(target, set()).strip()
+
+        return resolved_make_targets
+
     def _scan_ci_files(self) -> [os.DirEntry]:
         possible_ci_files = []
         for f in fileutils.scan_tree(self.project_dir, self.ci_file_pattern):
             possible_ci_files.append(f)
         return possible_ci_files
 
-    def _parse_commands(self, command) -> [BuildCommand]:
+    def _parse_commands(self, command, convert_make=True) -> [BuildCommand]:
         cmds = []
-        command_matchers = {"maven": self.maven_command_matcher, "bazel": self.bazel_command_matcher, "bazelisk": self.bazelisk_command_matcher}
+        command_matchers = {"maven": self.maven_command_matcher, "bazel": self.bazel_command_matcher,
+                            "bazelisk": self.bazelisk_command_matcher, "make": self.make_command_matcher}
         for build_tool, matcher in command_matchers.items():
             if build_tool == "bazelisk":
                 build_tool = "bazel"
@@ -165,9 +226,42 @@ class CIConfigParser:
                                     continue
                                 cmds.append(
                                     BuildCommand(build_tool, match.group(1), invoked_by_script=True))
+        if convert_make:
+            cmds = self._convert_make_targets(cmds)
 
+        cmds = self._filter_cmds(cmds)
+
+        return cmds
+
+    def _convert_make_targets(self, cmds):
+        new_cmds = []
+
+        # some projects use make to run other build tools, so we examine the make targets and convert them to other build tools
+        for cmd in cmds:
+            if cmd.build_tool != "make":
+                new_cmds.append(cmd)
+                continue
+
+            make_targets = []
+            make_args = cmd.raw_arguments.split()
+            if not make_args:
+                # if no target is specified, we check if "all" is defined in Makefile, is so, use it as the default target otherwise use "default"
+                make_targets.append("all" if "all" in self.make_targets else "default")
+            else:
+                make_targets = [arg for arg in make_args if arg.startswith("-") is False]
+
+            for make_target in make_targets:
+                if make_target in self.make_targets:
+                    new_cmds.extend(self._parse_commands(self.make_targets[make_target], convert_make=False))
+
+        return new_cmds
+
+    def _filter_cmds(self, cmds):
         filtered = []
         for cmd in cmds:
+            if cmd.build_tool == "make":
+                continue
+
             non_expanded_arg_size = len([arg_name for arg_name in cmd.raw_arguments.split() if
                                          arg_name.startswith("--") or arg_name.startswith("-")])
             cmd.non_expended_arg_size = non_expanded_arg_size
@@ -190,7 +284,6 @@ class CIConfigParser:
             cmd.expanded_arg_size = expanded_arg_size
 
             filtered.append(cmd)
-
         return filtered
 
     def _remove_comments(self, x: str) -> str:
@@ -344,6 +437,12 @@ class CircleCIConfigParser(CIConfigParser):
                 if executor_cores:
                     custom_executors[executor_name] = executor_cores
 
+        reusable_steps = {}
+        if "commands" in cfgs:
+            for cmd_name, cmd_cfg in cfgs["commands"].items():
+                if "steps" in cmd_cfg:
+                    reusable_steps[cmd_name] = cmd_cfg["steps"]
+
         for job in cfgs["jobs"].values():
             if "steps" not in job:
                 continue
@@ -362,23 +461,45 @@ class CircleCIConfigParser(CIConfigParser):
             bazel_cmds = []
 
             for step in job["steps"]:
+                # the step may be expanded to multiple steps
+                steps_to_run = []
+
                 if type(step) is str:
-                    continue
-                if "restore_cache" in step and "keys" in step["restore_cache"]:
-                    local_cache_keys.extend(step["restore_cache"]["keys"])
-                    local_cache_enable = True
-
-                if "save_cache" in step and "key" in step["save_cache"] and "paths" in step and step["save_cache"][
-                    "key"] in local_cache_keys:
-                    local_cache_paths.extend(step["save_cache"]["paths"])
-
-                if "run" in step:
-                    if type(step["run"]) is str:
-                        command = step["run"]
+                    if step in reusable_steps:
+                        steps_to_run.extend(reusable_steps[step])
                     else:
-                        command = step["run"]["command"]
+                        continue
 
-                    bazel_cmds.extend(self._parse_commands(command))
+                # the step may use a reusable step with parameters, in this case, the step is a dict with one key.
+                if type(step) is dict and len(step) == 1 and list(step.keys())[0] in reusable_steps:
+                    reuse_steps_name = list(step.keys())[0]
+                    steps_to_run.extend(reusable_steps[reuse_steps_name])
+                    if type(step[reuse_steps_name]) is dict:
+                        for _, value in step[reuse_steps_name].items():
+                            if type(value) is str:
+                                bazel_cmds.extend(self._parse_commands(value))
+
+                else:
+                    steps_to_run.append(step)
+
+                for step in steps_to_run:
+                    if type(step) is str:
+                        continue
+                    if "restore_cache" in step and "keys" in step["restore_cache"]:
+                        local_cache_keys.extend(step["restore_cache"]["keys"])
+                        local_cache_enable = True
+
+                    if "save_cache" in step and "key" in step["save_cache"] and "paths" in step and step["save_cache"][
+                        "key"] in local_cache_keys:
+                        local_cache_paths.extend(step["save_cache"]["paths"])
+
+                    if "run" in step:
+                        if type(step["run"]) is str:
+                            command = step["run"]
+                        else:
+                            command = step["run"]["command"]
+
+                        bazel_cmds.extend(self._parse_commands(command))
 
             for cmd in bazel_cmds:
                 cmd.cores = cores
@@ -611,6 +732,26 @@ class TravisCIConfigParser(CIConfigParser):
             for stage in stages:
                 if "script" in stage:
                     bazel_cmds.extend(self._parse_script(stage["script"]))
+
+        if "install" in cfgs and (type(cfgs["install"]) is list or type(cfgs["install"]) is str):
+            install_cmds = cfgs["install"]
+            if type(install_cmds) is str:
+                install_cmds = [install_cmds]
+            for cmd in install_cmds:
+                if type(cmd) is not str:
+                    continue
+                bazel_cmds.extend(self._parse_commands(cmd))
+
+        if "deploy" in cfgs:
+            deployments = []
+            if type(cfgs["deploy"]) is list:
+                deployments.extend(cfgs["deploy"])
+            elif type(cfgs["deploy"]) is dict:
+                deployments.append(cfgs["deploy"])
+
+            for deployment in deployments:
+                if "script" in deployment:
+                    bazel_cmds.extend(self._parse_script(deployment["script"]))
 
         if "cache" in cfgs:
             cache = cfgs["cache"]

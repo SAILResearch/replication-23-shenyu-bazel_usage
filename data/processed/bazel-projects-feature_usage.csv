@@ -12,6 +12,7 @@ pytorch_pytorch,circle_ci,False,False,True
 buchgr_bazel-remote,github_actions,False,False,True
 buchgr_bazel-remote,buildkite,False,True,True
 tensorflow_tensorflow,github_actions,False,True,True
+pinterest_plank,github_actions,False,False,True
 3rdparty_stout,github_actions,False,False,True
 p4lang_PI,github_actions,True,False,True
 protocolbuffers_upb,github_actions,False,False,True
@@ -22,6 +23,7 @@ pytorch_TensorRT,circle_ci,False,False,True
 realm_SwiftLint,buildkite,False,False,True
 morganstanley_modern-cpp-kafka,github_actions,False,False,True
 alibaba_async_simple,github_actions,False,False,True
+bazelbuild_rules_foreign_cc,github_actions,False,False,True
 bazelbuild_rules_foreign_cc,buildkite,False,True,True
 jbeder_yaml-cpp,github_actions,False,False,True
 ERGO-Code_HiGHS,github_actions,True,False,True
@@ -49,9 +51,11 @@ eclipse-iceoryx_iceoryx,github_actions,False,False,True
 google_promises,travis_ci,False,False,True
 oppia_oppia-android,github_actions,False,False,True
 google_go-jsonnet,github_actions,True,False,True
+google_go-jsonnet,github_actions,False,False,True
 alibaba_DeepRec,github_actions,False,False,True
 google_highway,github_actions,True,False,True
 google_guice,github_actions,True,False,True
+kubevirt_containerized-data-importer,travis_ci,False,False,True
 scionproto_scion,buildkite,False,True,True
 angular_vscode-ng-language-service,github_actions,False,False,True
 angular_vscode-ng-language-service,circle_ci,False,False,True
@@ -65,6 +69,7 @@ larq_compute-engine,github_actions,False,False,True
 google_brotli,github_actions,False,False,True
 airyhq_airy,github_actions,False,False,True
 bazelbuild_rules_pkg,buildkite,False,True,True
+google_xls,github_actions,True,False,True
 google_glog,buildkite,False,True,True
 bazelbuild_rules_nodejs,buildkite,False,True,True
 google_googletest,github_actions,False,False,True
@@ -86,6 +91,7 @@ yuxiangw_autodp,github_actions,True,False,True
 jbcoe_polymorphic_value,github_actions,True,False,True
 bazelbuild_rules_cc,buildkite,False,True,True
 rabbitmq_ra,github_actions,False,True,True
+GoogleCloudPlatform_cloud-data-quality,github_actions,False,False,True
 kythe_kythe,buildkite,False,True,True
 googleapis_gax-java,github_actions,True,False,True
 bazelbuild_rules_python,github_actions,False,False,True
@@ -95,6 +101,7 @@ tweag_rules_haskell,buildkite,False,True,True
 jupp0r_prometheus-cpp,github_actions,False,False,True
 aspect-build_rules_js,github_actions,True,True,True
 aspect-build_rules_js,github_actions,False,True,True
+vaticle_typedb,circle_ci,False,False,True
 bazelbuild_rules_jvm_external,buildkite,False,True,True
 grab_Grazel,github_actions,False,False,True
 tensorflow_tflite-micro,github_actions,False,False,True
@@ -116,6 +123,7 @@ googleapis_gapic-generator-go,github_actions,False,False,True
 bazelbuild_rules_go,buildkite,False,True,True
 bytecodealliance_wasmtime-go,github_actions,False,False,True
 grpc-ecosystem_polyglot,github_actions,False,False,True
+cockroachdb_cockroach-operator,github_actions,True,False,True
 angular_angular,github_actions,False,True,True
 angular_angular,circle_ci,False,True,True
 bazelbuild_intellij,buildkite,False,True,True
@@ -123,14 +131,18 @@ bazelbuild_tulsi,github_actions,False,True,True
 bazelbuild_tulsi,buildkite,False,True,True
 MobileNativeFoundation_Kronos,github_actions,False,False,True
 adobe_rules_gitops,github_actions,True,False,True
+sail-sg_envpool,github_actions,False,False,True
+bufbuild_protoc-gen-validate,github_actions,True,False,True
 carbon-language_carbon-lang,github_actions,False,True,True
 grpc_grpc-proto,github_actions,False,False,True
 magma_magma,github_actions,False,False,True
 pytorch_FBGEMM,github_actions,False,False,True
+sematic-ai_sematic,circle_ci,False,False,True
 VirusTotal_yara,github_actions,False,False,True
 autodiff_autodiff,github_actions,False,False,True
 CodeIntelligenceTesting_jazzer,github_actions,False,True,True
 grpc-ecosystem_grpc-gateway,github_actions,False,False,True
+LandRover_StaffjoyV2,github_actions,False,False,True
 evilcorpltd_aTox,github_actions,True,False,True
 davido_gerrit-oauth-provider,travis_ci,False,False,True
 google_incremental-dom,circle_ci,False,False,True
@@ -177,6 +189,7 @@ deepmind_lab,github_actions,False,False,True
 envoyproxy_envoy,github_actions,False,True,True
 envoyproxy_envoy,buildkite,False,True,True
 tweag_inline-java,github_actions,False,False,True
+envoyproxy_envoy-mobile,github_actions,False,False,True
 baidu_BaikalDB,github_actions,False,False,True
 baidu_BaikalDB,github_actions,True,False,True
 bazel-ios_rules_ios,github_actions,False,False,True

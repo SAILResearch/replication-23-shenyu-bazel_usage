@@ -55,6 +55,7 @@ wso2_product-ei,travis_ci,False
 Nepxion_Discovery,github_actions,False
 antlr_grammars-v4,github_actions,True
 openscoring_openscoring,github_actions,False
+SpoutDev_Spout,travis_ci,False
 gchq_Gaffer,github_actions,True
 gchq_Gaffer,github_actions,False
 graphhopper_jsprit,github_actions,False
@@ -68,6 +69,7 @@ megaease_easeagent,github_actions,False
 clojure_tools.deps.alpha,github_actions,False
 apereo_java-cas-client,github_actions,False
 STAMP-project_dspot,github_actions,False
+STAMP-project_dspot,travis_ci,False
 authorjapps_zerocode,github_actions,False
 bytedeco_javacpp,travis_ci,False
 astamuse_asta4d,travis_ci,False
@@ -99,6 +101,7 @@ lemire_javaewah,travis_ci,False
 apache_datasketches-java,github_actions,False
 yegor256_qulice,github_actions,False
 brianfrankcooper_YCSB,travis_ci,False
+ysc_superword,travis_ci,False
 cometd_cometd,github_actions,False
 mycontroller-org_mycontroller-v1-legacy,travis_ci,False
 dice-group_gerbil,github_actions,False
@@ -184,12 +187,14 @@ spring-cloud-samples_spring-cloud-contract-samples,github_actions,True
 mybatis_spring,github_actions,False
 CertifaiAI_classifai,github_actions,False
 ICIJ_extract,circle_ci,False
+fengjiachun_Jupiter,travis_ci,False
 eclipse-tycho_tycho,github_actions,False
 dotCMS_core,github_actions,True
 graphstream_gs-core,travis_ci,False
 akkinoc_logback-access-spring-boot-starter,github_actions,False
 tlaplus_tlaplus,github_actions,False
 Atmosphere_atmosphere-javascript,github_actions,False
+Atmosphere_atmosphere-javascript,travis_ci,False
 castlemock_castlemock,github_actions,False
 eclipse_vorto,travis_ci,False
 google_libphonenumber,github_actions,False
@@ -222,6 +227,7 @@ OSBI_saiku,circle_ci,False
 resty-gwt_resty-gwt,travis_ci,False
 hs-web_hsweb-framework,travis_ci,False
 PetteriM1_NukkitPetteriM1Edition,github_actions,False
+PetteriM1_NukkitPetteriM1Edition,travis_ci,False
 haraldk_TwelveMonkeys,github_actions,False
 YunaiV_yudao-cloud,github_actions,False
 MobiVM_robovm,github_actions,True
@@ -236,6 +242,7 @@ javaparser_javaparser,github_actions,False
 antlr_antlr3,github_actions,False
 G-Research_siembol,github_actions,False
 confluence-publisher_confluence-publisher,circle_ci,False
+Nukkit_Nukkit,travis_ci,False
 palatable_lambda,github_actions,False
 cucumber_cucumber-eclipse,github_actions,False
 techa03_goodsKill,github_actions,False

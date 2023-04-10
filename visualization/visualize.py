@@ -13,11 +13,11 @@ def visualize_data(data_dir: str):
     sns.set_style("whitegrid")
 
     data_dir = os.path.join(data_dir, "processed")
-    # visualize_ci_tools(data_dir)
+    visualize_ci_tools(data_dir)
     # visualize_subcommand_usage(data_dir)
     # visualize_parallelization_usage(data_dir)
     # visualize_cache_usage(data_dir)
-    visualize_build_rule_categories(data_dir)
+    # visualize_build_rule_categories(data_dir)
     # visualize_script_usage(data_dir)
     # visualize_arg_size(data_dir)
 
@@ -32,6 +32,12 @@ def visualize_ci_tools(data_dir: str):
 
         build_tool_usage = pd.DataFrame({"Local": [0, 0, 0, 0], "CI": [0, 0, 0, 0],
                                          "CI/CD Services": ["github_actions", "circle_ci", "buildkite", "travis_ci"]})
+
+        df["use_build_tool"] = df.apply(
+            lambda row: df.loc[
+                (df["project"] == row["project"]) & (df["ci_tool"] == row["ci_tool"]) & (df["use_build_tool"])].any().all(),
+            axis=1)
+        df = df.drop_duplicates()
 
         for project in df["project"].unique():
             ci_tools = sorted(df[df["project"] == project]["ci_tool"].unique())

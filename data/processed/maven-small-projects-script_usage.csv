@@ -15,6 +15,7 @@ niefy_wx-api,travis_ci,False
 madeye_gaeproxy,travis_ci,False
 spring-cloud_spring-cloud-core-tests,circle_ci,False
 spring-cloud_spring-cloud-core-tests,circle_ci,True
+spring-cloud_spring-cloud-core-tests,travis_ci,False
 dasniko_testcontainers-keycloak,github_actions,False
 playframework_netty-reactive-streams,github_actions,False
 myndocs_kotlin-oauth2-server,github_actions,False
@@ -25,8 +26,10 @@ lexs_webimageloader,travis_ci,False
 graalvm_graal-js-jdk11-maven-demo,travis_ci,False
 wiverson_maven-jpackage-template,github_actions,False
 opentracing-contrib_java-kafka-client,travis_ci,True
+opentracing-contrib_java-kafka-client,travis_ci,False
 ozlerhakan_mongolastic,travis_ci,False
 opentracing_opentracing-java,travis_ci,True
+opentracing_opentracing-java,travis_ci,False
 Yorubaname_yorubaname-website,github_actions,False
 paultuckey_urlrewritefilter,github_actions,False
 bujiio_buji-pac4j,github_actions,False
@@ -40,12 +43,15 @@ lemire_externalsortinginjava,travis_ci,False
 projectdiscovery_nuclei-burp-plugin,github_actions,False
 spring-guides_tut-spring-security-and-angular-js,travis_ci,False
 majusko_pulsar-java-spring-boot-starter,github_actions,False
+LinShunKang_MyPerf4J,travis_ci,False
 microsoft_gctoolkit,github_actions,False
 MarcGiffing_bucket4j-spring-boot-starter,github_actions,False
 eclipsesource_jshint-eclipse,travis_ci,False
 dstl_baleen,travis_ci,False
+str4d_ed25519-java,travis_ci,False
 dependency-check_dependency-check-sonar-plugin,github_actions,False
 apache_flink-benchmarks,github_actions,False
+ysc_cws_evaluation,travis_ci,False
 alexcheng1982_happyride,github_actions,False
 ClickHouse_clickhouse-jdbc-bridge,github_actions,False
 samuelcampos_usbdrivedetector,github_actions,False
@@ -67,7 +73,9 @@ saturnism_grpc-by-example-java,github_actions,False
 owlike_genson,travis_ci,False
 hs-web_hsweb-platform,travis_ci,False
 dlsc-software-consulting-gmbh_GemsFX,github_actions,False
+vmware_mangle,travis_ci,False
 fridujo_rabbitmq-mock,github_actions,False
+yandex_yoctodb,travis_ci,False
 apache_rocketmq-exporter,travis_ci,False
 jetlinks_rule-engine,travis_ci,False
 r2dbc_r2dbc-spi,github_actions,False
@@ -84,6 +92,7 @@ walkmod_walkmod-core,travis_ci,False
 apache_dubbo-spi-extensions,github_actions,False
 apache_dubbo-spi-extensions,github_actions,True
 artsok_rerunner-jupiter,travis_ci,False
+artsok_rerunner-jupiter,travis_ci,True
 lemire_JavaFastPFOR,github_actions,False
 lemire_JavaFastPFOR,travis_ci,False
 LodLive_LodView,travis_ci,False
@@ -100,6 +109,7 @@ didi_sds,github_actions,False
 didi_sds,travis_ci,False
 socketio_engine.io-client-java,github_actions,False
 zentity-io_zentity,github_actions,False
+jhalterman_typetools,travis_ci,False
 young-datafan-ooooo1_data-integration,github_actions,False
 openmessaging_openchaos,travis_ci,False
 GideonLeGrange_mikrotik-java,github_actions,False
@@ -115,6 +125,7 @@ WasiqB_coteafs-appium,github_actions,False
 jfree_fxgraphics2d,github_actions,False
 sofastack_sofa-boot,github_actions,False
 osalvador_ReplicaDB,github_actions,False
+osalvador_ReplicaDB,travis_ci,False
 libetl_curl,github_actions,False
 liuyueyi_quick-media,github_actions,False
 liuyueyi_quick-media,travis_ci,False
@@ -127,15 +138,21 @@ Wechat-Group_weixin-java-demo-springmvc,travis_ci,False
 kakawait_cas-security-spring-boot-starter,travis_ci,False
 castor-software_depclean,github_actions,False
 k-tamura_easybuggy,travis_ci,False
+nurkiewicz_LazySeq,travis_ci,False
 GoSimpleLLC_nbvcxz,github_actions,False
 mircokroon_minecraft-world-downloader,github_actions,False
 adgadev_jplusone,github_actions,False
+AwakenCN_Almost-Famous,travis_ci,False
 mikaelgrev_miglayout,github_actions,False
 IBM_janusgraph-utils,travis_ci,True
 graphstream_gs-algo,travis_ci,False
 apache_rocketmq-dashboard,travis_ci,False
+CIDARLAB_cello,travis_ci,True
+CIDARLAB_cello,travis_ci,False
+MarkShen1992_Mashibing_High_Concurrency,travis_ci,False
 rayokota_kareldb,github_actions,False
 SourceLabOrg_kafka-webview,github_actions,False
+hortonworks-spark_shc,travis_ci,False
 tenlee2012_elasticsearch-analysis-hao,github_actions,False
 intoolswetrust_jsignpdf,github_actions,False
 CleverTap_apns-http2,github_actions,False
@@ -146,3 +163,4 @@ gabrie-allaigre_sonar-gitlab-plugin,travis_ci,False
 zhaojun1998_Shiro-Action,travis_ci,False
 AxonIQ_giftcard-demo,github_actions,False
 jakartaee_rest,github_actions,False
+abc9070410_JComicDownloader,travis_ci,False

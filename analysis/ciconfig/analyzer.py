@@ -77,5 +77,5 @@ class CIConfigAnalyzer:
 
 if __name__ == "__main__":
     results = CIConfigAnalyzer()._analyze_project_ci_configs(
-        "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/bazel/googleapis_gax-java")
+        "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/bazel/protocolbuffers_protobuf-javascript")
     print(results[0].build_commands)

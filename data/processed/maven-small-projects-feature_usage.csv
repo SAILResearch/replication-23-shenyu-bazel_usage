@@ -13,6 +13,7 @@ ConsenSys_Mahuta,circle_ci,False,False,False
 niefy_wx-api,travis_ci,False,False,False
 madeye_gaeproxy,travis_ci,False,False,False
 spring-cloud_spring-cloud-core-tests,circle_ci,False,False,False
+spring-cloud_spring-cloud-core-tests,travis_ci,False,False,False
 dasniko_testcontainers-keycloak,github_actions,True,False,False
 playframework_netty-reactive-streams,github_actions,True,False,False
 myndocs_kotlin-oauth2-server,github_actions,True,False,False
@@ -39,12 +40,15 @@ lemire_externalsortinginjava,travis_ci,False,False,False
 projectdiscovery_nuclei-burp-plugin,github_actions,False,False,False
 spring-guides_tut-spring-security-and-angular-js,travis_ci,False,False,False
 majusko_pulsar-java-spring-boot-starter,github_actions,False,False,False
+LinShunKang_MyPerf4J,travis_ci,False,False,False
 microsoft_gctoolkit,github_actions,True,False,False
 MarcGiffing_bucket4j-spring-boot-starter,github_actions,False,False,False
 eclipsesource_jshint-eclipse,travis_ci,False,False,False
 dstl_baleen,travis_ci,False,False,False
+str4d_ed25519-java,travis_ci,False,False,False
 dependency-check_dependency-check-sonar-plugin,github_actions,False,False,False
 apache_flink-benchmarks,github_actions,True,False,False
+ysc_cws_evaluation,travis_ci,False,False,False
 alexcheng1982_happyride,github_actions,True,False,False
 ClickHouse_clickhouse-jdbc-bridge,github_actions,False,False,False
 samuelcampos_usbdrivedetector,github_actions,True,False,False
@@ -66,8 +70,10 @@ saturnism_grpc-by-example-java,github_actions,False,False,False
 owlike_genson,travis_ci,True,False,True
 hs-web_hsweb-platform,travis_ci,False,False,False
 dlsc-software-consulting-gmbh_GemsFX,github_actions,True,False,False
+vmware_mangle,travis_ci,True,False,False
 fridujo_rabbitmq-mock,github_actions,False,False,False
 fridujo_rabbitmq-mock,github_actions,True,False,False
+yandex_yoctodb,travis_ci,False,False,False
 apache_rocketmq-exporter,travis_ci,False,False,False
 jetlinks_rule-engine,travis_ci,True,False,False
 r2dbc_r2dbc-spi,github_actions,False,False,False
@@ -99,6 +105,7 @@ didi_sds,github_actions,False,False,False
 didi_sds,travis_ci,True,False,False
 socketio_engine.io-client-java,github_actions,True,False,False
 zentity-io_zentity,github_actions,True,False,False
+jhalterman_typetools,travis_ci,False,False,False
 young-datafan-ooooo1_data-integration,github_actions,False,False,False
 openmessaging_openchaos,travis_ci,False,False,False
 GideonLeGrange_mikrotik-java,github_actions,False,False,False
@@ -116,6 +123,7 @@ jfree_fxgraphics2d,github_actions,False,False,False
 sofastack_sofa-boot,github_actions,False,False,False
 sofastack_sofa-boot,github_actions,True,False,False
 osalvador_ReplicaDB,github_actions,False,False,False
+osalvador_ReplicaDB,travis_ci,True,False,False
 libetl_curl,github_actions,False,False,False
 liuyueyi_quick-media,github_actions,False,False,False
 liuyueyi_quick-media,travis_ci,False,False,False
@@ -129,15 +137,20 @@ kakawait_cas-security-spring-boot-starter,travis_ci,True,False,False
 castor-software_depclean,github_actions,False,False,False
 castor-software_depclean,github_actions,True,False,False
 k-tamura_easybuggy,travis_ci,False,False,False
+nurkiewicz_LazySeq,travis_ci,False,False,False
 GoSimpleLLC_nbvcxz,github_actions,True,False,False
 mircokroon_minecraft-world-downloader,github_actions,False,False,False
 adgadev_jplusone,github_actions,True,False,False
+AwakenCN_Almost-Famous,travis_ci,False,False,False
 mikaelgrev_miglayout,github_actions,True,False,False
 IBM_janusgraph-utils,travis_ci,False,False,False
 graphstream_gs-algo,travis_ci,True,False,False
 apache_rocketmq-dashboard,travis_ci,False,False,False
+CIDARLAB_cello,travis_ci,False,False,False
+MarkShen1992_Mashibing_High_Concurrency,travis_ci,True,False,False
 rayokota_kareldb,github_actions,False,False,False
 SourceLabOrg_kafka-webview,github_actions,True,False,False
+hortonworks-spark_shc,travis_ci,True,False,False
 tenlee2012_elasticsearch-analysis-hao,github_actions,False,False,False
 intoolswetrust_jsignpdf,github_actions,True,False,False
 intoolswetrust_jsignpdf,github_actions,False,False,False
@@ -150,3 +163,4 @@ gabrie-allaigre_sonar-gitlab-plugin,travis_ci,False,False,False
 zhaojun1998_Shiro-Action,travis_ci,False,False,False
 AxonIQ_giftcard-demo,github_actions,True,False,False
 jakartaee_rest,github_actions,False,False,False
+abc9070410_JComicDownloader,travis_ci,False,False,False

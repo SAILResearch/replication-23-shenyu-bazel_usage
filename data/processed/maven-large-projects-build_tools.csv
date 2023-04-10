@@ -1,11 +1,13 @@
 project,ci_tool,subcommands,skip_tests,use_build_tool
 SeleniumHQ_htmlunit-driver,travis_ci,test,False,True
+SeleniumHQ_htmlunit-driver,travis_ci,install,True,True
 eirslett_frontend-maven-plugin,github_actions,"clean,install",False,True
 ta4j_ta4j,github_actions,test,False,True
 orphan-oss_launch4j-maven-plugin,github_actions,test,False,True
 AppiumTestDistribution_AppiumTestDistribution,circle_ci,clean,False,True
 davidmoten_rxjava2-jdbc,github_actions,verify,False,True
 NLPchina_elasticsearch-sql,travis_ci,test,False,True
+NLPchina_elasticsearch-sql,travis_ci,install,True,True
 mcMMO-Dev_mcMMO,github_actions,verify,False,True
 davidmoten_xsd-forms,github_actions,verify,False,True
 anyascii_anyascii,github_actions,package,False,True
@@ -96,6 +98,7 @@ wso2_product-ei,travis_ci,"clean,install",False,True
 Nepxion_Discovery,github_actions,package,False,True
 antlr_grammars-v4,github_actions,test,False,True
 openscoring_openscoring,github_actions,package,False,True
+SpoutDev_Spout,travis_ci,package,False,True
 gchq_Gaffer,github_actions,"clean,install",False,True
 gchq_Gaffer,github_actions,verify,False,True
 gchq_Gaffer,github_actions,deploy,False,True
@@ -117,9 +120,12 @@ apereo_java-cas-client,github_actions,deploy,False,True
 STAMP-project_dspot,github_actions,install,True,True
 STAMP-project_dspot,github_actions,test,False,True
 STAMP-project_dspot,github_actions,"clean,test",False,True
+STAMP-project_dspot,travis_ci,compile,False,True
+STAMP-project_dspot,travis_ci,install,True,True
 authorjapps_zerocode,github_actions,"clean,test",False,True
 bytedeco_javacpp,travis_ci,clean,False,True
 astamuse_asta4d,travis_ci,test,False,True
+astamuse_asta4d,travis_ci,"clean,package,install",True,True
 DreamVoid_MiraiMC,github_actions,package,False,True
 apache_commons-csv,github_actions,test,False,True
 apache_commons-exec,github_actions,test,False,True
@@ -156,6 +162,7 @@ apache_datasketches-java,github_actions,"clean,install",False,True
 apache_datasketches-java,github_actions,verify,False,True
 yegor256_qulice,github_actions,install,False,True
 brianfrankcooper_YCSB,travis_ci,test,False,True
+brianfrankcooper_YCSB,travis_ci,install,True,True
 cometd_cometd,github_actions,"clean,install",False,True
 mycontroller-org_mycontroller-v1-legacy,travis_ci,verify,False,True
 dice-group_gerbil,github_actions,"clean,compile",True,True
@@ -177,6 +184,7 @@ labsai_EDDI,circle_ci,test,False,True
 labsai_EDDI,circle_ci,package,True,True
 GraphWalker_graphwalker-project,github_actions,package,False,True
 galenframework_galen,travis_ci,verify,False,True
+galenframework_galen,travis_ci,install,True,True
 oshi_oshi,github_actions,verify,False,True
 oshi_oshi,github_actions,test,False,True
 oshi_oshi,github_actions,deploy,True,True
@@ -188,6 +196,7 @@ yegor256_cactoos,github_actions,"clean,package",False,True
 yegor256_cactoos,github_actions,"clean,install",False,True
 steve-community_steve,github_actions,"clean,package",False,True
 mjanicek_rembulan,travis_ci,test,False,True
+mjanicek_rembulan,travis_ci,install,True,True
 BentoBoxWorld_BentoBox,github_actions,verify,False,True
 BentoBoxWorld_BentoBox,github_actions,clean,False,True
 oehf_ipf,github_actions,"clean,package",False,True
@@ -239,6 +248,7 @@ graphhopper_graphhopper,github_actions,"clean,install",False,True
 graphhopper_graphhopper,github_actions,deploy,True,True
 graphhopper_graphhopper,github_actions,"clean,test",False,True
 apache_bigtop,travis_ci,test,False,True
+apache_bigtop,travis_ci,"clean,install",True,True
 aliyun_aliyun-emapreduce-datasources,travis_ci,clean,True,True
 ClickHouse_clickhouse-java,github_actions,install,False,True
 ClickHouse_clickhouse-java,github_actions,clean,False,True
@@ -254,6 +264,7 @@ locationtech_geogig,github_actions,verify,False,True
 locationtech_geogig,travis_ci,install,False,True
 uniVocity_univocity-trader,travis_ci,"clean,install",False,True
 support-project_knowledge,travis_ci,"clean,test",False,True
+support-project_knowledge,travis_ci,install,True,True
 atlassian_data-center-helm-charts,github_actions,test,False,True
 spring-cloud_spring-cloud-release,circle_ci,clean,False,True
 aicis_fresco,github_actions,"clean,install",False,True
@@ -290,10 +301,12 @@ mybatis_spring,github_actions,deploy,True,True
 CertifaiAI_classifai,github_actions,verify,False,True
 CertifaiAI_classifai,github_actions,"clean,install",True,True
 ICIJ_extract,circle_ci,test,False,True
+fengjiachun_Jupiter,travis_ci,"clean,install",True,True
 eclipse-tycho_tycho,github_actions,"clean,install",False,True
 graphstream_gs-core,travis_ci,"clean,install",False,True
 akkinoc_logback-access-spring-boot-starter,github_actions,"clean,install",False,True
 Atmosphere_atmosphere-javascript,github_actions,package,False,True
+Atmosphere_atmosphere-javascript,travis_ci,"clean,install",False,True
 castlemock_castlemock,github_actions,"clean,install",False,True
 eclipse_vorto,travis_ci,"clean,package",True,True
 google_libphonenumber,github_actions,install,True,True
@@ -330,6 +343,7 @@ spotify-web-api-java_spotify-web-api-java,github_actions,deploy,True,True
 smallrye_smallrye-mutiny,github_actions,"clean,deploy",True,True
 smallrye_smallrye-mutiny,github_actions,"clean,verify",True,True
 unipop-graph_unipop,travis_ci,test,False,True
+unipop-graph_unipop,travis_ci,package,True,True
 pgcodekeeper_pgcodekeeper,github_actions,verify,False,True
 hs-web_hsweb-easy-orm,github_actions,test,False,True
 spring-projects_spring-data-examples,travis_ci,"clean,test",False,True
@@ -339,6 +353,7 @@ OSBI_saiku,circle_ci,deploy,True,True
 resty-gwt_resty-gwt,travis_ci,install,False,True
 hs-web_hsweb-framework,travis_ci,test,False,True
 PetteriM1_NukkitPetteriM1Edition,github_actions,package,False,True
+PetteriM1_NukkitPetteriM1Edition,travis_ci,"clean,package",False,True
 haraldk_TwelveMonkeys,github_actions,test,False,True
 haraldk_TwelveMonkeys,github_actions,deploy,True,True
 YunaiV_yudao-cloud,github_actions,package,True,True
@@ -358,6 +373,8 @@ antlr_antlr3,github_actions,"package,verify",True,True
 G-Research_siembol,github_actions,package,True,True
 G-Research_siembol,github_actions,deploy,True,True
 confluence-publisher_confluence-publisher,circle_ci,"clean,install",False,True
+Nukkit_Nukkit,travis_ci,clean,False,True
+Nukkit_Nukkit,travis_ci,package,False,True
 palatable_lambda,github_actions,"clean,verify",False,True
 cucumber_cucumber-eclipse,github_actions,package,False,True
 techa03_goodsKill,github_actions,install,False,True
@@ -407,7 +424,6 @@ geosolutions-it_MapStore2,github_actions,"clean,install",False,True
 geosolutions-it_MapStore2,travis_ci,"clean,install",False,True
 opencypher_openCypher,github_actions,"clean,package",False,True
 AxonIQ_axon-server-se,github_actions,,,False
-SeleniumHQ_htmlunit-driver,travis_ci,,,False
 eirslett_frontend-maven-plugin,github_actions,,,False
 ta4j_ta4j,github_actions,,,False
 ta4j_ta4j,travis_ci,,,False
@@ -418,7 +434,6 @@ JCTools_JCTools,travis_ci,,,False
 AppiumTestDistribution_AppiumTestDistribution,circle_ci,,,False
 davidmoten_rxjava2-jdbc,github_actions,,,False
 apache_deltaspike,travis_ci,,,False
-NLPchina_elasticsearch-sql,travis_ci,,,False
 apache_commons-jexl,github_actions,,,False
 mcMMO-Dev_mcMMO,github_actions,,,False
 spdx_tools,travis_ci,,,False
@@ -472,11 +487,9 @@ magefree_mage,travis_ci,,,False
 megaease_easeagent,github_actions,,,False
 clojure_tools.deps.alpha,github_actions,,,False
 apereo_java-cas-client,github_actions,,,False
-STAMP-project_dspot,travis_ci,,,False
 authorjapps_zerocode,github_actions,,,False
 bytedeco_javacpp,github_actions,,,False
 bytedeco_javacpp,travis_ci,,,False
-astamuse_asta4d,travis_ci,,,False
 DreamVoid_MiraiMC,github_actions,,,False
 apache_commons-csv,github_actions,,,False
 apache_commons-exec,github_actions,,,False
@@ -508,7 +521,6 @@ lemire_javaewah,github_actions,,,False
 lemire_javaewah,travis_ci,,,False
 apache_datasketches-java,github_actions,,,False
 yegor256_qulice,github_actions,,,False
-brianfrankcooper_YCSB,travis_ci,,,False
 ysc_superword,travis_ci,,,False
 cometd_cometd,github_actions,,,False
 mycontroller-org_mycontroller-v1-legacy,github_actions,,,False
@@ -518,12 +530,10 @@ assertj_assertj-db,github_actions,,,False
 hygieia_hygieia,travis_ci,,,False
 mguessan_davmail,travis_ci,,,False
 GraphWalker_graphwalker-project,github_actions,,,False
-galenframework_galen,travis_ci,,,False
 oshi_oshi,travis_ci,,,False
 yegor256_cactoos,github_actions,,,False
 hapifhir_hapi-fhir,github_actions,,,False
 steve-community_steve,github_actions,,,False
-mjanicek_rembulan,travis_ci,,,False
 BentoBoxWorld_BentoBox,github_actions,,,False
 oehf_ipf,github_actions,,,False
 oehf_ipf,travis_ci,,,False
@@ -554,14 +564,12 @@ Universite-Gustave-Eiffel_NoiseModelling,github_actions,,,False
 goldmansachs_gs-collections,travis_ci,,,False
 HubSpot_Baragon,travis_ci,,,False
 zinggAI_zingg,github_actions,,,False
-apache_bigtop,travis_ci,,,False
 ClickHouse_clickhouse-java,github_actions,,,False
 Tillerino_Tillerinobot,github_actions,,,False
 radsz_jacop,travis_ci,,,False
 microsoft_playwright-java,github_actions,,,False
 locationtech_geogig,travis_ci,,,False
 uniVocity_univocity-trader,travis_ci,,,False
-support-project_knowledge,travis_ci,,,False
 atlassian_data-center-helm-charts,github_actions,,,False
 spring-cloud_spring-cloud-release,circle_ci,,,False
 aicis_fresco,github_actions,,,False
@@ -581,7 +589,6 @@ edp963_wormhole,travis_ci,,,False
 jenkinsci_git-client-plugin,github_actions,,,False
 spring-cloud-samples_spring-cloud-contract-samples,github_actions,,,False
 ICIJ_extract,circle_ci,,,False
-fengjiachun_Jupiter,travis_ci,,,False
 eclipse-tycho_tycho,github_actions,,,False
 dotCMS_core,github_actions,,,False
 graphstream_gs-core,travis_ci,,,False
@@ -607,7 +614,6 @@ netfishers-onl_Netshot,github_actions,,,False
 awslabs_aws-serverless-java-container,github_actions,,,False
 t-oster_VisiCut,travis_ci,,,False
 OCR4all_LAREX,github_actions,,,False
-unipop-graph_unipop,travis_ci,,,False
 maven-nar_nar-maven-plugin,travis_ci,,,False
 pgcodekeeper_pgcodekeeper,github_actions,,,False
 hs-web_hsweb-easy-orm,github_actions,,,False

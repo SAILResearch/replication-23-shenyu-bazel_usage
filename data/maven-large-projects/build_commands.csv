@@ -1,5 +1,6 @@
 project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores#invoked_by_script
 SeleniumHQ_htmlunit-driver#travis_ci#maven#test javadoc:javadoc#False#False#-1#2#False
+SeleniumHQ_htmlunit-driver#travis_ci#maven#install -DskipTests=true -Dgpg.skip#False#False#-1#2#False
 eirslett_frontend-maven-plugin#github_actions#maven#clean install --batch-mode -PintegrationTests -DintegrationTestProfiles=it-${{ runner.os }}#True#False#-1#2#False
 eirslett_frontend-maven-plugin#github_actions#maven#--settings settings-github.xml -B deploy -Prelease -DskipTests#True#False#-1#2#False
 ta4j_ta4j#github_actions#maven#-B test#False#False#-1#2#False
@@ -13,6 +14,7 @@ AppiumTestDistribution_AppiumTestDistribution#circle_ci#maven#clean -Dtest=Runne
 AppiumTestDistribution_AppiumTestDistribution#circle_ci#maven#clean -Dtest=Runner test -Dcheckstyle.skip#False#False#-1#4#False
 davidmoten_rxjava2-jdbc#github_actions#maven#--batch-mode --update-snapshots verify#False#False#-1#2#False
 NLPchina_elasticsearch-sql#travis_ci#maven#test#False#False#-1#2#False
+NLPchina_elasticsearch-sql#travis_ci#maven#install -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip=true#False#False#-1#2#False
 apache_commons-jexl#github_actions#maven#-V --file pom.xml --no-transfer-progress -DtrimStackTrace=false#True#False#-1#2#False
 mcMMO-Dev_mcMMO#github_actions#maven#verify -B --file pom.xml#True#False#-1#2#False
 davidmoten_xsd-forms#github_actions#maven#--batch-mode --update-snapshots verify#False#False#-1#2#False
@@ -545,6 +547,16 @@ checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress -B install -Pno-
 checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress clean;#True#False#-1#2#True
 checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress -s config/deploy-settings.xml -Pno-validations deploy;#True#False#-1#2#True
 checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress help:evaluate -Dexpression=settings.localRepository \#True#False#-1#2#True
+checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress help:evaluate -Dexpression=settings.localRepository \#True#False#-1#2#True
+checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress -B install -Pno-validations;#True#False#-1#2#True
+checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress clean;#True#False#-1#2#True
+checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress -s config/deploy-settings.xml -Pno-validations deploy;#True#False#-1#2#True
+checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress help:evaluate -Dexpression=settings.localRepository \#True#False#-1#2#True
+checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress help:evaluate -Dexpression=settings.localRepository \#True#False#-1#2#True
+checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress -B install -Pno-validations;#True#False#-1#2#True
+checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress clean;#True#False#-1#2#True
+checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress -s config/deploy-settings.xml -Pno-validations deploy;#True#False#-1#2#True
+checkstyle_checkstyle#travis_ci#maven#-e --no-transfer-progress help:evaluate -Dexpression=settings.localRepository \#True#False#-1#2#True
 apache_dolphinscheduler#github_actions#maven#-B clean deploy \#True#False#-1#2#False
 apache_dolphinscheduler#github_actions#maven#-B clean install \#True#False#-1#2#False
 apache_dolphinscheduler#github_actions#maven#--batch-mode --quiet -Dexec.executable='echo' -Dexec.args='${project.artifactId}-${project.version}.jar' exec:exec | tee self-modules.txt#True#False#-1#2#True
@@ -580,6 +592,7 @@ Nepxion_Discovery#github_actions#maven#-B package --file pom.xml#False#False#-1#
 antlr_grammars-v4#github_actions#maven#>/dev/null 2>&1 || { echo >&2 "I require maven to test the grammars but it's not installed.  Aborting."; exit 1; }#False#False#-1#2#True
 antlr_grammars-v4#github_actions#maven#test $@#False#False#-1#2#True
 openscoring_openscoring#github_actions#maven#-B package --file pom.xml#True#False#-1#2#False
+SpoutDev_Spout#travis_ci#maven#package -DbuildNumber=$TRAVIS_BUILD_NUMBER -DciSystem=travis -Dcommit=${TRAVIS_COMMIT:0:7}#False#False#-1#2#False
 gchq_Gaffer#github_actions#maven#-q org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.parent.version#False#False#-1#2#True
 gchq_Gaffer#github_actions#maven#org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=koryphe.version | grep -v '\['`#False#False#-1#2#True
 gchq_Gaffer#github_actions#maven#versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false#False#False#-1#2#False
@@ -631,6 +644,9 @@ STAMP-project_dspot#github_actions#maven#clean test#False#False#-1#2#False
 STAMP-project_dspot#github_actions#maven#install -DskipTests#False#False#-1#2#False
 STAMP-project_dspot#github_actions#maven#--version | grep "Maven home" | cut -f 3 -d " ")#False#False#-1#2#False
 STAMP-project_dspot#github_actions#maven#test jacoco:report#False#False#-1#2#False
+STAMP-project_dspot#travis_ci#maven#--version | grep 'Maven home' | sed -e 's/Maven h.* //'`#True#False#-1#2#False
+STAMP-project_dspot#travis_ci#maven#compile --quiet#True#False#-1#2#False
+STAMP-project_dspot#travis_ci#maven#install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true#True#False#-1#2#False
 authorjapps_zerocode#github_actions#maven#clean test#False#False#-1#2#False
 bytedeco_javacpp#travis_ci#maven#clean $MAVEN_PHASE -B -V -U -s $HOME/settings.xml -Djavacpp.platform=linux-arm64#True#False#-1#2#False
 bytedeco_javacpp#travis_ci#maven#clean $MAVEN_PHASE -B -V -U -s $HOME/settings.xml -Djavacpp.platform=linux-ppc64le#True#False#-1#2#False
@@ -654,6 +670,8 @@ bytedeco_javacpp#travis_ci#maven#dependency:list $MAVEN_OPTIONS -DexcludeTransit
 bytedeco_javacpp#travis_ci#maven#deploy:deploy-file $MAVEN_OPTIONS -DrepositoryId=$REPOSITORY_ID -Durl=$REPOSITORY_URL -DpomFile=META-INF/maven/$GROUP/$ARTIFACT/pom.xml \#True#False#-1#2#False
 astamuse_asta4d#travis_ci#maven#test#False#False#-1#2#False
 astamuse_asta4d#travis_ci#maven#test#False#False#-1#2#False
+astamuse_asta4d#travis_ci#maven#-version#False#False#-1#2#False
+astamuse_asta4d#travis_ci#maven#clean package install -DskipTests -Dgpg.skip#False#False#-1#2#False
 DreamVoid_MiraiMC#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
 apache_commons-csv#github_actions#maven#-V test jacoco:report --file pom.xml --no-transfer-progress#True#False#-1#2#False
 apache_commons-csv#github_actions#maven#-Ddoclint=all --file pom.xml --no-transfer-progress#True#False#-1#2#False
@@ -734,8 +752,12 @@ apache_datasketches-java#github_actions#maven#clean install -B -DskipTests=true 
 yegor256_qulice#github_actions#maven#install -Pjacoco -Dinvoker.skip#True#False#-1#2#False
 yegor256_qulice#github_actions#maven#-B install -Pqulice#True#False#-1#2#False
 brianfrankcooper_YCSB#travis_ci#maven#test -q#False#False#-1#2#False
+brianfrankcooper_YCSB#travis_ci#maven#-N io.takari:maven:0.7.7:wrapper -Dmaven=3.6.3#False#False#-1#2#False
+brianfrankcooper_YCSB#travis_ci#maven#install -q -DskipTests=true#False#False#-1#2#False
+ysc_superword#travis_ci#maven#-N io.takari:maven:wrapper#False#False#-1#2#False
 cometd_cometd#github_actions#maven#clean install -e -B -V#True#False#-1#2#False
 mycontroller-org_mycontroller-v1-legacy#travis_ci#maven#verify#False#False#-1#2#False
+mycontroller-org_mycontroller-v1-legacy#travis_ci#maven#-version -B#False#False#-1#2#False
 dice-group_gerbil#github_actions#maven#clean compile -DskipTests=true -Dmaven.javadoc.skip=true -B -V#True#False#-1#2#False
 dice-group_gerbil#github_actions#maven#jacoco:prepare-agent package -Dmaven.javadoc.skip=true -B jacoco:report#True#False#-1#2#False
 yamcs_yamcs#github_actions#maven#-P coverage -B --no-transfer-progress -Dsurefire.useFile=false -Dsonar.projectKey=yamcs verify sonar:sonar#False#False#-1#2#False
@@ -792,6 +814,7 @@ labsai_EDDI#circle_ci#maven#test#False#False#-1#4#False
 labsai_EDDI#circle_ci#maven#package -DskipTests "-Dquarkus.container-image.build=true" "-Dquarkus.container-image.additional-tags=5.0.5-b$CIRCLE_BUILD_NUM,5.0.5,5.0,5"#False#False#-1#4#False
 GraphWalker_graphwalker-project#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
 galenframework_galen#travis_ci#maven#verify -Dgpg.skip=true -Dgalen.use.fail.exit.code=false -Dwebdriver.gecko.driver=$PWD/geckodriver/geckodriver#False#False#-1#2#False
+galenframework_galen#travis_ci#maven#install -DskipTests -Dgpg.skip#False#False#-1#2#False
 oshi_oshi#github_actions#maven#verify sonar:sonar -B -D"sonar.projectKey=oshi_oshi" -D"sonar.organization=oshi-oshi" -D"sonar.host.url=https://sonarcloud.io" -D"sonar.login=$SONAR_TOKEN"#False#False#-1#2#False
 oshi_oshi#github_actions#maven#checkstyle:check#True#False#-1#2#False
 oshi_oshi#github_actions#maven#test -B#True#False#-1#2#False
@@ -813,6 +836,7 @@ yegor256_cactoos#github_actions#maven#--errors --batch-mode clean install -Pquli
 steve-community_steve#github_actions#maven#-B -V license:check --file pom.xml#True#False#-1#2#False
 steve-community_steve#github_actions#maven#-B -V -Dmaven.javadoc.skip=true -Ptest clean package --file pom.xml#True#False#-1#2#False
 mjanicek_rembulan#travis_ci#maven#test -e#False#False#-1#2#False
+mjanicek_rembulan#travis_ci#maven#install -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip=true -B -V#False#False#-1#2#False
 BentoBoxWorld_BentoBox#github_actions#maven#-B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=BentoBoxWorld_BentoBox#True#False#-1#2#False
 BentoBoxWorld_BentoBox#github_actions#maven#--batch-mode clean org.jacoco:jacoco-maven-plugin:prepare-agent install#True#False#-1#2#False
 oehf_ipf#github_actions#maven#-B clean package --file pom.xml#True#False#-1#2#False
@@ -920,6 +944,7 @@ graphhopper_graphhopper#github_actions#maven#-B clean test#False#False#-1#2#Fals
 graphhopper_graphhopper#github_actions#maven#-B versions:set -DnewVersion=$GITHUB_SHA -DgenerateBackupPoms=false#False#False#-1#2#False
 graphhopper_graphhopper#github_actions#maven#-B -DskipTests -Pskip-shaded-web-jar -Pskip-tools-jar source:jar deploy#False#False#-1#2#False
 apache_bigtop#travis_ci#maven#test -B#False#False#-1#2#False
+apache_bigtop#travis_ci#maven#clean install -DskipTests -DskipITs#False#False#-1#2#False
 aliyun_aliyun-emapreduce-datasources#travis_ci#maven#-B clean checkstyle:check scalastyle:check package -DskipTests#True#False#-1#2#False
 ClickHouse_clickhouse-java#github_actions#maven#-q --batch-mode --projects '!clickhouse-benchmark' -DclickhouseVersion=22.8 -DskipTests install#True#False#-1#2#False
 ClickHouse_clickhouse-java#github_actions#maven#--batch-mode --projects '!clickhouse-benchmark' -DclickhouseVersion=22.8 \#True#False#-1#2#False
@@ -968,8 +993,10 @@ locationtech_geogig#github_actions#maven#-ntp -DskipTests -T1C -Dfmt.action=vali
 locationtech_geogig#github_actions#maven#-ntp -f src/metadata -Dfmt.skip clean install#True#False#-1#2#False
 locationtech_geogig#github_actions#maven#-ntp -T1C -Dfmt.skip verify -Pexperimental -rf :geogig-api#True#False#-1#2#False
 locationtech_geogig#travis_ci#maven#-B --no-transfer-progress install -Dfmt.skip=true -Pexperimental#True#False#-1#2#False
+locationtech_geogig#travis_ci#maven#-B --no-transfer-progress -U install -Dfmt.action=validate -DskipTests=true -Pexperimental#True#False#-1#2#False
 uniVocity_univocity-trader#travis_ci#maven#clean install#False#False#-1#2#False
 support-project_knowledge#travis_ci#maven#clean test -Dskip.npm=true -Dskip.bower=true -Dskip.gulp=true#False#False#-1#2#False
+support-project_knowledge#travis_ci#maven#install -DskipTests=true -Dmaven.javadoc.skip=true -Dskip.npm=true -Dskip.bower=true -Dskip.gulp=true -B -V#False#False#-1#2#False
 atlassian_data-center-helm-charts#github_actions#maven#-B test#False#False#-1#2#False
 spring-cloud_spring-cloud-release#circle_ci#maven#-s .settings.xml -U --fail-never dependency:go-offline || true#False#False#-1#2#False
 spring-cloud_spring-cloud-release#circle_ci#maven#-s .settings.xml clean org.jacoco:jacoco-maven-plugin:prepare-agent install -U -P sonar -nsu --batch-mode -Dmaven.test.redirectTestOutputToFile=true -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn#False#False#-1#2#False
@@ -1081,6 +1108,7 @@ CertifaiAI_classifai#github_actions#maven#-B verify sonar:sonar -Dsonar.projectK
 CertifaiAI_classifai#github_actions#maven#-Puberjar -Dmaven.test.skip=true clean install#False#False#-1#2#False
 ICIJ_extract#circle_ci#maven#test#False#False#-1#2#False
 ICIJ_extract#circle_ci#maven#-s .circleci/maven-release-settings.xml deploy -Dmaven.test.skip=true#False#False#-1#2#False
+fengjiachun_Jupiter#travis_ci#maven#clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V#True#False#-1#2#False
 eclipse-tycho_tycho#github_actions#maven#-U -V -e -B -ntp clean install --file pom.xml -T1C -DtrimStackTrace=false#True#False#-1#2#False
 eclipse-tycho_tycho#github_actions#maven#-U -V -e -B -ntp -Pits -D maven.test.failure.ignore=true clean install --file tycho-its/pom.xml -DtrimStackTrace=false#True#False#-1#2#False
 eclipse-tycho_tycho#github_actions#maven#-U -V -e -B -ntp clean install site site:stage --file tycho/pom.xml -T1C -DskipTests#True#False#-1#2#False
@@ -1107,6 +1135,7 @@ akkinoc_logback-access-spring-boot-starter#github_actions#maven#-B -Dlogback-acc
 akkinoc_logback-access-spring-boot-starter#github_actions#maven#-B -Dlogback-access-spring-boot-starter.version=${{ env.PROJECT_VERSION }} clean install#True#False#-1#2#False
 tlaplus_tlaplus#github_actions#maven#deploy:deploy-file -Dgithub.packages.username=${{ github.actor }} -Dgithub.packages.password=${{ secrets.GITHUB_TOKEN }} -Dfile=dist/tla2tools.jar -Durl=https://maven.pkg.github.com/${{ github.repository }} -DpomFile=github.xml -DrepositoryId=github -f github.xml#True#False#-1#2#False
 Atmosphere_atmosphere-javascript#github_actions#maven#-B package --file pom.xml#False#False#-1#2#False
+Atmosphere_atmosphere-javascript#travis_ci#maven#clean install#False#False#-1#2#False
 castlemock_castlemock#github_actions#maven#clean install --file pom.xml#False#False#-1#2#False
 eclipse_vorto#travis_ci#maven#clean package -DskipTests#False#False#-1#2#False
 eclipse_vorto#travis_ci#maven#--fail-fast -q clean package -P checkstyle#False#False#-1#2#False
@@ -1371,6 +1400,7 @@ smallrye_smallrye-mutiny#github_actions#maven#-B clean deploy -DskipTests -Prele
 smallrye_smallrye-mutiny#github_actions#maven#-s .build/maven-ci-settings.xml -B clean verify -Pcoverage#True#False#-1#2#False
 smallrye_smallrye-mutiny#github_actions#maven#-s .build/maven-ci-settings.xml -pl '!bom' -B install revapi:check@check-compatibility -DskipTests -fae#True#False#-1#2#False
 unipop-graph_unipop#travis_ci#maven#test#False#False#-1#2#False
+unipop-graph_unipop#travis_ci#maven#package -DskipTests=true -Dmaven.javadoc.skip=true -B -V#False#False#-1#2#False
 maven-nar_nar-maven-plugin#travis_ci#maven#-Dinvoker.debug=true -Prun-its#True#False#-1#2#True
 pgcodekeeper_pgcodekeeper#github_actions#maven#-B verify --file pom.xml#False#False#-1#2#False
 hs-web_hsweb-easy-orm#github_actions#maven#-Duser.timezone="Asia/Shanghai" test -Pjava11#True#False#-1#2#False
@@ -1387,6 +1417,7 @@ OSBI_saiku#circle_ci#maven#-Pdocker-build -s .circleci/settings.xml -DskipTests 
 resty-gwt_resty-gwt#travis_ci#maven#install -Dgwt.version=$GWT_VERSION#False#False#-1#2#False
 hs-web_hsweb-framework#travis_ci#maven#-q test#True#False#-1#2#False
 PetteriM1_NukkitPetteriM1Edition#github_actions#maven#-B package#True#False#-1#2#False
+PetteriM1_NukkitPetteriM1Edition#travis_ci#maven#clean package#False#False#-1#2#False
 haraldk_TwelveMonkeys#github_actions#maven#test#True#False#-1#2#False
 haraldk_TwelveMonkeys#github_actions#maven#test#True#False#-1#2#False
 haraldk_TwelveMonkeys#github_actions#maven#help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV#False#False#-1#2#False
@@ -1417,6 +1448,8 @@ rabbitmq_rabbitmq-perf-test#github_actions#maven#verify -Drabbitmqctl.bin=DOCKER
 rabbitmq_rabbitmq-perf-test#github_actions#maven#clean deploy -Psnapshots -DskipITs -DskipTests --no-transfer-progress#True#False#-1#2#False
 rabbitmq_rabbitmq-perf-test#github_actions#maven#package assembly:single checksum:files gpg:sign -P assemblies -DfinalName=$FINAL_NAME -DskipTests --no-transfer-progress#True#False#-1#2#True
 rabbitmq_rabbitmq-perf-test#github_actions#maven#clean package -Dmaven.test.skip -P uber-jar -DuberJarFinalName=$UBER_JAR_FINAL_NAME --no-transfer-progress#True#False#-1#2#True
+rabbitmq_rabbitmq-perf-test#github_actions#maven#asciidoctor:process-asciidoc --no-transfer-progress#True#False#-1#2#False
+rabbitmq_rabbitmq-perf-test#github_actions#maven#asciidoctor:process-asciidoc --no-transfer-progress#True#False#-1#2#False
 rabbitmq_rabbitmq-perf-test#github_actions#maven#verify -Drabbitmqctl.bin=DOCKER:rabbitmq --no-transfer-progress \#True#False#-1#2#False
 jcabi_jcabi-github#github_actions#maven#install -Pjacoco#True#False#-1#2#False
 jcabi_jcabi-github#github_actions#maven#-version#True#False#-1#2#False
@@ -1436,6 +1469,8 @@ confluence-publisher_confluence-publisher#circle_ci#maven#-pl asciidoc-confluenc
 confluence-publisher_confluence-publisher#circle_ci#maven#-s .settings.xml jar:jar source:jar javadoc:jar gpg:sign deploy:deploy -Possrh -nsu; fi#False#False#-1#2#False
 confluence-publisher_confluence-publisher#circle_ci#maven#-pl asciidoc-confluence-publisher-docker dockerfile:push -nsu; fi#False#False#-1#2#False
 confluence-publisher_confluence-publisher#circle_ci#maven#-Dusername=$CONFLUENCE_USERNAME -D"password=$CONFLUENCE_PASSWORD" -DrootConfluenceUrl=$CONFLUENCE_URL -DspaceKey=$CONFLUENCE_SPACE_KEY -DancestorId=$CONFLUENCE_ANCESTOR_ID -pl asciidoc-confluence-publisher-doc asciidoc-confluence-publisher:publish -nsu; fi#False#False#-1#2#False
+Nukkit_Nukkit#travis_ci#maven#clean#False#False#-1#2#False
+Nukkit_Nukkit#travis_ci#maven#package#False#False#-1#2#False
 palatable_lambda#github_actions#maven#clean verify#False#False#-1#2#False
 palatable_lambda#github_actions#maven#clean verify#False#False#-1#2#False
 palatable_lambda#github_actions#maven#clean verify#False#False#-1#2#False
