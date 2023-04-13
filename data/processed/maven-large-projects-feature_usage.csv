@@ -328,3 +328,17 @@ geosolutions-it_MapStore2,github_actions,False,False,False
 geosolutions-it_MapStore2,travis_ci,False,False,False
 searchbox-io_Jest,travis_ci,False,False,False
 opencypher_openCypher,github_actions,False,False,False
+AtomGraph_LinkedDataHub,github_actions,False,False,False
+mycontroller-org_mycontroller-v1-legacy,github_actions,False,False,False
+flapdoodle-oss_de.flapdoodle.embed.process,travis_ci,False,False,False
+maven-nar_nar-maven-plugin,travis_ci,False,False,False
+netfishers-onl_Netshot,github_actions,False,False,False
+openhab_openhab-webui,github_actions,True,False,False
+frandallfarmer_neohabitat,travis_ci,False,False,False
+Waikato_moa,github_actions,False,False,False
+bytedeco_javacv,github_actions,False,False,False
+EnMasseProject_enmasse,github_actions,False,False,False
+openhab_openhab-distro,github_actions,True,False,False
+mojohaus_versions,github_actions,False,False,False
+imagej_tutorials,github_actions,True,False,False
+kiegroup_droolsjbpm-knowledge,github_actions,True,False,False

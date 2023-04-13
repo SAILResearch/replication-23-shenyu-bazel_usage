@@ -711,6 +711,23 @@ searchbox-io_Jest,travis_ci,test,False,True
 searchbox-io_Jest,travis_ci,install,True,True
 opencypher_openCypher,github_actions,"clean,verify",False,True
 opencypher_openCypher,github_actions,"clean,package",False,True
+AtomGraph_LinkedDataHub,github_actions,"clean,install",False,True
+mycontroller-org_mycontroller-v1-legacy,github_actions,install:install-file,False,True
+flapdoodle-oss_de.flapdoodle.embed.process,travis_ci,test,False,True
+maven-nar_nar-maven-plugin,travis_ci,install,False,True
+netfishers-onl_Netshot,github_actions,package,False,True
+openhab_openhab-webui,github_actions,"clean,verify",False,True
+frandallfarmer_neohabitat,travis_ci,"clean,package",False,True
+Waikato_moa,github_actions,"clean,install",True,True
+Waikato_moa,github_actions,package,True,True
+bytedeco_javacv,github_actions,install,True,True
+bytedeco_javacv,github_actions,clean,False,True
+EnMasseProject_enmasse,github_actions,package,False,True
+openhab_openhab-distro,github_actions,"clean,verify",False,True
+mojohaus_versions,github_actions,install,False,True
+mojohaus_versions,github_actions,site:stage,True,True
+imagej_tutorials,github_actions,deploy,False,True
+kiegroup_droolsjbpm-knowledge,github_actions,"clean,install",False,True
 AxonIQ_axon-server-se,github_actions,,,False
 ta4j_ta4j,github_actions,,,False
 orphan-oss_launch4j-maven-plugin,github_actions,,,False
@@ -732,7 +749,6 @@ igniterealtime_Openfire,github_actions,,,False
 googleapis_google-api-java-client,github_actions,,,False
 iluwatar_java-design-patterns,github_actions,,,False
 AbsaOSS_spline,github_actions,,,False
-bytedeco_javacv,github_actions,,,False
 bytedeco_javacv,travis_ci,,,False
 cpesch_RouteConverter,github_actions,,,False
 spring-petclinic_spring-petclinic-microservices,github_actions,,,False
@@ -746,7 +762,6 @@ openscoring_openscoring,github_actions,,,False
 SpoutDev_Spout,travis_ci,,,False
 gchq_Gaffer,github_actions,,,False
 graphhopper_jsprit,github_actions,,,False
-mojohaus_versions,github_actions,,,False
 mojohaus_mojo-parent,github_actions,,,False
 undera_jmeter-plugins,github_actions,,,False
 magefree_mage,github_actions,,,False
@@ -796,7 +811,6 @@ spring-cloud_spring-cloud-netflix,circle_ci,,,False
 knowm_XChange,github_actions,,,False
 frandallfarmer_neohabitat,travis_ci,,,False
 Archy-X_AureliumSkills,github_actions,,,False
-Waikato_moa,github_actions,,,False
 Waikato_moa,travis_ci,,,False
 ferstl_depgraph-maven-plugin,github_actions,,,False
 Universite-Gustave-Eiffel_NoiseModelling,github_actions,,,False

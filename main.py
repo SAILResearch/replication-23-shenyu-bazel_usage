@@ -7,7 +7,7 @@ from visualization.visualize import visualize_data
 
 if __name__ == '__main__':
     logging.basicConfig(
-        level=logging.INFO,
+        # level=logging.INFO,
         format='%(asctime)s - %(levelname)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
     # projects = project.retrieve_projects()

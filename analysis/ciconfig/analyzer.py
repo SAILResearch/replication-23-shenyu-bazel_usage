@@ -3,7 +3,7 @@ import os
 import re
 
 from analysis.ciconfig.parser import GitHubActionConfigParser, CIConfig, CircleCIConfigParser, \
-    BuildkiteConfigParser, TravisCIConfigParser
+    BuildkiteConfigParser, TravisCIConfigParser, CIConfigParser
 
 
 class CIConfigAnalyzer:
@@ -73,9 +73,13 @@ class CIConfigAnalyzer:
                             f"{entry.name}#{ci_config.ci_tool}#{cmd.build_tool}#{cmd.raw_arguments}#{use_local_cache}#{use_remote_cache}#{parallelism}#{cmd.cores}#{cmd.invoked_by_script}\n")
                         build_cmd_size_file.write(
                             f"{entry.name}#{ci_config.ci_tool}#{cmd.build_tool}#{cmd.non_expended_arg_size}#{cmd.expanded_arg_size}\n")
+        print(f"analyzed {CIConfigParser.total_analyzed_ci_file_count} ci/cd configuration files in total")
+        print(f"analyzed {CIConfigParser.total_analyzed_commands_count} commands in total")
+        print(f"analyzed {CIConfigParser.total_analyzed_script_count} scripts in total")
+        print(f"analyzed {CIConfigParser.total_analyzed_makefile_count} makefiles in total")
 
 
 if __name__ == "__main__":
     results = CIConfigAnalyzer()._analyze_project_ci_configs(
-        "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/maven-large/languagetool-org_languagetool")
+        "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/maven-small/sonatype-nexus-community_nexus-repository-composer")
     print(results[0].build_commands)

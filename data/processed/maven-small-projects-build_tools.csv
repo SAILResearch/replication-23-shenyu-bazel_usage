@@ -375,6 +375,15 @@ AxonIQ_giftcard-demo,github_actions,"clean,verify",False,True
 jakartaee_rest,github_actions,verify,False,True
 abc9070410_JComicDownloader,travis_ci,install,False,True
 abc9070410_JComicDownloader,travis_ci,test,False,True
+eclipse-ee4j_grizzly,github_actions,install,False,True
+bonigarcia_webdrivermanager-examples,github_actions,test,False,True
+spring-cloud_spring-cloud-dataflow-samples,github_actions,"clean,verify",False,True
+spring-cloud_spring-cloud-dataflow-samples,github_actions,"clean,install",False,True
+sonatype-nexus-community_nexus-repository-composer,circle_ci,release:perform,False,True
+sonatype-nexus-community_nexus-repository-composer,circle_ci,"clean,verify",False,True
+plaid_plaid-java,circle_ci,verify,False,True
+johncarl81_parceler,travis_ci,install,False,True
+alibaba_QLExpress,github_actions,"clean,deploy",False,True
 spring-cloud_spring-cloud-circuitbreaker,github_actions,,,False
 spring-cloud_spring-cloud-circuitbreaker,circle_ci,,,False
 agroal_agroal,github_actions,,,False

@@ -203,3 +203,8 @@ zhaojun1998_Shiro-Action,travis_ci,False
 AxonIQ_giftcard-demo,github_actions,False
 jakartaee_rest,github_actions,False
 abc9070410_JComicDownloader,travis_ci,False
+bonigarcia_webdrivermanager-examples,github_actions,False
+sonatype-nexus-community_nexus-repository-composer,circle_ci,False
+plaid_plaid-java,circle_ci,False
+johncarl81_parceler,travis_ci,False
+alibaba_QLExpress,github_actions,False

@@ -1,0 +1,19 @@
+project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores#invoked_by_script
+AtomGraph_LinkedDataHub#github_actions#maven#-Pstandalone clean install#False#False#-1#2#True
+mycontroller-org_mycontroller-v1-legacy#github_actions#maven# install:install-file -Dfile=./jars/moquette-broker-0.10-shaded.jar -DgroupId=io.moquette -DartifactId=moquette-broker -Dversion=0.10 -Dpackaging=jar#False#False#-1#2#True
+flapdoodle-oss_de.flapdoodle.embed.process#travis_ci#maven#test -Ptravis#False#False#-1#2#False
+maven-nar_nar-maven-plugin#travis_ci#maven#install -Dinvoker.debug=true -Prun-its#False#False#-1#2#True
+netfishers-onl_Netshot#github_actions#maven#package#False#False#-1#2#True
+openhab_openhab-webui#github_actions#maven#clean verify -B -T 1.5C -U#True#False#1.5#2#True
+frandallfarmer_neohabitat#travis_ci#maven#clean package#False#False#-1#2#False
+Waikato_moa#github_actions#maven#clean install -DskipTests=true#False#False#-1#2#True
+Waikato_moa#github_actions#maven#package -DskipTests=true#False#False#-1#2#True
+bytedeco_javacv#github_actions#maven#install -DskipTests=true#False#False#-1#2#True
+bytedeco_javacv#github_actions#maven#clean $MAVEN_PHASE -B -U -e -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.count=3 -Djavacpp.platform=$CI_DEPLOY_PLATFORM -Djavacpp.platform.extension=$EXT $MAVEN_OPTIONS $CI_DEPLOY_OPTIONS#False#False#-1#2#True
+EnMasseProject_enmasse#github_actions#maven#package#False#False#-1#2#True
+openhab_openhab-distro#github_actions#maven#clean verify -B -T 1.5C -U#True#False#1.5#2#False
+mojohaus_versions#github_actions#maven#--errors --batch-mode --show-version -D"invoker.streamLogsOnFailures" -P run-its install#False#False#-1#2#True
+mojohaus_versions#github_actions#maven#--errors --batch-mode --show-version -D"invoker.streamLogsOnFailures" -DskipTests -P reporting site site:stage#False#False#-1#2#True
+imagej_tutorials#github_actions#maven#-Pdeploy-to-scijava $BUILD_ARGS deploy#True#False#-1#2#True
+kiegroup_droolsjbpm-knowledge#github_actions#maven#-e -nsu -Dfull -Pwildfly clean install -Prun-code-coverage  -Dcontainer.profile=wildfly -Dcontainer=wildfly -Dintegration-tests=true -Dmaven.test.failure.ignore=true#True#False#-1#2#True
+

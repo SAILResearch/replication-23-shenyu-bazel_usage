@@ -61,10 +61,13 @@ def preprocess_project_data(source_dir, processed_data_dir, build_tool, target_f
 
 def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, target_filename_prefix=""):
     build_commands_data_path = os.path.join(source_dir, "build_commands.csv")
+    manually_added_build_commands_path = os.path.join(source_dir, "build_commands_manually_added.csv")
     ci_tool_usage_data_path = os.path.join(source_dir, "ci_tool_usage.csv")
     target_processed_file_path = os.path.join(target_dir, f"{target_filename_prefix}-build_tools.csv")
 
     build_commands = pd.read_csv(build_commands_data_path, sep="#")
+    build_commands = pd.concat([build_commands, pd.read_csv(manually_added_build_commands_path, sep="#")])
+
     ci_tool_usages = pd.read_csv(ci_tool_usage_data_path).drop_duplicates()
     build_commands = build_commands[build_commands["build_tool"] == build_tool]
     build_commands["subcommands"] = build_commands.apply(lambda row: label_subcommand(row, build_tool)[0], axis=1)
@@ -94,9 +97,11 @@ def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, targe
 
 def preprocess_feature_usage(source_dir: str, target_dir: str, build_tool: str, target_filename_prefix=""):
     source_data_file_path = os.path.join(source_dir, "build_commands.csv")
+    manually_added_build_commands_path = os.path.join(source_dir, "build_commands_manually_added.csv")
     target_processed_file_path = os.path.join(target_dir, f"{target_filename_prefix}-feature_usage.csv")
 
     build_commands = pd.read_csv(source_data_file_path, sep="#")
+    build_commands = pd.concat([build_commands, pd.read_csv(manually_added_build_commands_path, sep="#")])
     build_commands = build_commands[build_commands["build_tool"] == build_tool]
     build_commands["use_parallelization"] = build_commands.apply(lambda row: int(row["parallelism"]) > 1, axis=1)
 
@@ -128,9 +133,11 @@ def label_subcommand(row, build_tool) -> (str, bool):
 
 def preprocess_script_usage(source_dir: str, target_dir: str, build_tool: str, target_filename_prefix=""):
     source_data_file_path = os.path.join(source_dir, "build_commands.csv")
+    manually_added_build_commands_path = os.path.join(source_dir, "build_commands_manually_added.csv")
     target_processed_file_path = os.path.join(target_dir, f"{target_filename_prefix}-script_usage.csv")
 
     build_commands = pd.read_csv(source_data_file_path, sep="#")
+    build_commands = pd.concat([build_commands, pd.read_csv(manually_added_build_commands_path, sep="#")])
     build_commands = build_commands[build_commands["build_tool"] == build_tool]
     build_commands = build_commands.drop(
         columns=["raw_arguments", "build_tool", "parallelism", "cores", "local_cache", "remote_cache"])

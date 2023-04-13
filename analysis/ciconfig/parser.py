@@ -40,6 +40,11 @@ class CIConfig:
 
 
 class CIConfigParser:
+    total_analyzed_ci_file_count = 0
+    total_analyzed_script_count = 0
+    total_analyzed_commands_count = 0
+    total_analyzed_makefile_count = 0
+
     def __init__(self, project_dir: str):
         self.project_dir = project_dir
         self.ci_file_pattern = re.compile(self._ci_file_pattern())
@@ -51,6 +56,9 @@ class CIConfigParser:
         self.maven_command_matcher = re.compile(".*mvnw? (.*)")
         self.make_command_matcher = re.compile(".*make (.*)")
 
+        self.analyzed_makefile = False
+        self.analyzed_scripts = set()
+
     def parse(self) -> [CIConfig]:
         ci_configs = []
         for ci_file in self._scan_ci_files():
@@ -58,11 +66,13 @@ class CIConfigParser:
                 ci_config_str = f.read()
             if not ci_config_str:
                 continue
-
+            CIConfigParser.total_analyzed_ci_file_count += 1
             ci_config = self.parse_ci_file(ci_config_str)
             if not ci_config:
                 continue
             ci_configs.append(ci_config)
+        CIConfigParser.total_analyzed_makefile_count += 1 if self.analyzed_makefile else 0
+        CIConfigParser.total_analyzed_script_count += len(self.analyzed_scripts)
         return ci_configs
 
     @abstractmethod
@@ -202,6 +212,8 @@ class CIConfigParser:
         return possible_ci_files
 
     def _parse_commands(self, command, convert_make=True) -> [BuildCommand]:
+        CIConfigParser.total_analyzed_commands_count += 1
+
         cmds = []
         command_matchers = {"maven": self.maven_command_matcher, "bazel": self.bazel_command_matcher,
                             "bazelisk": self.bazelisk_command_matcher, "make": self.make_command_matcher}
@@ -219,6 +231,7 @@ class CIConfigParser:
                 # if this step invoke a script, we look at that script to check if they run any Bazel command within
                 for script_file in self.sh_scripts:
                     if script_file.name in command:
+                        self.analyzed_scripts.add(script_file.path)
                         with open(script_file.path, "r") as f:
                             raw_script = f.read()
                             for match in matcher.finditer(raw_script):
@@ -241,6 +254,8 @@ class CIConfigParser:
             if cmd.build_tool != "make":
                 new_cmds.append(cmd)
                 continue
+
+            self.analyzed_makefile = True
 
             make_targets = []
             make_args = cmd.raw_arguments.split()
@@ -386,9 +401,11 @@ class GitHubActionConfigParser(CIConfigParser):
                 if step["uses"].startswith("github/codeql-action/autobuild"):
                     if "strategy" in job and "matrix" in job["strategy"] and "language" in job["strategy"]["matrix"]:
                         if "java" in job["strategy"]["matrix"]["language"]:
-                            for cmd in self._parse_commands('mvn clean package -f "pom.xml" -B -V -e -Dfindbugs.skip -Dcheckstyle.skip -Dpmd.skip=true -Dspotbugs.skip -Denforcer.skip -Dmaven.javadoc.skip -DskipTests -Dmaven.test.skip.exec -Dlicense.skip=true -Drat.skip=true -Dspotless.check.skip=true'):
+                            for cmd in self._parse_commands(
+                                    'mvn clean package -f "pom.xml" -B -V -e -Dfindbugs.skip -Dcheckstyle.skip -Dpmd.skip=true -Dspotbugs.skip -Denforcer.skip -Dmaven.javadoc.skip -DskipTests -Dmaven.test.skip.exec -Dlicense.skip=true -Drat.skip=true -Dspotless.check.skip=true'):
                                 cmd.cores = cores
-                                cmd.local_cache = (cmd.build_tool == "maven" and local_maven_cache) or local_cache_enable
+                                cmd.local_cache = (
+                                                              cmd.build_tool == "maven" and local_maven_cache) or local_cache_enable
                                 cmd.local_cache_paths = local_cache_paths
                                 gha_cfg.build_commands.append(cmd)
 
@@ -771,7 +788,6 @@ class TravisCIConfigParser(CIConfigParser):
             if "install" not in cfgs:
                 # if not install is defined, and it is a java project, travis will run mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V by default
                 build_cmds.extend(self._parse_commands("mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V"))
-
 
         for cmd in build_cmds:
             cmd.local_cache = local_cache

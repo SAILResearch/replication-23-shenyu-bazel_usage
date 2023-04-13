@@ -314,3 +314,16 @@ geosolutions-it_MapStore2,travis_ci,False
 searchbox-io_Jest,travis_ci,False
 opencypher_openCypher,github_actions,False
 opencypher_openCypher,github_actions,True
+AtomGraph_LinkedDataHub,github_actions,True
+mycontroller-org_mycontroller-v1-legacy,github_actions,True
+flapdoodle-oss_de.flapdoodle.embed.process,travis_ci,False
+netfishers-onl_Netshot,github_actions,True
+openhab_openhab-webui,github_actions,True
+frandallfarmer_neohabitat,travis_ci,False
+Waikato_moa,github_actions,True
+bytedeco_javacv,github_actions,True
+EnMasseProject_enmasse,github_actions,True
+openhab_openhab-distro,github_actions,False
+mojohaus_versions,github_actions,True
+imagej_tutorials,github_actions,True
+kiegroup_droolsjbpm-knowledge,github_actions,True

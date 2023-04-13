@@ -14,12 +14,13 @@ def visualize_data(data_dir: str):
 
     data_dir = os.path.join(data_dir, "processed")
     visualize_ci_tools(data_dir)
-    # visualize_subcommand_usage(data_dir)
-    # visualize_parallelization_usage(data_dir)
-    # visualize_cache_usage(data_dir)
-    # visualize_build_rule_categories(data_dir)
-    # visualize_script_usage(data_dir)
-    # visualize_arg_size(data_dir)
+    visualize_subcommand_usage(data_dir)
+    visualize_parallelization_usage(data_dir)
+    visualize_cache_usage(data_dir)
+    visualize_build_rule_categories(data_dir)
+    visualize_script_usage(data_dir)
+    visualize_arg_size(data_dir)
+    # visualize_parallelization_experiments(data_dir)
 
 
 def visualize_ci_tools(data_dir: str):
@@ -33,9 +34,11 @@ def visualize_ci_tools(data_dir: str):
         build_tool_usage = pd.DataFrame({"Local": [0, 0, 0, 0], "CI": [0, 0, 0, 0],
                                          "CI/CD Services": ["github_actions", "circle_ci", "buildkite", "travis_ci"]})
 
+
         df["use_build_tool"] = df.apply(
             lambda row: df.loc[
-                (df["project"] == row["project"]) & (df["ci_tool"] == row["ci_tool"]) & (df["use_build_tool"])].any().all(),
+                (df["project"] == row["project"]) & (df["ci_tool"] == row["ci_tool"]) & (
+                    df["use_build_tool"])].any().all(),
             axis=1)
         df = df.drop_duplicates()
 
@@ -445,6 +448,42 @@ def visualize_script_usage(data_dir: str):
     plt.tight_layout()
     plt.savefig("./images/script_usage")
     plt.show()
+
+
+# def visualize_parallelization_experiments(data_dir):
+#     df = pd.read_csv(
+#         "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/data/experiments/results-apr-10-narf.csv")
+#     df["median_elapsed_time"] = df.apply(
+#         lambda row: df.loc[(df["project"] == row["project"]) & (df["parallelism"] == row["parallelism"]) & (
+#                     df["subcommand"] == row["subcommand"])]["elapsed_time"].median(), axis=1)
+#     df = df.drop(columns=["elapsed_time", "critical_path", "target"]).drop_duplicates().reset_index(drop=True)
+#
+#     delete_list = []
+#     for project, subcommand in zip(df["project"].unique(), ["build", "test"]):
+#         if subcommand not in df[(df["project"] == project)]["subcommand"].unique():
+#             continue
+#
+#         if len(df[(df["project"] == project) & (df["subcommand"] == subcommand)]["parallelism"].unique()) != 4:
+#             delete_list.append((project, subcommand))
+#
+#
+#     for project, subcommand in delete_list:
+#         df = df.drop(df[(df["project"] == project) & (df["subcommand"] == subcommand)].index)
+#
+#     df["improvement"] = df.apply(lambda row: row["median_elapsed_time"] / df.loc[(df["project"] == row["project"]) & (df["parallelism"] == 2) & (
+#                     df["subcommand"] == row["subcommand"])]["median_elapsed_time"].iloc[0], axis=1)
+#
+#     ax = sns.boxplot(data=df, x="parallelism", y="improvement", hue="subcommand", palette="Set2",
+#                      dodge=True)
+#
+#     ax.yaxis.set_major_formatter(lambda x, pos: f"{x:.2f}x")
+#     ax.set_xlabel("Parallelism")
+#     ax.set_ylabel("Improvement")
+#     ax.set_title("Improvement of Parallelization")
+#
+#     plt.tight_layout()
+#     plt.savefig("./images/parallelization")
+#     plt.show()
 
 
 def visualize_arg_size(data_dir: str):

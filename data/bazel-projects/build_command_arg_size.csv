@@ -947,6 +947,8 @@ google_go-jsonnet#github_actions#bazel#0#0
 google_go-jsonnet#github_actions#bazel#0#0
 google_go-jsonnet#github_actions#bazel#0#0
 google_go-jsonnet#github_actions#bazel#3#3
+google_go-jsonnet#travis_ci#bazel#0#0
+google_go-jsonnet#travis_ci#bazel#3#3
 alibaba_DeepRec#github_actions#bazel#6#25
 alibaba_DeepRec#github_actions#bazel#4#23
 alibaba_DeepRec#github_actions#bazel#3#22
@@ -1581,6 +1583,7 @@ tensorflow_tflite-micro#github_actions#bazel#0#0
 tensorflow_tflite-micro#github_actions#bazel#0#0
 tensorflow_tflite-micro#github_actions#bazel#3#3
 tensorflow_tflite-micro#github_actions#bazel#0#0
+euphoria-io_heim#travis_ci#maven#4#4
 cockroachdb_cockroach#github_actions#bazel#0#15
 cockroachdb_cockroach#github_actions#bazel#0#15
 primihub_primihub#github_actions#bazel#1#5
@@ -1662,6 +1665,11 @@ cockroachdb_cockroach-operator#github_actions#bazel#5#6
 cockroachdb_cockroach-operator#github_actions#bazel#1#2
 cockroachdb_cockroach-operator#github_actions#bazel#1#2
 angular_angular#github_actions#bazel#3#12
+angular_angular#circle_ci#bazel#0#11
+angular_angular#circle_ci#bazel#1#13
+angular_angular#circle_ci#bazel#0#11
+angular_angular#circle_ci#bazel#0#9
+angular_angular#circle_ci#bazel#1#10
 angular_angular#circle_ci#bazel#0#9
 angular_angular#circle_ci#bazel#1#13
 bazelbuild_intellij#buildkite#bazel#1#46
@@ -1776,10 +1784,13 @@ magma_magma#github_actions#bazel#0#19
 magma_magma#github_actions#bazel#0#19
 pytorch_FBGEMM#github_actions#bazel#3#3
 pytorch_FBGEMM#github_actions#bazel#4#4
+antlr_stringtemplate4#travis_ci#maven#1#1
+antlr_stringtemplate4#travis_ci#maven#4#4
 sematic-ai_sematic#circle_ci#bazel#1#5
 sematic-ai_sematic#circle_ci#bazel#0#0
 VirusTotal_yara#github_actions#bazel#0#1
 VirusTotal_yara#github_actions#bazel#1#2
+apache_incubator-heron#travis_ci#maven#4#4
 autodiff_autodiff#github_actions#bazel#0#1
 autodiff_autodiff#github_actions#bazel#0#1
 autodiff_autodiff#github_actions#bazel#1#2
@@ -2299,6 +2310,7 @@ ray-project_ray#buildkite#bazel#3#18
 ray-project_ray#buildkite#bazel#4#19
 ray-project_ray#buildkite#bazel#3#18
 ray-project_ray#buildkite#bazel#3#18
+pubref_rules_protobuf#travis_ci#maven#4#4
 nelhage_rules_boost#circle_ci#bazel#1#1
 nelhage_rules_boost#buildkite#bazel#0#0
 nelhage_rules_boost#buildkite#bazel#0#0
@@ -2502,11 +2514,16 @@ snuspl_nimble#circle_ci#bazel#0#4
 snuspl_nimble#circle_ci#bazel#4#8
 snuspl_nimble#circle_ci#bazel#0#4
 snuspl_nimble#circle_ci#bazel#4#8
+snuspl_nimble#circle_ci#bazel#0#4
+snuspl_nimble#circle_ci#bazel#4#8
 snuspl_nimble#circle_ci#bazel#4#8
 snuspl_nimble#circle_ci#bazel#4#8
 snuspl_nimble#circle_ci#bazel#0#4
 snuspl_nimble#circle_ci#bazel#4#8
 snuspl_nimble#circle_ci#bazel#0#4
+snuspl_nimble#circle_ci#bazel#4#8
+snuspl_nimble#circle_ci#bazel#0#4
+snuspl_nimble#circle_ci#bazel#4#8
 snuspl_nimble#circle_ci#bazel#4#8
 snuspl_nimble#circle_ci#bazel#0#4
 snuspl_nimble#circle_ci#bazel#4#8
