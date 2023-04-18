@@ -34,7 +34,6 @@ def visualize_ci_tools(data_dir: str):
         build_tool_usage = pd.DataFrame({"Local": [0, 0, 0, 0], "CI": [0, 0, 0, 0],
                                          "CI/CD Services": ["github_actions", "circle_ci", "buildkite", "travis_ci"]})
 
-
         df["use_build_tool"] = df.apply(
             lambda row: df.loc[
                 (df["project"] == row["project"]) & (df["ci_tool"] == row["ci_tool"]) & (
@@ -103,7 +102,7 @@ def visualize_ci_tools(data_dir: str):
     plt.suptitle("Build tool usage in CI/CD services")
     plt.tight_layout()
     plt.subplots_adjust(hspace=0)
-    plt.savefig("./images/ci_tool_usage")
+    savefig("./images/ci_tool_usage")
     plt.show()
 
 
@@ -138,7 +137,7 @@ def visualize_parallelization_usage(data_dir: str):
     sns.move_legend(ax, loc="upper left", title="How the build tool is used", bbox_to_anchor=(1, 1))
 
     plt.tight_layout()
-    plt.savefig("./images/parallelization_usage")
+    savefig("./images/parallelization_usage")
     plt.show()
 
 
@@ -175,7 +174,7 @@ def visualize_cache_usage(data_dir: str):
     sns.move_legend(ax, loc="upper left", title="How the build tool is used", bbox_to_anchor=(1, 1))
 
     plt.tight_layout()
-    plt.savefig("./images/cache_usage")
+    savefig("./images/cache_usage")
     plt.show()
 
 
@@ -221,7 +220,7 @@ def visualize_subcommand_usage(data_dir: str):
     plt.suptitle("Subcommands usage in CI/CD services")
     plt.tight_layout()
     figs.autofmt_xdate()
-    plt.savefig("./images/command_usage")
+    savefig("./images/command_usage")
     plt.show()
 
 
@@ -387,7 +386,7 @@ def visualize_build_rule_categories(data_dir: str):
     plt.tight_layout()
     fig.autofmt_xdate()
 
-    plt.savefig("./images/build_rules")
+    savefig("./images/build_rules")
     plt.show()
 
 
@@ -446,7 +445,7 @@ def visualize_script_usage(data_dir: str):
     sns.move_legend(ax, loc="upper left", title="", bbox_to_anchor=(1, 1))
 
     plt.tight_layout()
-    plt.savefig("./images/script_usage")
+    savefig("./images/script_usage")
     plt.show()
 
 
@@ -482,7 +481,7 @@ def visualize_script_usage(data_dir: str):
 #     ax.set_title("Improvement of Parallelization")
 #
 #     plt.tight_layout()
-#     plt.savefig("./images/parallelization")
+#     savefig("./images/parallelization")
 #     plt.show()
 
 
@@ -514,5 +513,10 @@ def visualize_arg_size(data_dir: str):
 
     plt.tight_layout()
     fig.autofmt_xdate()
-    plt.savefig("./images/build_arg_size")
+    savefig("./images/build_arg_size")
     plt.show()
+
+
+def savefig(path, fig_types=("pdf", "png")):
+    for fig_type in fig_types:
+        plt.savefig(f"{path}.{fig_type}")
