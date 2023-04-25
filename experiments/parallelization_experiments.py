@@ -10,7 +10,7 @@ error_projects_path = "./error_projects.log"
 experiment_results_path = "./results.csv"
 
 experiment_times = 10
-parallelization_configs = [2, 4, 8, 16, 32]
+parallelization_configs = [1, 2, 4, 8, 16]
 
 elapsed_time_matcher = re.compile(r"Elapsed time: (\d+\.\d+)s")
 critical_path_matcher = re.compile(r"Critical Path: (\d+\.\d+)s")
@@ -68,9 +68,9 @@ def run_experiment(experiment, subcommand) -> [ExperimentResult]:
 
     results = []
     with multiprocessing.Manager() as manager:
-        L = manager.list()
         for parallelism in parallelization_configs:
-            pool = multiprocessing.Pool(int(32 / parallelism))
+            L = manager.list()
+            pool = multiprocessing.Pool(int(16 / parallelism))
 
             for i in range(experiment_times):
                 target = experiment.test_target if subcommand == 'test' else experiment.build_target

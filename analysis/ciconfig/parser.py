@@ -615,7 +615,7 @@ class CircleCIConfigParser(CIConfigParser):
 
     def _ci_file_pattern(self) -> str:
         project_dir_regex_literal = re.escape(str.rstrip(self.project_dir, "/"))
-        return rf"^{project_dir_regex_literal}/\.circleci/.*\.ya?ml"
+        return rf"^{project_dir_regex_literal}/\.circleci/.*\.ya?ml$"
 
 
 class BuildkiteConfigParser(CIConfigParser):
@@ -679,7 +679,7 @@ class BuildkiteConfigParser(CIConfigParser):
             return bb_cfg
 
         # Bazel development team's DSL of Buildkite pipeline
-        if "platform" in cfgs or "tasks" in cfgs:
+        if "platforms" in cfgs or "tasks" in cfgs:
             tasks = cfgs["platforms"].values() if "platform" in cfgs else cfgs["tasks"].values()
             for task in tasks:
                 if "build_targets" in task:
@@ -812,4 +812,4 @@ class TravisCIConfigParser(CIConfigParser):
 
     def _ci_file_pattern(self) -> str:
         project_dir_regex_literal = re.escape(str.rstrip(self.project_dir, "/"))
-        return rf"^{project_dir_regex_literal}/.travis.ya?ml$"
+        return rf"^{project_dir_regex_literal}/\.travis.ya?ml$"

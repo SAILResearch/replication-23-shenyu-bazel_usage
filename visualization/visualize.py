@@ -13,13 +13,13 @@ def visualize_data(data_dir: str):
     sns.set_style("whitegrid")
 
     data_dir = os.path.join(data_dir, "processed")
-    visualize_ci_tools(data_dir)
-    visualize_subcommand_usage(data_dir)
-    visualize_parallelization_usage(data_dir)
-    visualize_cache_usage(data_dir)
+    # visualize_ci_tools(data_dir)
+    # visualize_subcommand_usage(data_dir)
+    # visualize_parallelization_usage(data_dir)
+    # visualize_cache_usage(data_dir)
     visualize_build_rule_categories(data_dir)
-    visualize_script_usage(data_dir)
-    visualize_arg_size(data_dir)
+    # visualize_script_usage(data_dir)
+    # visualize_arg_size(data_dir)
     # visualize_parallelization_experiments(data_dir)
 
 
@@ -137,6 +137,7 @@ def visualize_parallelization_usage(data_dir: str):
     sns.move_legend(ax, loc="upper left", title="How the build tool is used", bbox_to_anchor=(1, 1))
 
     plt.tight_layout()
+    plt.gcf().autofmt_xdate()
     savefig("./images/parallelization_usage")
     plt.show()
 
@@ -174,12 +175,13 @@ def visualize_cache_usage(data_dir: str):
     sns.move_legend(ax, loc="upper left", title="How the build tool is used", bbox_to_anchor=(1, 1))
 
     plt.tight_layout()
+    plt.gcf().autofmt_xdate()
     savefig("./images/cache_usage")
     plt.show()
 
 
 def visualize_subcommand_usage(data_dir: str):
-    figs, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 10), tight_layout=True, sharey=True)
+    figs, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 8), tight_layout=True, sharey=True)
 
     parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
     build_tool_subcommand_names = {"bazel": ["build", "test"],
@@ -209,15 +211,16 @@ def visualize_subcommand_usage(data_dir: str):
         for c in ax.containers:
             ax.bar_label(c, labels=[f"{round(p.get_height() * 100, 2)}%" for p in c.patches], label_type='edge')
 
-        ax.set_title(f"{correspondent_build_tool} ({parent_dir_name})")
-        ax.set_xlabel("CI/CD Service")
-        ax.set_ylabel("Percentage of Projects Using Subcommand")
+        ax.set_title(f"{correspondent_build_tool} ({parent_dir_name})", fontsize=20)
+        ax.set_xlabel("CI/CD Service", fontsize=20)
+        ax.tick_params(labelsize=15)
+        ax.set_ylabel("Percentage of Projects Using Subcommand", fontsize=20)
 
     for ax in axs:
         ax.set_ylim(0, 1)
         ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
 
-    plt.suptitle("Subcommands usage in CI/CD services")
+    plt.suptitle("Subcommands usage in CI/CD services", fontsize=20)
     plt.tight_layout()
     figs.autofmt_xdate()
     savefig("./images/command_usage")
@@ -267,7 +270,7 @@ def count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcomman
 def visualize_build_rule_categories(data_dir: str):
     build_rule_categories = None
 
-    fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 10))
+    fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(20, 8))
 
     parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
     for parent_dir_name in parent_dir_names:
@@ -306,6 +309,16 @@ def visualize_build_rule_categories(data_dir: str):
     total_build_rules["total_count_per_line_of_code"] = total_build_rules["total_count"] / total_build_rules[
         "num_lines"]
 
+    print(f"mean of total_count_per_source_file for bazel is {total_build_rules.loc[total_build_rules['dataset'] == 'bazel-projects']['total_count_per_source_file'].mean()}")
+    print(f"median of total_count_per_source_file for bazel is {total_build_rules.loc[total_build_rules['dataset'] == 'bazel-projects']['total_count_per_source_file'].median()}")
+
+    print(f"mean of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-large-projects']['total_count_per_source_file'].mean()}")
+    print(f"median of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-large-projects']['total_count_per_source_file'].median()}")
+
+    print(f"mean of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-small-projects']['total_count_per_source_file'].mean()}")
+    print(f"median of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-small-projects']['total_count_per_source_file'].median()}")
+
+
     # in total 1127 projects, there is only 8 projects that has more than 6 total_count_per_source_file.
     # So, we removed these outliers.
     total_build_rules = total_build_rules[total_build_rules["total_count_per_source_file"] < 6].reset_index(drop=True)
@@ -313,10 +326,10 @@ def visualize_build_rule_categories(data_dir: str):
     ax = sns.violinplot(data=total_build_rules, x="dataset", y="total_count_per_source_file", color="#66c2a5",
                         scale="count", inner="box", ax=axs[0])
 
-    ax.set_xlabel("Dataset")
-    ax.set_ylabel("Number of Build Rules Per Source File")
-
-    ax.set_title("The Number of Build Rules Per Source File in Projects")
+    ax.set_xlabel("")
+    ax.set_ylabel("Number of Build Rules Per Source File in Projects", fontsize=20)
+    ax.set_title("The Number of Build Rules", fontsize=20)
+    ax.tick_params(labelsize=15)
 
     # plot percentage of projects that use custom build rules
     total_bazel_projects = build_rule_categories.loc[build_rule_categories["dataset"] == "bazel-projects"][
@@ -344,9 +357,10 @@ def visualize_build_rule_categories(data_dir: str):
         ]})
 
     ax = sns.histplot(data=custom_rule_percentages, x="dataset", weights="percentage", color="#66c2a5", ax=axs[1])
-    ax.set_xlabel("Dataset")
-    ax.set_ylabel("Percentage of Projects that Use Custom Build Rules")
-    ax.set_title("Percentage of Projects that Use Custom Build Rules")
+    ax.set_xlabel("")
+    ax.set_ylabel("Percentage of Projects that Use Custom Build Rules", fontsize=20)
+    ax.set_title("The Usage of Custom Build Rules", fontsize=20)
+    ax.tick_params(labelsize=15)
     ax.set_ylim(0, 1)
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
 
@@ -371,15 +385,25 @@ def visualize_build_rule_categories(data_dir: str):
         axis=0, ignore_index=True).reset_index(drop=True)
     build_category_percentages["percentage"] = build_category_percentages.apply(
         lambda row: calculate_build_rule_percentage_for_row(row, build_rule_categories), axis=1)
+    print("------------------")
+    print(f"the median of percentage of external build rules in bazel projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'bazel-projects') & (build_category_percentages['category'] == 'external')]['percentage'].median()}")
+    print(f"the median of percentage of external build rules in maven large projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-large-projects') & (build_category_percentages['category'] == 'external')]['percentage'].median()}")
+    print(f"the median of percentage of external build rules in maven small projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-small-projects') & (build_category_percentages['category'] == 'external')]['percentage'].median()}")
+    print("------------------")
+
+    print(f"the median of percentage of native build rules in bazel projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'bazel-projects') & (build_category_percentages['category'] == 'native')]['percentage'].median()}")
+    print(f"the median of percentage of native build rules in maven large projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-large-projects') & (build_category_percentages['category'] == 'native')]['percentage'].median()}")
+    print(f"the median of percentage of native build rules in maven small projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-small-projects') & (build_category_percentages['category'] == 'native')]['percentage'].median()}")
 
     # build_category_percentages = build_category_percentages[build_category_percentages["percentage"] != 0]
     ax = sns.boxplot(data=build_category_percentages, x="dataset", y="percentage", hue="category", palette="Set2",
                      ax=axs[2], dodge=True)
 
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
-    ax.set_xlabel("Dataset")
-    ax.set_ylabel("Percentage of Build Rules")
-    ax.set_title("Percentage of Build Rules in Projects")
+    ax.set_xlabel("")
+    ax.set_ylabel("Percentage of Build Rules", fontsize=20)
+    ax.set_title("Percentage of Build Rules in Projects", fontsize=20)
+    ax.tick_params(labelsize=15)
 
     sns.move_legend(ax, loc="upper left", title="Category", bbox_to_anchor=(1, 1))
 
