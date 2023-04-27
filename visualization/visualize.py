@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt, ticker
-import matplotlib.ticker as mticker
 
 from visualization.preprocess import *
 
@@ -55,11 +54,11 @@ def visualize_ci_tools(data_dir: str):
         ax = sns.histplot(data=build_tool_usage, weights="CI_percentage", x="CI/CD Services",
                           shrink=.8, ax=axs[0][idx], color="#66c2a5")
 
-        ax.set_title(f"{correspondent_build_tool} ({parent_dir_name})")
-
+        ax.set_title(f"{correspondent_build_tool} ({parent_dir_name})", fontsize=20, pad=20)
+        ax.tick_params(labelsize=15)
         ax.set(ylim=(0, 1))
         if idx == 0:
-            ax.set_ylabel("Percentage of projects using the build tool in CI")
+            ax.set_ylabel("Using build systems in CI services", fontsize=15)
         else:
             ax.set_ylabel("")
 
@@ -71,17 +70,17 @@ def visualize_ci_tools(data_dir: str):
                 else:
                     labels.append(f"{int(p.get_height() * 10000) / 100}% ({build_tool_usage['CI'][bar_idx]})")
 
-            ax.bar_label(c, labels=labels, padding=1)
+            ax.bar_label(c, labels=labels, fontsize=12, padding=1)
 
         ax = sns.histplot(data=build_tool_usage, weights="Local_percentage", x="CI/CD Services", shrink=.8,
                           ax=axs[1][idx], color="#fc8d62")
+        ax.tick_params(labelsize=15)
         ax.set(ylim=(0, 1))
         if idx == 0:
-            ax.set_ylabel("Percentage of projects only using the build tool locally")
-            yticks = ax.get_yticklabels()
-            yticks[-1].set_visible(False)
+            ax.set_ylabel("Not using build systems in CI services", fontsize=15)
         else:
             ax.set_ylabel(None)
+        ax.set_xlabel("")
 
         ax.invert_yaxis()
 
@@ -93,13 +92,15 @@ def visualize_ci_tools(data_dir: str):
                 else:
                     labels.append(f"{int(p.get_height() * 10000) / 100}% ({build_tool_usage['Local'][bar_idx]})")
 
-            ax.bar_label(c, labels=labels, padding=1)
+            ax.bar_label(c, labels=labels, fontsize=12, padding=1)
         idx += 1
 
     for ax in axs.flat:
         ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
 
-    plt.suptitle("Build tool usage in CI/CD services")
+    fig.autofmt_xdate()
+    fig.supxlabel("CI/CD Services", fontsize=20)
+    plt.suptitle("Build systems usage in CI/CD services", fontsize=20)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0)
     savefig("./images/ci_tool_usage")
@@ -128,16 +129,17 @@ def visualize_parallelization_usage(data_dir: str):
 
     for c in ax.containers:
         labels = [f"{p.get_height() * 100:.2f}%" for p in c.patches]
-        ax.bar_label(c, labels=labels, label_type='center')
+        ax.bar_label(c, labels=labels, label_type='center', fontsize=12)
 
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
-    ax.set_title(f"Parallelization usage of build tools in CI/CD services")
-    ax.set_xlabel("Dataset")
-    ax.set_ylabel("Percentage of Projects")
-    sns.move_legend(ax, loc="upper left", title="How the build tool is used", bbox_to_anchor=(1, 1))
+    ax.set_title(f"Parallelization usage of build tools in CI/CD services", fontsize=12, pad=12)
+    ax.set_xlabel("")
+    ax.set_ylabel("Percentage of Projects", fontsize=12)
+    ax.tick_params(labelsize=12)
+    sns.move_legend(ax, loc="upper left", title="", fontsize=12, bbox_to_anchor=(1, 1))
 
-    plt.tight_layout()
     plt.gcf().autofmt_xdate()
+    plt.tight_layout()
     savefig("./images/parallelization_usage")
     plt.show()
 
@@ -166,22 +168,23 @@ def visualize_cache_usage(data_dir: str):
 
     for c in ax.containers:
         labels = [f"{p.get_height() * 100:.2f}%" for p in c.patches]
-        ax.bar_label(c, labels=labels, label_type='center')
+        ax.bar_label(c, labels=labels, label_type='center', fontsize=12)
 
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
-    ax.set_title(f"Cache usage of build tools in CI/CD services")
-    ax.set_xlabel("Dataset")
-    ax.set_ylabel("Percentage of Projects")
-    sns.move_legend(ax, loc="upper left", title="How the build tool is used", bbox_to_anchor=(1, 1))
+    ax.set_title(f"Cache usage of build tools in CI/CD services", fontsize=12, pad=12)
+    ax.set_xlabel("")
+    ax.set_ylabel("Percentage of Projects", fontsize=12)
+    ax.tick_params(labelsize=12)
+    sns.move_legend(ax, loc="upper left", title="", bbox_to_anchor=(1, 1), fontsize=12)
+    plt.gcf().autofmt_xdate()
 
     plt.tight_layout()
-    plt.gcf().autofmt_xdate()
     savefig("./images/cache_usage")
     plt.show()
 
 
 def visualize_subcommand_usage(data_dir: str):
-    figs, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 8), tight_layout=True, sharey=True)
+    figs, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 6), tight_layout=True, sharey=True)
 
     parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
     build_tool_subcommand_names = {"bazel": ["build", "test"],
@@ -209,20 +212,21 @@ def visualize_subcommand_usage(data_dir: str):
         idx += 1
 
         for c in ax.containers:
-            ax.bar_label(c, labels=[f"{round(p.get_height() * 100, 2)}%" for p in c.patches], label_type='edge')
+            ax.bar_label(c, labels=[f"{round(p.get_height() * 100, 2)}%" for p in c.patches], label_type='edge', fontsize=12)
 
-        ax.set_title(f"{correspondent_build_tool} ({parent_dir_name})", fontsize=20)
-        ax.set_xlabel("CI/CD Service", fontsize=20)
+        ax.set_title(f"{correspondent_build_tool} ({parent_dir_name})", fontsize=20, pad=20)
+        ax.set_xlabel("")
         ax.tick_params(labelsize=15)
-        ax.set_ylabel("Percentage of Projects Using Subcommand", fontsize=20)
+        ax.set_ylabel("Percentage of Projects Using Subcommand", fontsize=15)
 
     for ax in axs:
         ax.set_ylim(0, 1)
         ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
 
+    figs.supxlabel("Subcommands", fontsize=20)
+    figs.autofmt_xdate()
     plt.suptitle("Subcommands usage in CI/CD services", fontsize=20)
     plt.tight_layout()
-    figs.autofmt_xdate()
     savefig("./images/command_usage")
     plt.show()
 
@@ -309,15 +313,20 @@ def visualize_build_rule_categories(data_dir: str):
     total_build_rules["total_count_per_line_of_code"] = total_build_rules["total_count"] / total_build_rules[
         "num_lines"]
 
-    print(f"mean of total_count_per_source_file for bazel is {total_build_rules.loc[total_build_rules['dataset'] == 'bazel-projects']['total_count_per_source_file'].mean()}")
-    print(f"median of total_count_per_source_file for bazel is {total_build_rules.loc[total_build_rules['dataset'] == 'bazel-projects']['total_count_per_source_file'].median()}")
+    print(
+        f"mean of total_count_per_source_file for bazel is {total_build_rules.loc[total_build_rules['dataset'] == 'bazel-projects']['total_count_per_source_file'].mean()}")
+    print(
+        f"median of total_count_per_source_file for bazel is {total_build_rules.loc[total_build_rules['dataset'] == 'bazel-projects']['total_count_per_source_file'].median()}")
 
-    print(f"mean of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-large-projects']['total_count_per_source_file'].mean()}")
-    print(f"median of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-large-projects']['total_count_per_source_file'].median()}")
+    print(
+        f"mean of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-large-projects']['total_count_per_source_file'].mean()}")
+    print(
+        f"median of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-large-projects']['total_count_per_source_file'].median()}")
 
-    print(f"mean of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-small-projects']['total_count_per_source_file'].mean()}")
-    print(f"median of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-small-projects']['total_count_per_source_file'].median()}")
-
+    print(
+        f"mean of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-small-projects']['total_count_per_source_file'].mean()}")
+    print(
+        f"median of total_count_per_source_file for maven is {total_build_rules.loc[total_build_rules['dataset'] == 'maven-small-projects']['total_count_per_source_file'].median()}")
 
     # in total 1127 projects, there is only 8 projects that has more than 6 total_count_per_source_file.
     # So, we removed these outliers.
@@ -367,7 +376,7 @@ def visualize_build_rule_categories(data_dir: str):
     for c in ax.containers:
         labels = [f"{p.get_height() * 100:.2f}%" for p in c.patches]
 
-        ax.bar_label(c, labels=labels, label_type="center")
+        ax.bar_label(c, labels=labels, label_type="center", fontsize=15)
 
     # plot the distribution of percentage of build rule categories in projects
     build_category_percentages = build_rule_categories[["project", "dataset"]].copy().drop_duplicates().reset_index(
@@ -386,14 +395,20 @@ def visualize_build_rule_categories(data_dir: str):
     build_category_percentages["percentage"] = build_category_percentages.apply(
         lambda row: calculate_build_rule_percentage_for_row(row, build_rule_categories), axis=1)
     print("------------------")
-    print(f"the median of percentage of external build rules in bazel projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'bazel-projects') & (build_category_percentages['category'] == 'external')]['percentage'].median()}")
-    print(f"the median of percentage of external build rules in maven large projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-large-projects') & (build_category_percentages['category'] == 'external')]['percentage'].median()}")
-    print(f"the median of percentage of external build rules in maven small projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-small-projects') & (build_category_percentages['category'] == 'external')]['percentage'].median()}")
+    print(
+        f"the median of percentage of external build rules in bazel projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'bazel-projects') & (build_category_percentages['category'] == 'external')]['percentage'].median()}")
+    print(
+        f"the median of percentage of external build rules in maven large projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-large-projects') & (build_category_percentages['category'] == 'external')]['percentage'].median()}")
+    print(
+        f"the median of percentage of external build rules in maven small projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-small-projects') & (build_category_percentages['category'] == 'external')]['percentage'].median()}")
     print("------------------")
 
-    print(f"the median of percentage of native build rules in bazel projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'bazel-projects') & (build_category_percentages['category'] == 'native')]['percentage'].median()}")
-    print(f"the median of percentage of native build rules in maven large projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-large-projects') & (build_category_percentages['category'] == 'native')]['percentage'].median()}")
-    print(f"the median of percentage of native build rules in maven small projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-small-projects') & (build_category_percentages['category'] == 'native')]['percentage'].median()}")
+    print(
+        f"the median of percentage of native build rules in bazel projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'bazel-projects') & (build_category_percentages['category'] == 'native')]['percentage'].median()}")
+    print(
+        f"the median of percentage of native build rules in maven large projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-large-projects') & (build_category_percentages['category'] == 'native')]['percentage'].median()}")
+    print(
+        f"the median of percentage of native build rules in maven small projects is {build_category_percentages.loc[(build_category_percentages['dataset'] == 'maven-small-projects') & (build_category_percentages['category'] == 'native')]['percentage'].median()}")
 
     # build_category_percentages = build_category_percentages[build_category_percentages["percentage"] != 0]
     ax = sns.boxplot(data=build_category_percentages, x="dataset", y="percentage", hue="category", palette="Set2",
@@ -405,7 +420,7 @@ def visualize_build_rule_categories(data_dir: str):
     ax.set_title("Percentage of Build Rules in Projects", fontsize=20)
     ax.tick_params(labelsize=15)
 
-    sns.move_legend(ax, loc="upper left", title="Category", bbox_to_anchor=(1, 1))
+    sns.move_legend(ax, loc="upper left", title="Category", bbox_to_anchor=(1, 1), fontsize=15)
 
     plt.tight_layout()
     fig.autofmt_xdate()
@@ -473,41 +488,56 @@ def visualize_script_usage(data_dir: str):
     plt.show()
 
 
-# def visualize_parallelization_experiments(data_dir):
-#     df = pd.read_csv(
-#         "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/data/experiments/results-apr-10-narf.csv")
-#     df["median_elapsed_time"] = df.apply(
-#         lambda row: df.loc[(df["project"] == row["project"]) & (df["parallelism"] == row["parallelism"]) & (
-#                     df["subcommand"] == row["subcommand"])]["elapsed_time"].median(), axis=1)
-#     df = df.drop(columns=["elapsed_time", "critical_path", "target"]).drop_duplicates().reset_index(drop=True)
-#
-#     delete_list = []
-#     for project, subcommand in zip(df["project"].unique(), ["build", "test"]):
-#         if subcommand not in df[(df["project"] == project)]["subcommand"].unique():
-#             continue
-#
-#         if len(df[(df["project"] == project) & (df["subcommand"] == subcommand)]["parallelism"].unique()) != 4:
-#             delete_list.append((project, subcommand))
-#
-#
-#     for project, subcommand in delete_list:
-#         df = df.drop(df[(df["project"] == project) & (df["subcommand"] == subcommand)].index)
-#
-#     df["improvement"] = df.apply(lambda row: row["median_elapsed_time"] / df.loc[(df["project"] == row["project"]) & (df["parallelism"] == 2) & (
-#                     df["subcommand"] == row["subcommand"])]["median_elapsed_time"].iloc[0], axis=1)
-#
-#     ax = sns.boxplot(data=df, x="parallelism", y="improvement", hue="subcommand", palette="Set2",
-#                      dodge=True)
-#
-#     ax.yaxis.set_major_formatter(lambda x, pos: f"{x:.2f}x")
-#     ax.set_xlabel("Parallelism")
-#     ax.set_ylabel("Improvement")
-#     ax.set_title("Improvement of Parallelization")
-#
-#     plt.tight_layout()
-#     savefig("./images/parallelization")
-#     plt.show()
+def visualize_parallelization_experiments(data_dir):
+    experiments = pd.read_csv(f"{data_dir}/parallelization-experiments.csv")
+    experiments = experiments.drop(columns=["target", "critical_path"])
+    experiments["median_elapsed_time"] = 0
 
+    parallelisms = [1, 2, 4, 8, 16]
+    for project in experiments["project"].unique():
+        for subcommand in ["build", "test"]:
+            for parallelism in parallelisms:
+                median = experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (
+                                                 experiments["parallelism"] == parallelism)]["elapsed_time"].median()
+
+                experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (
+                                        experiments["parallelism"] == parallelism), "median_elapsed_time"] = median
+
+    experiments = experiments.drop(columns=["elapsed_time"]).drop_duplicates()
+    experiments["speedup"] = 0
+    for project in experiments["project"].unique():
+        for subcommand in ["build", "test"]:
+            baseline_times = experiments.loc[(experiments["project"] == project) & (
+                    experiments["subcommand"] == subcommand) & (
+                                                    experiments["parallelism"] == 1)]["median_elapsed_time"]
+            if len(baseline_times) == 0:
+                continue
+            baseline_time = baseline_times.iloc[0]
+
+            for parallelism in parallelisms:
+                speedup = baseline_time / experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (experiments["parallelism"] == parallelism)][
+                    "median_elapsed_time"].iloc[0]
+
+                experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (
+                                        experiments["parallelism"] == parallelism), "speedup"] = speedup
+    experiments = experiments.drop(experiments[(experiments["parallelism"] == 1)].index)
+
+    ax = sns.boxplot(data=experiments, x="parallelism", y="speedup", hue="subcommand", palette="Set2")
+    ax.set_xlabel("Parallelism")
+    ax.set_ylabel("Speedup")
+    ax.set_title("Speedup of Build and Test Commands with Parallelism")
+    ax.axhline(2, ls=":", c="red")
+    ax.axhline(4, ls=":", c="red")
+    ax.axhline(8, ls=":", c="red")
+    ax.axhline(16, ls=":", c="red")
+
+    plt.tight_layout()
+    savefig("./images/parallelization_experiments")
+    plt.show()
 
 def visualize_arg_size(data_dir: str):
     build_arg_size = None

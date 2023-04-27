@@ -6,7 +6,8 @@ import pandas as pd
 from utils import fileutils
 
 build_subcommands = {"bazel": ["build", "test", "run", "coverage", "version", "sync", "query", "fetch", "info", "clean",
-                                 "shutdown", "help", "mobile-install", "aquery", "cquery", "config", "dump", "analyze-profile"],
+                               "shutdown", "help", "mobile-install", "aquery", "cquery", "config", "dump",
+                               "analyze-profile"],
                      "maven": ["clean", "compile", "test", "package", "integration-test", "install", "verify",
                                "deploy"]}
 
@@ -32,15 +33,16 @@ def preprocess_data(data_dir: str):
 
     parent_dir_name_and_build_tool = {"bazel-projects": "bazel", "maven-large-projects": "maven",
                                       "maven-small-projects": "maven"}
-    for parent_dir_name, build_tool in parent_dir_name_and_build_tool.items():
-        source_dir = os.path.join(data_dir, parent_dir_name)
-
-        preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    # for parent_dir_name, build_tool in parent_dir_name_and_build_tool.items():
+    #     source_dir = os.path.join(data_dir, parent_dir_name)
+    #
+    #     preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    #     preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    #     preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    #     preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    #     preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    #     preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    preprocess_experiments(data_dir, processed_data_dir)
 
 
 def preprocess_build_rules(source_dir: str, processed_data_dir: str, build_tool: str, target_filename_prefix=""):
@@ -154,6 +156,29 @@ def preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_n
     build_command_arg_size = build_command_arg_size.drop(columns=["build_tool"])
     build_command_arg_size = build_command_arg_size.drop_duplicates()
     build_command_arg_size.to_csv(target_processed_file_path, encoding="utf-8", index=False)
+
+
+def preprocess_experiments(data_dir, processed_data_dir):
+    experiments_data_file_path = os.path.join(data_dir, "experiments/parallelization-experiments.csv")
+    target_processed_file_path = os.path.join(processed_data_dir, "parallelization-experiments.csv")
+
+    experiments = pd.read_csv(experiments_data_file_path, sep=",")
+    experiments = experiments.drop_duplicates()
+
+    projects_to_be_dropped = []
+
+    parallelisms = [1, 2, 4, 8, 16]
+    for project in experiments["project"].unique():
+        for subcommand in ["build", "test"]:
+            for parallelism in parallelisms:
+                cnt = experiments.query(f"project == '{project}' and subcommand == '{subcommand}' and parallelism == {parallelism}").shape[0]
+                if cnt != 10:
+                    projects_to_be_dropped.append((project, subcommand))
+
+    for project, subcommand in projects_to_be_dropped:
+        experiments = experiments.drop(experiments[(experiments["project"] == project) & (experiments["subcommand"] == subcommand)].index)
+
+    experiments.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
 
 if __name__ == "__main__":
