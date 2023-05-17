@@ -1,7 +1,11 @@
 import copy
+import math
 
 import numpy as np
+from cliffs_delta import cliffs_delta
 import pandas as pd
+import scipy as scipy
+import scikit_posthocs as sp
 import seaborn as sns
 from matplotlib import pyplot as plt, ticker
 
@@ -16,10 +20,12 @@ def visualize_data(data_dir: str):
     # visualize_subcommand_usage(data_dir)
     # visualize_parallelization_usage(data_dir)
     # visualize_cache_usage(data_dir)
-    visualize_build_rule_categories(data_dir)
+    # visualize_build_rule_categories(data_dir)
     # visualize_script_usage(data_dir)
     # visualize_arg_size(data_dir)
-    # visualize_parallelization_experiments(data_dir)
+    # visualize_parallelization_experiments_by_commits(data_dir)
+    # visualize_parallelization_experiments_by_build_durations(data_dir)
+    parallelism_confidence_levels(data_dir)
 
 
 def visualize_ci_tools(data_dir: str):
@@ -212,7 +218,8 @@ def visualize_subcommand_usage(data_dir: str):
         idx += 1
 
         for c in ax.containers:
-            ax.bar_label(c, labels=[f"{round(p.get_height() * 100, 2)}%" for p in c.patches], label_type='edge', fontsize=12)
+            ax.bar_label(c, labels=[f"{round(p.get_height() * 100, 2)}%" for p in c.patches], label_type='edge',
+                         fontsize=12)
 
         ax.set_title(f"{correspondent_build_tool} ({parent_dir_name})", fontsize=20, pad=20)
         ax.set_xlabel("")
@@ -428,6 +435,88 @@ def visualize_build_rule_categories(data_dir: str):
     savefig("./images/build_rules")
     plt.show()
 
+    native_rule_stats = scipy.stats.kruskal(build_category_percentages.loc[
+                                                (build_category_percentages['dataset'] == 'bazel-projects') & (
+                                                        build_category_percentages['category'] == 'native')][
+                                                'percentage'],
+                                            build_category_percentages.loc[
+                                                (build_category_percentages['dataset'] == 'maven-large-projects') & (
+                                                        build_category_percentages['category'] == 'native')][
+                                                'percentage'],
+                                            build_category_percentages.loc[
+                                                (build_category_percentages['dataset'] == 'maven-small-projects') & (
+                                                        build_category_percentages['category'] == 'native')][
+                                                'percentage'])
+    print(f"native rule stats: {native_rule_stats}")
+
+    native_rule_stats_posthoc = sp.posthoc_dunn([build_category_percentages.loc[
+                                                     (build_category_percentages['dataset'] == 'bazel-projects') & (
+                                                             build_category_percentages['category'] == 'native')][
+                                                     'percentage'],
+                                                 build_category_percentages.loc[
+                                                     (build_category_percentages[
+                                                          'dataset'] == 'maven-large-projects') & (
+                                                             build_category_percentages['category'] == 'native')][
+                                                     'percentage'],
+                                                 build_category_percentages.loc[
+                                                     (build_category_percentages[
+                                                          'dataset'] == 'maven-small-projects') & (
+                                                             build_category_percentages['category'] == 'native')][
+                                                     'percentage']], p_adjust='holm')
+    print(f"native rule stats posthoc: {native_rule_stats_posthoc}")
+
+    bazel_to_large_maven_effect_size = cliffs_delta(build_category_percentages.loc[
+                                                        (build_category_percentages['dataset'] == 'bazel-projects') & (
+                                                                build_category_percentages['category'] == 'native')][
+                                                        'percentage'],
+                                                    build_category_percentages.loc[
+                                                        (build_category_percentages[
+                                                             'dataset'] == 'maven-large-projects') & (
+                                                                build_category_percentages['category'] == 'native')][
+                                                        'percentage'])
+    print(f"bazel to large maven effect size: {bazel_to_large_maven_effect_size}")
+
+    bazel_to_small_maven_effect_size = cliffs_delta(build_category_percentages.loc[
+                                                        (build_category_percentages['dataset'] == 'bazel-projects') & (
+                                                                build_category_percentages['category'] == 'native')][
+                                                        'percentage'],
+                                                    build_category_percentages.loc[
+                                                        (build_category_percentages[
+                                                             'dataset'] == 'maven-small-projects') & (
+                                                                build_category_percentages['category'] == 'native')][
+                                                        'percentage'])
+    print(f"bazel to small maven effect size: {bazel_to_small_maven_effect_size}")
+
+    external_rule_stats = scipy.stats.kruskal(build_category_percentages.loc[
+                                                  (build_category_percentages['dataset'] == 'bazel-projects') & (
+                                                          build_category_percentages['category'] == 'external')][
+                                                  'percentage'],
+                                              build_category_percentages.loc[
+                                                  (build_category_percentages['dataset'] == 'maven-large-projects') & (
+                                                          build_category_percentages['category'] == 'external')][
+                                                  'percentage'],
+                                              build_category_percentages.loc[
+                                                  (build_category_percentages['dataset'] == 'maven-small-projects') & (
+                                                          build_category_percentages['category'] == 'external')][
+                                                  'percentage'])
+    print(f"external rule stats: {external_rule_stats}")
+
+    external_rule_stats_posthoc = sp.posthoc_dunn([build_category_percentages.loc[
+                                                       (build_category_percentages['dataset'] == 'bazel-projects') & (
+                                                               build_category_percentages['category'] == 'external')][
+                                                       'percentage'],
+                                                   build_category_percentages.loc[
+                                                       (build_category_percentages[
+                                                            'dataset'] == 'maven-large-projects') & (
+                                                               build_category_percentages['category'] == 'external')][
+                                                       'percentage'],
+                                                   build_category_percentages.loc[
+                                                       (build_category_percentages[
+                                                            'dataset'] == 'maven-small-projects') & (
+                                                               build_category_percentages['category'] == 'external')][
+                                                       'percentage']], p_adjust='holm')
+    print(f"external rule stats posthoc: {external_rule_stats_posthoc}")
+
 
 def calculate_build_rule_percentage_for_row(row, build_rule_categories):
     project = row["project"]
@@ -488,10 +577,15 @@ def visualize_script_usage(data_dir: str):
     plt.show()
 
 
-def visualize_parallelization_experiments(data_dir):
+def visualize_parallelization_experiments_by_commits(data_dir):
     experiments = pd.read_csv(f"{data_dir}/parallelization-experiments.csv")
     experiments = experiments.drop(columns=["target", "critical_path"])
+    experiments["commits"] = experiments["commits"].astype(int)
     experiments["median_elapsed_time"] = 0
+
+    # The results of bazelbuild_rules_foreign_cc seems weird, so we temporarily remove it until we figure out what's wrong
+    experiments = experiments.drop(experiments[experiments["project"] == "bazelbuild_rules_foreign_cc"].index)
+    experiments = experiments.drop(experiments[experiments["project"] == "mukul-rathi_bolt"].index)
 
     parallelisms = [1, 2, 4, 8, 16]
     for project in experiments["project"].unique():
@@ -511,7 +605,7 @@ def visualize_parallelization_experiments(data_dir):
         for subcommand in ["build", "test"]:
             baseline_times = experiments.loc[(experiments["project"] == project) & (
                     experiments["subcommand"] == subcommand) & (
-                                                    experiments["parallelism"] == 1)]["median_elapsed_time"]
+                                                     experiments["parallelism"] == 1)]["median_elapsed_time"]
             if len(baseline_times) == 0:
                 continue
             baseline_time = baseline_times.iloc[0]
@@ -524,20 +618,504 @@ def visualize_parallelization_experiments(data_dir):
                 experiments.loc[(experiments["project"] == project) & (
                         experiments["subcommand"] == subcommand) & (
                                         experiments["parallelism"] == parallelism), "speedup"] = speedup
-    experiments = experiments.drop(experiments[(experiments["parallelism"] == 1)].index)
 
-    ax = sns.boxplot(data=experiments, x="parallelism", y="speedup", hue="subcommand", palette="Set2")
+    commits = sorted(
+        experiments.loc[(experiments['subcommand'] == "build")].filter(["project", "commits"]).drop_duplicates()[
+            "commits"].tolist())
+    small, medium, _ = np.array_split(commits, 3)
+
+    experiments["label"] = experiments.apply(
+        lambda row: "small project" if row["commits"] in small else (
+            "medium project" if row["commits"] in medium else "large project"), axis=1)
+    experiments.loc[experiments["subcommand"] == "test", "label"] = "test"
+
+    for parallelism in parallelisms[1:]:
+        print(
+            f"the median speedup of small project with parallelism {parallelism} is {experiments.loc[(experiments['label'] == 'small project') & (experiments['parallelism'] == parallelism)]['speedup'].median()}")
+        print(
+            f"the median speedup of medium project with parallelism {parallelism} is {experiments.loc[(experiments['label'] == 'medium project') & (experiments['parallelism'] == parallelism)]['speedup'].median()}")
+        print(
+            f"the median speedup of large project with parallelism {parallelism} is {experiments.loc[(experiments['label'] == 'large project') & (experiments['parallelism'] == parallelism)]['speedup'].median()}")
+        print(
+            f"the median speedup of test with parallelism {parallelism} is {experiments.loc[(experiments['label'] == 'test') & (experiments['parallelism'] == parallelism)]['speedup'].median()}")
+
+    experiments = experiments.drop(experiments[(experiments["parallelism"] == 1)].index)
+    experiments = experiments.drop(columns=["subcommand"]).reset_index(drop=True)
+
+    ax = sns.boxplot(data=experiments, x="parallelism", y="speedup",
+                     hue_order=['small project', 'medium project', 'large project', 'test'], hue="label",
+                     palette="Set2")
     ax.set_xlabel("Parallelism")
     ax.set_ylabel("Speedup")
-    ax.set_title("Speedup of Build and Test Commands with Parallelism")
-    ax.axhline(2, ls=":", c="red")
-    ax.axhline(4, ls=":", c="red")
-    ax.axhline(8, ls=":", c="red")
-    ax.axhline(16, ls=":", c="red")
+    ax.set_title("Speedup of Build and Test Commands with Parallelism (Grouped By Commits)")
+    ax.axhline(2, ls="--", c="#b3b3b3")
+    ax.text(3.53, 1.7, "2x", color="#b3b3b3")
+    ax.axhline(4, ls="--", c="#b3b3b3")
+    ax.text(3.53, 3.7, "4x", color="#b3b3b3")
+    ax.axhline(8, ls="--", c="#b3b3b3")
+    ax.text(3.53, 7.7, "8x", color="#b3b3b3")
+    ax.axhline(16, ls="--", c="#b3b3b3")
+    ax.text(3.53, 15.7, "16x", color="#b3b3b3")
+    ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%dx'))
 
     plt.tight_layout()
-    savefig("./images/parallelization_experiments")
+    savefig("./images/parallelization_experiments_by_commits")
     plt.show()
+
+    small_projects = experiments.loc[experiments["label"] == "small project"]
+    medium_projects = experiments.loc[experiments["label"] == "medium project"]
+    large_projects = experiments.loc[experiments["label"] == "large project"]
+    test = experiments.loc[experiments["label"] == "test"]
+
+    parallelism2 = scipy.stats.kruskal(small_projects.loc[small_projects["parallelism"] == 2]["speedup"],
+                                       medium_projects.loc[medium_projects["parallelism"] == 2]["speedup"],
+                                       large_projects.loc[large_projects["parallelism"] == 2]["speedup"],
+                                       test.loc[test["parallelism"] == 2]["speedup"])
+    print(f"the p-value of speedup with parallelism 2 is {parallelism2}")
+
+    parallelism2_posthoc = sp.posthoc_dunn([small_projects.loc[small_projects["parallelism"] == 2]["speedup"],
+                                            medium_projects.loc[medium_projects["parallelism"] == 2]["speedup"],
+                                            large_projects.loc[large_projects["parallelism"] == 2]["speedup"],
+                                            test.loc[test["parallelism"] == 2]["speedup"]], p_adjust="holm")
+
+    print(parallelism2_posthoc)
+    print("--------------")
+
+    parallelism4 = scipy.stats.kruskal(small_projects.loc[small_projects["parallelism"] == 4]["speedup"],
+                                       medium_projects.loc[medium_projects["parallelism"] == 4]["speedup"],
+                                       large_projects.loc[large_projects["parallelism"] == 4]["speedup"],
+                                       test.loc[test["parallelism"] == 4]["speedup"])
+    print(f"the p-value of speedup with parallelism 4 is {parallelism4}")
+
+    parallelism4_posthoc = sp.posthoc_dunn([small_projects.loc[small_projects["parallelism"] == 4]["speedup"],
+                                            medium_projects.loc[medium_projects["parallelism"] == 4]["speedup"],
+                                            large_projects.loc[large_projects["parallelism"] == 4]["speedup"],
+                                            test.loc[test["parallelism"] == 4]["speedup"]], p_adjust="holm")
+
+    print(parallelism4_posthoc)
+    print("--------------")
+
+    parallelism8 = scipy.stats.kruskal(small_projects.loc[small_projects["parallelism"] == 8]["speedup"],
+                                       medium_projects.loc[medium_projects["parallelism"] == 8]["speedup"],
+                                       large_projects.loc[large_projects["parallelism"] == 8]["speedup"],
+                                       test.loc[test["parallelism"] == 8]["speedup"])
+    print(f"the p-value of speedup with parallelism 8 is {parallelism8}")
+
+    parallelism8_posthoc = sp.posthoc_dunn([small_projects.loc[small_projects["parallelism"] == 8]["speedup"],
+                                            medium_projects.loc[medium_projects["parallelism"] == 8]["speedup"],
+                                            large_projects.loc[large_projects["parallelism"] == 8]["speedup"],
+                                            test.loc[test["parallelism"] == 8]["speedup"]], p_adjust="holm")
+
+    print(parallelism8_posthoc)
+    print("--------------")
+
+    parallelism16 = scipy.stats.kruskal(small_projects.loc[small_projects["parallelism"] == 16]["speedup"],
+                                        medium_projects.loc[medium_projects["parallelism"] == 16]["speedup"],
+                                        large_projects.loc[large_projects["parallelism"] == 16]["speedup"],
+                                        test.loc[test["parallelism"] == 16]["speedup"])
+    print(f"the p-value of speedup with parallelism 16 is {parallelism16}")
+
+    parallelism16_posthoc = sp.posthoc_dunn([small_projects.loc[small_projects["parallelism"] == 16]["speedup"],
+                                             medium_projects.loc[medium_projects["parallelism"] == 16]["speedup"],
+                                             large_projects.loc[large_projects["parallelism"] == 16]["speedup"],
+                                             test.loc[test["parallelism"] == 16]["speedup"]], p_adjust="holm")
+
+    print(parallelism16_posthoc)
+    print("--------------")
+
+    small_projects_stats = scipy.stats.kruskal(small_projects.loc[small_projects["parallelism"] == 2]["speedup"],
+                                               small_projects.loc[small_projects["parallelism"] == 4]["speedup"],
+                                               small_projects.loc[small_projects["parallelism"] == 8]["speedup"],
+                                               small_projects.loc[small_projects["parallelism"] == 16]["speedup"])
+    print(f"the p-value of speedup of small projects with parallelism 2, 4, 8, 16 is {small_projects_stats}")
+
+    small_projects_stats_posthoc = sp.posthoc_dunn([small_projects.loc[small_projects["parallelism"] == 2]["speedup"],
+                                                    small_projects.loc[small_projects["parallelism"] == 4]["speedup"],
+                                                    small_projects.loc[small_projects["parallelism"] == 8]["speedup"],
+                                                    small_projects.loc[small_projects["parallelism"] == 16]["speedup"]],
+                                                   p_adjust="holm")
+
+    print(small_projects_stats_posthoc)
+    print(small_projects_stats_posthoc > 0.01)
+    print("--------------")
+
+    medium_projects_stats = scipy.stats.kruskal(medium_projects.loc[medium_projects["parallelism"] == 2]["speedup"],
+                                                medium_projects.loc[medium_projects["parallelism"] == 4]["speedup"],
+                                                medium_projects.loc[medium_projects["parallelism"] == 8]["speedup"],
+                                                medium_projects.loc[medium_projects["parallelism"] == 16]["speedup"])
+    print(f"the p-value of speedup of medium projects with parallelism 2, 4, 8, 16 is {medium_projects_stats}")
+
+    medium_projects_stats_posthoc = sp.posthoc_dunn(
+        [medium_projects.loc[medium_projects["parallelism"] == 2]["speedup"],
+         medium_projects.loc[medium_projects["parallelism"] == 4]["speedup"],
+         medium_projects.loc[medium_projects["parallelism"] == 8]["speedup"],
+         medium_projects.loc[medium_projects["parallelism"] == 16]["speedup"]], p_adjust="holm")
+
+    print(medium_projects_stats_posthoc)
+    print(medium_projects_stats_posthoc > 0.01)
+    print("--------------")
+
+    large_projects_stats = scipy.stats.kruskal(large_projects.loc[large_projects["parallelism"] == 2]["speedup"],
+                                               large_projects.loc[large_projects["parallelism"] == 4]["speedup"],
+                                               large_projects.loc[large_projects["parallelism"] == 8]["speedup"],
+                                               large_projects.loc[large_projects["parallelism"] == 16]["speedup"])
+    print(f"the p-value of speedup of large projects with parallelism 2, 4, 8, 16 is {large_projects_stats}")
+
+    large_projects_stats_posthoc = sp.posthoc_dunn([large_projects.loc[large_projects["parallelism"] == 2]["speedup"],
+                                                    large_projects.loc[large_projects["parallelism"] == 4]["speedup"],
+                                                    large_projects.loc[large_projects["parallelism"] == 8]["speedup"],
+                                                    large_projects.loc[large_projects["parallelism"] == 16]["speedup"]],
+                                                   p_adjust="holm")
+
+    print(large_projects_stats_posthoc)
+    print(large_projects_stats_posthoc > 0.01)
+    print("--------------")
+
+    test_stats = scipy.stats.kruskal(test.loc[test["parallelism"] == 2]["speedup"],
+                                     test.loc[test["parallelism"] == 4]["speedup"],
+                                     test.loc[test["parallelism"] == 8]["speedup"],
+                                     test.loc[test["parallelism"] == 16]["speedup"])
+    print(f"the p-value of speedup of test with parallelism 2, 4, 8, 16 is {test_stats}")
+
+    test_stats_posthoc = sp.posthoc_dunn([test.loc[test["parallelism"] == 2]["speedup"],
+                                          test.loc[test["parallelism"] == 4]["speedup"],
+                                          test.loc[test["parallelism"] == 8]["speedup"],
+                                          test.loc[test["parallelism"] == 16]["speedup"]], p_adjust="holm")
+
+    print(test_stats_posthoc)
+    print(test_stats_posthoc > 0.01)
+    print("--------------")
+
+
+def visualize_parallelization_experiments_by_build_durations(data_dir):
+    experiments = pd.read_csv(f"{data_dir}/parallelization-experiments.csv")
+    experiments = experiments.drop(columns=["target", "critical_path"])
+    experiments["median_elapsed_time"] = 0
+
+    # The results of bazelbuild_rules_foreign_cc seems weird, so we temporarily remove it until we figure out what's wrong
+    experiments = experiments.drop(experiments[experiments["project"] == "bazelbuild_rules_foreign_cc"].index)
+    experiments = experiments.drop(experiments[experiments["project"] == "mukul-rathi_bolt"].index)
+
+    parallelisms = [1, 2, 4, 8, 16]
+    for project in experiments["project"].unique():
+        for subcommand in ["build", "test"]:
+            for parallelism in parallelisms:
+                median = experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (
+                                                 experiments["parallelism"] == parallelism)]["elapsed_time"].median()
+
+                experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (
+                                        experiments["parallelism"] == parallelism), "median_elapsed_time"] = median
+
+    experiments = experiments.drop(columns=["elapsed_time"]).drop_duplicates()
+    experiments["speedup"] = 0
+    for project in experiments["project"].unique():
+        for subcommand in ["build", "test"]:
+            baseline_times = experiments.loc[(experiments["project"] == project) & (
+                    experiments["subcommand"] == subcommand) & (
+                                                     experiments["parallelism"] == 1)]["median_elapsed_time"]
+            if len(baseline_times) == 0:
+                continue
+            baseline_time = baseline_times.iloc[0]
+
+            for parallelism in parallelisms:
+                speedup = baseline_time / experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (experiments["parallelism"] == parallelism)][
+                    "median_elapsed_time"].iloc[0]
+
+                experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (
+                                        experiments["parallelism"] == parallelism), "speedup"] = speedup
+
+    base_build_durations = sorted(
+        experiments.loc[(experiments["parallelism"] == 1) & (experiments["subcommand"] == "build")][
+            "median_elapsed_time"].unique())
+
+    small_project_durations = base_build_durations[len(base_build_durations) // 3]
+    medium_project_durations = base_build_durations[len(base_build_durations) // 3 * 2]
+
+    experiments["label"] = experiments.apply(
+        lambda row: "short build duration" if
+        experiments.loc[(experiments["project"] == row["project"]) & (experiments["parallelism"] == 1)][
+            "median_elapsed_time"].iloc[0] <= small_project_durations else (
+            "medium build duration" if
+            experiments.loc[(experiments["project"] == row["project"]) & (experiments["parallelism"] == 1)][
+                "median_elapsed_time"].iloc[0] <= medium_project_durations else "long build duration"), axis=1)
+    experiments.loc[experiments["subcommand"] == "test", "label"] = "test"
+
+    for parallelism in parallelisms[1:]:
+        print(
+            f"the median speedup of small project with parallelism {parallelism} is {experiments.loc[(experiments['label'] == 'short build duration') & (experiments['parallelism'] == parallelism)]['speedup'].median()}")
+        print(
+            f"the median speedup of medium project with parallelism {parallelism} is {experiments.loc[(experiments['label'] == 'medium build duration') & (experiments['parallelism'] == parallelism)]['speedup'].median()}")
+        print(
+            f"the median speedup of large project with parallelism {parallelism} is {experiments.loc[(experiments['label'] == 'long build duration') & (experiments['parallelism'] == parallelism)]['speedup'].median()}")
+        print(
+            f"the median speedup of test with parallelism {parallelism} is {experiments.loc[(experiments['label'] == 'test') & (experiments['parallelism'] == parallelism)]['speedup'].median()}")
+
+    experiments = experiments.drop(experiments[(experiments["parallelism"] == 1)].index)
+    experiments.drop(columns=["subcommand"], inplace=True)
+
+    ax = sns.boxplot(data=experiments, x="parallelism", y="speedup",
+                     hue_order=['short build duration', 'medium build duration', 'long build duration', 'test'],
+                     hue="label",
+                     palette="Set2")
+    ax.set_xlabel("Parallelism")
+    ax.set_ylabel("Speedup")
+    ax.set_title("Speedup of Build and Test Commands with Parallelism (Grouped by Build Duration)")
+    ax.axhline(2, ls="--", c="#b3b3b3")
+    ax.text(3.53, 1.7, "2x", color="#b3b3b3")
+    ax.axhline(4, ls="--", c="#b3b3b3")
+    ax.text(3.53, 3.7, "4x", color="#b3b3b3")
+    ax.axhline(8, ls="--", c="#b3b3b3")
+    ax.text(3.53, 7.7, "8x", color="#b3b3b3")
+    ax.axhline(16, ls="--", c="#b3b3b3")
+    ax.text(3.53, 15.7, "16x", color="#b3b3b3")
+    ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%dx'))
+
+    plt.tight_layout()
+    savefig("./images/parallelization_experiments_by_build_duration")
+    plt.show()
+
+    short_build_duration = experiments.loc[experiments["label"] == "short build duration"]
+    medium_build_duration = experiments.loc[experiments["label"] == "medium build duration"]
+    long_build_duration = experiments.loc[experiments["label"] == "long build duration"]
+    test = experiments.loc[experiments["label"] == "test"]
+
+    parallelism2 = scipy.stats.kruskal(short_build_duration.loc[short_build_duration["parallelism"] == 2]["speedup"],
+                                       medium_build_duration.loc[medium_build_duration["parallelism"] == 2]["speedup"],
+                                       long_build_duration.loc[long_build_duration["parallelism"] == 2]["speedup"],
+                                       test.loc[test["parallelism"] == 2]["speedup"])
+    print(f"the p-value of parallelism 2 is {parallelism2}")
+
+    parallelism2_posthoc = sp.posthoc_dunn(
+        [short_build_duration.loc[short_build_duration["parallelism"] == 2]["speedup"],
+         medium_build_duration.loc[medium_build_duration["parallelism"] == 2]["speedup"],
+         long_build_duration.loc[long_build_duration["parallelism"] == 2]["speedup"],
+         test.loc[test["parallelism"] == 2]["speedup"]], p_adjust="holm")
+    print(f"the posthoc p-values of parallelism 2 are {parallelism2_posthoc}")
+
+    parallelism2_short_medium = cliffs_delta(
+        short_build_duration.loc[short_build_duration["parallelism"] == 2]["speedup"],
+        medium_build_duration.loc[medium_build_duration["parallelism"] == 2]["speedup"])
+    print(
+        f"the cliffs_delta effect size of short build time project to medium build time project in parallelism 2 is {parallelism2_short_medium}")
+
+    parallelism2_short_large = cliffs_delta(
+        short_build_duration.loc[short_build_duration["parallelism"] == 2]["speedup"],
+        long_build_duration.loc[long_build_duration["parallelism"] == 2]["speedup"])
+    print(
+        f"the cliffs_delta effect size of short build time project to long build time project in parallelism 2 is {parallelism2_short_large}")
+
+    print("--------------")
+
+    parallelism4 = scipy.stats.kruskal(short_build_duration.loc[short_build_duration["parallelism"] == 4]["speedup"],
+                                       medium_build_duration.loc[medium_build_duration["parallelism"] == 4]["speedup"],
+                                       long_build_duration.loc[long_build_duration["parallelism"] == 4]["speedup"],
+                                       test.loc[test["parallelism"] == 4]["speedup"])
+    print(f"the p-value of parallelism 4 is {parallelism4}")
+
+    parallelism4_posthoc = sp.posthoc_dunn(
+        [short_build_duration.loc[short_build_duration["parallelism"] == 4]["speedup"],
+         medium_build_duration.loc[medium_build_duration["parallelism"] == 4]["speedup"],
+         long_build_duration.loc[long_build_duration["parallelism"] == 4]["speedup"],
+         test.loc[test["parallelism"] == 4]["speedup"]], p_adjust="holm")
+
+    print(f"the posthoc p-values of parallelism 4 are {parallelism4_posthoc}")
+
+    parallelism4_short_medium = cliffs_delta(
+        short_build_duration.loc[short_build_duration["parallelism"] == 4]["speedup"],
+        medium_build_duration.loc[medium_build_duration["parallelism"] == 4]["speedup"])
+    print(
+        f"the vda effect size of short build time project to medium build time project in parallelism 4 is {parallelism4_short_medium}")
+    print("--------------")
+
+    parallelism8 = scipy.stats.kruskal(short_build_duration.loc[short_build_duration["parallelism"] == 8]["speedup"],
+                                       medium_build_duration.loc[medium_build_duration["parallelism"] == 8]["speedup"],
+                                       long_build_duration.loc[long_build_duration["parallelism"] == 8]["speedup"],
+                                       test.loc[test["parallelism"] == 8]["speedup"])
+    print(f"the p-value of parallelism 8 is {parallelism8}")
+
+    parallelism8_posthoc = sp.posthoc_dunn(
+        [short_build_duration.loc[short_build_duration["parallelism"] == 8]["speedup"],
+         medium_build_duration.loc[medium_build_duration["parallelism"] == 8]["speedup"],
+         long_build_duration.loc[long_build_duration["parallelism"] == 8]["speedup"],
+         test.loc[test["parallelism"] == 8]["speedup"]], p_adjust="holm")
+
+    print(f"the posthoc p-values of parallelism 8 are {parallelism8_posthoc}")
+
+    parallelism8_short_medium = cliffs_delta(
+        short_build_duration.loc[short_build_duration["parallelism"] == 8]["speedup"],
+        medium_build_duration.loc[medium_build_duration["parallelism"] == 8]["speedup"])
+    print(
+        f"the vda effect size of short build time project to medium build time project in parallelism 8 is {parallelism8_short_medium}")
+    print("--------------")
+
+    parallelism16 = scipy.stats.kruskal(short_build_duration.loc[short_build_duration["parallelism"] == 16]["speedup"],
+                                        medium_build_duration.loc[medium_build_duration["parallelism"] == 16][
+                                            "speedup"],
+                                        long_build_duration.loc[long_build_duration["parallelism"] == 16]["speedup"],
+                                        test.loc[test["parallelism"] == 16]["speedup"])
+    print(f"the p-value of parallelism 16 is {parallelism16}")
+
+    parallelism16_posthoc = sp.posthoc_dunn(
+        [short_build_duration.loc[short_build_duration["parallelism"] == 16]["speedup"],
+         medium_build_duration.loc[medium_build_duration["parallelism"] == 16]["speedup"],
+         long_build_duration.loc[long_build_duration["parallelism"] == 16]["speedup"],
+         test.loc[test["parallelism"] == 16]["speedup"]], p_adjust="holm")
+
+    print(f"the posthoc p-values of parallelism 16 are {parallelism16_posthoc}")
+    print("--------------")
+
+    short_build_duration_projects_stats = scipy.stats.kruskal(
+        short_build_duration.loc[short_build_duration["parallelism"] == 2]["speedup"],
+        short_build_duration.loc[short_build_duration["parallelism"] == 4]["speedup"],
+        short_build_duration.loc[short_build_duration["parallelism"] == 8]["speedup"],
+        short_build_duration.loc[short_build_duration["parallelism"] == 16]["speedup"])
+    print(f"the p-value of short build duration projects is {short_build_duration_projects_stats}")
+
+    short_build_duration_projects_posthoc = sp.posthoc_dunn(
+        [short_build_duration.loc[short_build_duration["parallelism"] == 2]["speedup"],
+         short_build_duration.loc[short_build_duration["parallelism"] == 4]["speedup"],
+         short_build_duration.loc[short_build_duration["parallelism"] == 8]["speedup"],
+         short_build_duration.loc[short_build_duration["parallelism"] == 16]["speedup"]], p_adjust="holm")
+    print(f"the posthoc p-values of short build duration projects are {short_build_duration_projects_posthoc}")
+    print("--------------")
+
+    medium_build_duration_projects_stats = scipy.stats.kruskal(
+        medium_build_duration.loc[medium_build_duration["parallelism"] == 2]["speedup"],
+        medium_build_duration.loc[medium_build_duration["parallelism"] == 4]["speedup"],
+        medium_build_duration.loc[medium_build_duration["parallelism"] == 8]["speedup"],
+        medium_build_duration.loc[medium_build_duration["parallelism"] == 16]["speedup"])
+    print(f"the p-value of medium build duration projects is {medium_build_duration_projects_stats}")
+
+    medium_build_duration_projects_posthoc = sp.posthoc_dunn(
+        [medium_build_duration.loc[medium_build_duration["parallelism"] == 2]["speedup"],
+         medium_build_duration.loc[medium_build_duration["parallelism"] == 4]["speedup"],
+         medium_build_duration.loc[medium_build_duration["parallelism"] == 8]["speedup"],
+         medium_build_duration.loc[medium_build_duration["parallelism"] == 16]["speedup"]], p_adjust="holm")
+    print(f"the posthoc p-values of medium build duration projects are {medium_build_duration_projects_posthoc}")
+    print("--------------")
+
+    long_build_duration_projects_stats = scipy.stats.kruskal(
+        long_build_duration.loc[long_build_duration["parallelism"] == 2]["speedup"],
+        long_build_duration.loc[long_build_duration["parallelism"] == 4]["speedup"],
+        long_build_duration.loc[long_build_duration["parallelism"] == 8]["speedup"],
+        long_build_duration.loc[long_build_duration["parallelism"] == 16]["speedup"])
+    print(f"the p-value of long build duration projects is {long_build_duration_projects_stats}")
+
+    long_build_duration_projects_posthoc = sp.posthoc_dunn(
+        [long_build_duration.loc[long_build_duration["parallelism"] == 2]["speedup"],
+         long_build_duration.loc[long_build_duration["parallelism"] == 4]["speedup"],
+         long_build_duration.loc[long_build_duration["parallelism"] == 8]["speedup"],
+         long_build_duration.loc[long_build_duration["parallelism"] == 16]["speedup"]], p_adjust="holm")
+    print(f"the posthoc p-values of long build duration projects are {long_build_duration_projects_posthoc}")
+    print("--------------")
+
+
+def parallelism_confidence_levels(data_dir):
+    experiments = pd.read_csv(f"{data_dir}/parallelization-experiments.csv")
+    experiments = experiments.drop(columns=["target", "critical_path"])
+
+    for project in experiments["project"].unique():
+        for subcommand in ["build", "test"]:
+            mean_baseline_time = experiments.loc[(experiments["project"] == project) & (
+                    experiments["subcommand"] == subcommand) & (
+                                                         experiments["parallelism"] == 1)]["elapsed_time"].mean()
+
+            experiments.loc[(experiments["project"] == project) & (
+                    experiments["subcommand"] == subcommand), "mean_baseline_time"] = mean_baseline_time
+
+            for parallelism in experiments["parallelism"].unique():
+                median = experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (
+                                                 experiments["parallelism"] == parallelism)]["elapsed_time"].median()
+
+                experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (
+                                        experiments["parallelism"] == parallelism), "median_elapsed_time"] = median
+
+    experiments["speedup"] = experiments.apply(
+        lambda row: row["mean_baseline_time"] / row["elapsed_time"], axis=1)
+
+    # commits = sorted(
+    #     experiments.loc[(experiments['subcommand'] == "build")].filter(["project", "commits"]).drop_duplicates()[
+    #         "commits"].tolist())
+    # small, medium, _ = np.array_split(commits, 3)
+    #
+    # experiments["label"] = experiments.apply(
+    #     lambda row: "small project" if row["commits"] in small else (
+    #         "medium project" if row["commits"] in medium else "large project"), axis=1)
+    # experiments.loc[experiments["subcommand"] == "test", "label"] = "test"
+
+    base_build_durations = sorted(
+        experiments.loc[(experiments["parallelism"] == 1) & (experiments["subcommand"] == "build")][
+            "median_elapsed_time"].unique())
+
+    small_project_durations = base_build_durations[len(base_build_durations) // 3]
+    medium_project_durations = base_build_durations[len(base_build_durations) // 3 * 2]
+
+    experiments["label"] = experiments.apply(
+        lambda row: "short build duration" if
+        experiments.loc[(experiments["project"] == row["project"]) & (experiments["parallelism"] == 1)][
+            "median_elapsed_time"].iloc[0] <= small_project_durations else (
+            "medium build duration" if
+            experiments.loc[(experiments["project"] == row["project"]) & (experiments["parallelism"] == 1)][
+                "median_elapsed_time"].iloc[0] <= medium_project_durations else "long build duration"), axis=1)
+    experiments.loc[experiments["subcommand"] == "test", "label"] = "test"
+
+    parallelism_confidence_levels = {}
+
+    parallelisms = [2, 4, 8, 16]
+    for project in experiments["project"].unique():
+        for subcommand in ["build", "test"]:
+            for parallelism in parallelisms:
+                rows = experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand)]["label"]
+                if len(rows) == 0:
+                    continue
+                label = rows.iloc[0]
+
+                if (label, parallelism) not in parallelism_confidence_levels:
+                    parallelism_confidence_levels[(label, parallelism)] = {"c1": [], "c2": [], "m": []}
+
+                data = experiments.loc[(experiments["project"] == project) & (
+                        experiments["subcommand"] == subcommand) & (
+                                               experiments["parallelism"] == parallelism)]["speedup"].values
+                m, c1, c2 = mean_confidence_interval(data)
+                parallelism_confidence_levels[(label, parallelism)]["c1"].append(c1)
+                parallelism_confidence_levels[(label, parallelism)]["c2"].append(c2)
+                parallelism_confidence_levels[(label, parallelism)]["m"].append(m)
+
+    overall_confidence_levels = {}
+    for key in parallelism_confidence_levels:
+        confidence_intervals = parallelism_confidence_levels[key]
+
+        label, parallelism = key
+        total = len(confidence_intervals["m"])
+        beyond_parallelism = len([c1 for c1 in confidence_intervals["c1"] if c1 > parallelism])
+        print(f"{label} {parallelism}x: {beyond_parallelism}/{total} ({beyond_parallelism / total})")
+
+        if parallelism not in overall_confidence_levels:
+            overall_confidence_levels[parallelism] = {"total": 0, "beyond_parallelism": 0}
+
+        overall_confidence_levels[parallelism]["total"] += total
+        overall_confidence_levels[parallelism]["beyond_parallelism"] += beyond_parallelism
+
+    for parallelism in overall_confidence_levels:
+        print(
+            f'{parallelism}x: {overall_confidence_levels[parallelism]["beyond_parallelism"]}/{overall_confidence_levels[parallelism]["total"]} '
+            f'({overall_confidence_levels[parallelism]["beyond_parallelism"] / overall_confidence_levels[parallelism]["total"]})')
+
+
+def mean_confidence_interval(data, confidence=0.95):
+    a = 1.0 * np.array(data)
+    n = len(a)
+    m, se = np.mean(a), scipy.stats.sem(a)
+    h = se * scipy.stats.t.ppf((1 + confidence) / 2., n - 1)
+    return m, m - h, m + h
+
 
 def visualize_arg_size(data_dir: str):
     build_arg_size = None

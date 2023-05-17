@@ -42,7 +42,7 @@ def preprocess_data(data_dir: str):
     #     preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
     #     preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
     #     preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    preprocess_experiments(data_dir, processed_data_dir)
+    preprocess_parallelization_experiments(data_dir, processed_data_dir)
 
 
 def preprocess_build_rules(source_dir: str, processed_data_dir: str, build_tool: str, target_filename_prefix=""):
@@ -158,9 +158,12 @@ def preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_n
     build_command_arg_size.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
 
-def preprocess_experiments(data_dir, processed_data_dir):
+def preprocess_parallelization_experiments(data_dir, processed_data_dir):
     experiments_data_file_path = os.path.join(data_dir, "experiments/parallelization-experiments.csv")
     target_processed_file_path = os.path.join(processed_data_dir, "parallelization-experiments.csv")
+
+    project_data_path = os.path.join(data_dir, "bazel_projects_manually_examined.csv")
+    project_data = pd.read_csv(project_data_path, sep=",")
 
     experiments = pd.read_csv(experiments_data_file_path, sep=",")
     experiments = experiments.drop_duplicates()
@@ -174,7 +177,8 @@ def preprocess_experiments(data_dir, processed_data_dir):
                 cnt = experiments.query(f"project == '{project}' and subcommand == '{subcommand}' and parallelism == {parallelism}").shape[0]
                 if cnt != 10:
                     projects_to_be_dropped.append((project, subcommand))
-
+        print(f"project and subcommand: {project} {subcommand}")
+        experiments.loc[experiments["project"] == project, "commits"] = project_data[project_data["project"] == project]["commits"].values[0]
     for project, subcommand in projects_to_be_dropped:
         experiments = experiments.drop(experiments[(experiments["project"] == project) & (experiments["subcommand"] == subcommand)].index)
 
