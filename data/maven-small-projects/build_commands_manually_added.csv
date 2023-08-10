@@ -1,10 +1,10 @@
-project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores#invoked_by_script
-eclipse-ee4j_grizzly#github_actions#maven#--show-version --no-transfer-progress --activate-profiles staging --define skipTests=true install#False#False#-1#2#False
-bonigarcia_webdrivermanager-examples#github_actions#maven#-B test#False#False#-1#2#False
-spring-cloud_spring-cloud-dataflow-samples#github_actions#maven#-B clean verify -Pspring#False#False#-1#2#False
-spring-cloud_spring-cloud-dataflow-samples#github_actions#maven#-B clean install -Dmaven.javadoc.skip=true spring-boot:build-image -pl multi-output-time-rabbit,multi-input-log-rabbit,multi-output-time-kafka,multi-input-log-kafka#False#False#-1#2#False
-sonatype-nexus-community_nexus-repository-composer#circle_ci#maven#-batch-mode release:perform -s .circleci/.maven.xml -PbuildKar#False#False#-1#2#False
-sonatype-nexus-community_nexus-repository-composer#circle_ci#maven#clean --batch-mode verify -PbuildKar -Dit#False#False#-1#2#False
-plaid_plaid-java#circle_ci#maven#-Dmaven.javadoc.skip=true verify -e#False#False#-1#2#False
-johncarl81_parceler#travis_ci#maven#mvn install -B#False#False#-1#2#False
-alibaba_QLExpress#github_actions#maven#clean deploy#False#False#-1#2#False
+project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores#invoker
+eclipse-ee4j_grizzly#github_actions#maven#--show-version --no-transfer-progress --activate-profiles staging --define skipTests=true install#False#False#-1#2#ci
+bonigarcia_webdrivermanager-examples#github_actions#maven#-B test#False#False#-1#2#ci
+spring-cloud_spring-cloud-dataflow-samples#github_actions#maven#-B clean verify -Pspring#False#False#-1#2#ci
+spring-cloud_spring-cloud-dataflow-samples#github_actions#maven#-B clean install -Dmaven.javadoc.skip=true spring-boot:build-image -pl multi-output-time-rabbit,multi-input-log-rabbit,multi-output-time-kafka,multi-input-log-kafka#False#False#-1#2#ci
+sonatype-nexus-community_nexus-repository-composer#circle_ci#maven#-batch-mode release:perform -s .circleci/.maven.xml -PbuildKar#False#False#-1#2#ci
+sonatype-nexus-community_nexus-repository-composer#circle_ci#maven#clean --batch-mode verify -PbuildKar -Dit#False#False#-1#2#ci
+plaid_plaid-java#circle_ci#maven#-Dmaven.javadoc.skip=true verify -e#False#False#-1#2#docker
+johncarl81_parceler#travis_ci#maven#mvn install -B#False#False#-1#2#ci
+alibaba_QLExpress#github_actions#maven#clean deploy#False#False#-1#2#ci

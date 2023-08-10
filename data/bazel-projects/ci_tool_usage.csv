@@ -9,6 +9,7 @@ google_crubit,buildkite
 google_closure-compiler,github_actions
 pytorch_cpuinfo,github_actions
 pytorch_cpuinfo,travis_ci
+bazelbuild_rules_closure,buildkite
 dreal_dreal4,github_actions
 dreal_dreal4,github_actions
 dreal_dreal4,github_actions
@@ -130,6 +131,7 @@ tensorflow_tensorflow,github_actions
 pinterest_plank,github_actions
 pinterest_plank,github_actions
 pinterest_plank,github_actions
+bazelbuild_bazelisk,buildkite
 3rdparty_stout,github_actions
 3rdparty_stout,github_actions
 p4lang_PI,github_actions
@@ -286,6 +288,7 @@ google_flatbuffers,github_actions
 google_flatbuffers,github_actions
 google_flatbuffers,github_actions
 google_flatbuffers,github_actions
+google_flatbuffers,buildkite
 batfish_batfish,github_actions
 batfish_batfish,github_actions
 batfish_batfish,github_actions
@@ -507,6 +510,7 @@ tensorflow_tensorboard,github_actions
 vaticle_biograkn,circle_ci
 tweag_clodl,github_actions
 tweag_clodl,circle_ci
+bazelbuild_buildtools,buildkite
 JetBrains_bazel-bsp,github_actions
 JetBrains_bazel-bsp,github_actions
 JetBrains_bazel-bsp,github_actions
@@ -561,6 +565,7 @@ cartographer-project_cartographer,github_actions
 cartographer-project_cartographer,github_actions
 cartographer-project_cartographer,github_actions
 cartographer-project_cartographer,github_actions
+cartographer-project_cartographer,buildkite
 elastic_kibana,github_actions
 elastic_kibana,github_actions
 elastic_kibana,github_actions
@@ -676,6 +681,7 @@ Kong_kong,github_actions
 angular_material.angular.io,circle_ci
 google_cargo-raze,github_actions
 google_cargo-raze,buildkite
+google_closure-templates,buildkite
 google_tensorstore,github_actions
 google_tensorstore,github_actions
 masc-ucsc_livehd,github_actions
@@ -729,6 +735,7 @@ cockroachdb_cockroach-operator,github_actions
 cockroachdb_cockroach-operator,github_actions
 cockroachdb_cockroach-operator,github_actions
 cockroachdb_cockroach-operator,github_actions
+bazelbuild_starlark,buildkite
 angular_angular,github_actions
 angular_angular,github_actions
 angular_angular,github_actions
@@ -870,6 +877,7 @@ grpc-ecosystem_grpc-gateway,github_actions
 grpc-ecosystem_grpc-gateway,github_actions
 grpc-ecosystem_grpc-gateway,github_actions
 grpc-ecosystem_grpc-gateway,github_actions
+grpc-ecosystem_grpc-gateway,buildkite
 google_XNNPACK,github_actions
 LandRover_StaffjoyV2,github_actions
 LandRover_StaffjoyV2,github_actions
@@ -1122,6 +1130,7 @@ baidu_BaikalDB,github_actions
 baidu_BaikalDB,github_actions
 baidu_BaikalDB,github_actions
 bazel-ios_rules_ios,github_actions
+bazelbuild_rules_k8s,buildkite
 gflags_gflags,travis_ci
 catchorg_Catch2,github_actions
 catchorg_Catch2,github_actions

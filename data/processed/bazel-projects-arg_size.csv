@@ -7,6 +7,7 @@ baidu_braft,travis_ci,3,3
 google_crubit,buildkite,1,6
 google_crubit,buildkite,0,2
 google_closure-compiler,github_actions,0,6
+bazelbuild_rules_closure,buildkite,0,0
 dreal_dreal4,github_actions,0,9
 bazelbuild_vscode-bazel,buildkite,0,0
 pytorch_pytorch,github_actions,1,35
@@ -25,6 +26,9 @@ buchgr_bazel-remote,buildkite,0,6
 tensorflow_tensorflow,github_actions,1,20
 tensorflow_tensorflow,github_actions,0,19
 pinterest_plank,github_actions,2,3
+bazelbuild_bazelisk,buildkite,0,0
+bazelbuild_bazelisk,buildkite,2,4
+bazelbuild_bazelisk,buildkite,4,9
 3rdparty_stout,github_actions,0,1
 p4lang_PI,github_actions,0,2
 protocolbuffers_upb,github_actions,1,4
@@ -85,6 +89,7 @@ cloudflare_workerd,github_actions,2,34
 cloudflare_workerd,github_actions,3,35
 cloudflare_workerd,github_actions,6,38
 nanopb_nanopb,github_actions,0,0
+google_flatbuffers,buildkite,0,0
 batfish_batfish,github_actions,0,3
 batfish_batfish,github_actions,4,7
 batfish_batfish,github_actions,3,6
@@ -207,6 +212,8 @@ vaticle_biograkn,circle_ci,1,1
 tweag_clodl,github_actions,4,4
 tweag_clodl,github_actions,0,0
 tweag_clodl,circle_ci,0,0
+bazelbuild_buildtools,buildkite,0,0
+bazelbuild_buildtools,buildkite,1,4
 JetBrains_bazel-bsp,github_actions,0,3
 bazelbuild_rules_docker,github_actions,1,2
 bazelbuild_rules_docker,buildkite,1,6
@@ -273,6 +280,7 @@ bazelbuild_rules_jvm_external,buildkite,0,22
 bazelbuild_rules_jvm_external,buildkite,0,20
 bazelbuild_rules_jvm_external,buildkite,0,23
 grab_Grazel,github_actions,3,3
+cartographer-project_cartographer,buildkite,0,3
 tensorflow_tflite-micro,github_actions,0,0
 tensorflow_tflite-micro,github_actions,3,3
 cockroachdb_cockroach,github_actions,0,15
@@ -291,6 +299,7 @@ Kong_kong,github_actions,1,18
 angular_material.angular.io,circle_ci,0,8
 angular_material.angular.io,circle_ci,1,10
 google_cargo-raze,buildkite,0,0
+google_closure-templates,buildkite,0,0
 masc-ucsc_livehd,github_actions,1,6
 masc-ucsc_livehd,github_actions,5,12
 jpsim_Yams,github_actions,0,3
@@ -317,6 +326,7 @@ cockroachdb_cockroach-operator,github_actions,3,6
 cockroachdb_cockroach-operator,github_actions,7,11
 cockroachdb_cockroach-operator,github_actions,1,2
 cockroachdb_cockroach-operator,github_actions,5,6
+bazelbuild_starlark,buildkite,0,0
 angular_angular,github_actions,3,12
 angular_angular,circle_ci,0,11
 angular_angular,circle_ci,1,13
@@ -365,6 +375,8 @@ CodeIntelligenceTesting_jazzer,github_actions,3,13
 grpc-ecosystem_grpc-gateway,github_actions,3,3
 grpc-ecosystem_grpc-gateway,github_actions,1,1
 grpc-ecosystem_grpc-gateway,github_actions,0,0
+grpc-ecosystem_grpc-gateway,buildkite,1,3
+grpc-ecosystem_grpc-gateway,buildkite,2,5
 LandRover_StaffjoyV2,github_actions,0,0
 evilcorpltd_aTox,github_actions,0,7
 evilcorpltd_aTox,github_actions,0,9
@@ -476,6 +488,11 @@ bazel-ios_rules_ios,github_actions,0,11
 bazel-ios_rules_ios,github_actions,4,15
 bazel-ios_rules_ios,github_actions,1,12
 bazel-ios_rules_ios,github_actions,2,13
+bazelbuild_rules_k8s,buildkite,0,15
+bazelbuild_rules_k8s,buildkite,0,19
+bazelbuild_rules_k8s,buildkite,1,17
+bazelbuild_rules_k8s,buildkite,1,21
+bazelbuild_rules_k8s,buildkite,0,17
 catchorg_Catch2,github_actions,1,2
 googleapis_google-cloud-cpp,buildkite,0,12
 googleapis_google-cloud-cpp,buildkite,1,20

@@ -27,7 +27,7 @@ class CIConfigAnalyzer:
                 open(f"{output_dir}/build_command_arg_size.csv", "w") as build_cmd_size_file:
             # we use '#' as the separator of the csv file
             build_cmd_file.write(
-                "project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores#invoked_by_script\n")
+                "project#ci_tool#build_tool#raw_arguments#local_cache#remote_cache#parallelism#cores#invoker\n")
             build_cmd_size_file.write("project#ci_tool#build_tool#non_expanded_command_size#expanded_command_size\n")
             ci_tool_usage_file.write("project,ci_tool\n")
             for entry in os.scandir(project_base_dir):
@@ -70,7 +70,7 @@ class CIConfigAnalyzer:
                             continue
                         # we use '#' as the separator of the csv file
                         build_cmd_file.write(
-                            f"{entry.name}#{ci_config.ci_tool}#{cmd.build_tool}#{cmd.raw_arguments}#{use_local_cache}#{use_remote_cache}#{parallelism}#{cmd.cores}#{cmd.invoked_by_script}\n")
+                            f"{entry.name}#{ci_config.ci_tool}#{cmd.build_tool}#{cmd.raw_arguments}#{use_local_cache}#{use_remote_cache}#{parallelism}#{cmd.cores}#{cmd.invoker}\n")
                         build_cmd_size_file.write(
                             f"{entry.name}#{ci_config.ci_tool}#{cmd.build_tool}#{cmd.non_expended_arg_size}#{cmd.expanded_arg_size}\n")
         print(f"analyzed {CIConfigParser.total_analyzed_ci_file_count} ci/cd configuration files in total")

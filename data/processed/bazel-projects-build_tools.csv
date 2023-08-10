@@ -7,6 +7,8 @@ baidu_braft,travis_ci,build,False,True
 google_crubit,buildkite,build,False,True
 google_crubit,buildkite,test,False,True
 google_closure-compiler,github_actions,test,False,True
+bazelbuild_rules_closure,buildkite,build,False,True
+bazelbuild_rules_closure,buildkite,test,False,True
 dreal_dreal4,github_actions,test,False,True
 bazelbuild_vscode-bazel,buildkite,build,False,True
 pytorch_pytorch,github_actions,build,False,True
@@ -21,6 +23,8 @@ tensorflow_tensorflow,github_actions,build,False,True
 tensorflow_tensorflow,github_actions,test,False,True
 tensorflow_tensorflow,github_actions,"test,test",False,True
 pinterest_plank,github_actions,build,False,True
+bazelbuild_bazelisk,buildkite,build,False,True
+bazelbuild_bazelisk,buildkite,test,False,True
 3rdparty_stout,github_actions,build,False,True
 3rdparty_stout,github_actions,test,False,True
 p4lang_PI,github_actions,test,False,True
@@ -68,6 +72,8 @@ cloudflare_workerd,github_actions,build,False,True
 cloudflare_workerd,github_actions,test,False,True
 nanopb_nanopb,github_actions,test,False,True
 nanopb_nanopb,github_actions,build,False,True
+google_flatbuffers,buildkite,build,False,True
+google_flatbuffers,buildkite,test,False,True
 batfish_batfish,github_actions,build,False,True
 batfish_batfish,github_actions,test,False,True
 batfish_batfish,github_actions,coverage,False,True
@@ -148,6 +154,7 @@ tweag_clodl,github_actions,build,False,True
 tweag_clodl,github_actions,run,False,True
 tweag_clodl,circle_ci,build,False,True
 tweag_clodl,circle_ci,run,False,True
+bazelbuild_buildtools,buildkite,test,False,True
 JetBrains_bazel-bsp,github_actions,test,False,True
 JetBrains_bazel-bsp,github_actions,build,False,True
 JetBrains_bazel-bsp,github_actions,run,False,True
@@ -193,6 +200,8 @@ vaticle_typedb,circle_ci,run,False,True
 bazelbuild_rules_jvm_external,buildkite,build,False,True
 bazelbuild_rules_jvm_external,buildkite,test,False,True
 grab_Grazel,github_actions,run,False,True
+cartographer-project_cartographer,buildkite,build,False,True
+cartographer-project_cartographer,buildkite,test,False,True
 tensorflow_tflite-micro,github_actions,build,False,True
 tensorflow_tflite-micro,github_actions,test,False,True
 tensorflow_tflite-micro,github_actions,run,False,True
@@ -207,6 +216,7 @@ angular_material.angular.io,circle_ci,build,False,True
 angular_material.angular.io,circle_ci,test,False,True
 google_cargo-raze,buildkite,build,False,True
 google_cargo-raze,buildkite,test,False,True
+google_closure-templates,buildkite,build,False,True
 masc-ucsc_livehd,github_actions,build,False,True
 masc-ucsc_livehd,github_actions,coverage,False,True
 jpsim_Yams,github_actions,test,False,True
@@ -225,6 +235,8 @@ bytecodealliance_wasmtime-go,github_actions,test,False,True
 grpc-ecosystem_polyglot,github_actions,test,False,True
 cockroachdb_cockroach-operator,github_actions,test,False,True
 cockroachdb_cockroach-operator,github_actions,run,False,True
+bazelbuild_starlark,buildkite,build,False,True
+bazelbuild_starlark,buildkite,test,False,True
 angular_angular,github_actions,build,False,True
 angular_angular,circle_ci,run,False,True
 angular_angular,circle_ci,test,False,True
@@ -261,6 +273,8 @@ CodeIntelligenceTesting_jazzer,github_actions,build,False,True
 CodeIntelligenceTesting_jazzer,github_actions,test,False,True
 grpc-ecosystem_grpc-gateway,github_actions,run,False,True
 grpc-ecosystem_grpc-gateway,github_actions,test,False,True
+grpc-ecosystem_grpc-gateway,buildkite,build,False,True
+grpc-ecosystem_grpc-gateway,buildkite,test,False,True
 LandRover_StaffjoyV2,github_actions,run,False,True
 evilcorpltd_aTox,github_actions,build,False,True
 evilcorpltd_aTox,github_actions,test,False,True
@@ -352,6 +366,8 @@ baidu_BaikalDB,github_actions,build,False,True
 bazel-ios_rules_ios,github_actions,test,False,True
 bazel-ios_rules_ios,github_actions,build,False,True
 bazel-ios_rules_ios,github_actions,run,False,True
+bazelbuild_rules_k8s,buildkite,build,False,True
+bazelbuild_rules_k8s,buildkite,test,False,True
 catchorg_Catch2,github_actions,build,False,True
 googleapis_google-cloud-cpp,buildkite,build,False,True
 googleapis_google-cloud-cpp,buildkite,test,False,True
@@ -429,6 +445,7 @@ google_crubit,buildkite,,,False
 google_closure-compiler,github_actions,,,False
 pytorch_cpuinfo,github_actions,,,False
 pytorch_cpuinfo,travis_ci,,,False
+bazelbuild_rules_closure,buildkite,,,False
 dreal_dreal4,github_actions,,,False
 dreal_dreal4,travis_ci,,,False
 twitter_util,github_actions,,,False
@@ -442,6 +459,7 @@ grpc_grpc-java,github_actions,,,False
 sogou_srpc,github_actions,,,False
 tensorflow_tensorflow,github_actions,,,False
 pinterest_plank,github_actions,,,False
+bazelbuild_bazelisk,buildkite,,,False
 3rdparty_stout,github_actions,,,False
 p4lang_PI,github_actions,,,False
 protocolbuffers_upb,github_actions,,,False
@@ -485,6 +503,7 @@ cloudflare_workerd,github_actions,,,False
 thesayyn_protoc-gen-ts,github_actions,,,False
 nanopb_nanopb,github_actions,,,False
 google_flatbuffers,github_actions,,,False
+google_flatbuffers,buildkite,,,False
 batfish_batfish,github_actions,,,False
 SeleniumHQ_selenium-ide,github_actions,,,False
 googlecodelabs_tools,github_actions,,,False
@@ -555,6 +574,7 @@ tensorflow_tensorboard,github_actions,,,False
 vaticle_biograkn,circle_ci,,,False
 tweag_clodl,github_actions,,,False
 tweag_clodl,circle_ci,,,False
+bazelbuild_buildtools,buildkite,,,False
 JetBrains_bazel-bsp,github_actions,,,False
 bazelbuild_rules_docker,github_actions,,,False
 bazelbuild_rules_docker,buildkite,,,False
@@ -581,6 +601,7 @@ vaticle_typedb,circle_ci,,,False
 bazelbuild_rules_jvm_external,buildkite,,,False
 grab_Grazel,github_actions,,,False
 cartographer-project_cartographer,github_actions,,,False
+cartographer-project_cartographer,buildkite,,,False
 elastic_kibana,github_actions,,,False
 elastic_kibana,buildkite,,,False
 JFreegman_toxic,github_actions,,,False
@@ -598,6 +619,7 @@ Kong_kong,github_actions,,,False
 angular_material.angular.io,circle_ci,,,False
 google_cargo-raze,github_actions,,,False
 google_cargo-raze,buildkite,,,False
+google_closure-templates,buildkite,,,False
 google_tensorstore,github_actions,,,False
 masc-ucsc_livehd,github_actions,,,False
 jpsim_Yams,github_actions,,,False
@@ -616,6 +638,7 @@ bytecodealliance_wasmtime-go,github_actions,,,False
 grpc-ecosystem_polyglot,github_actions,,,False
 libxsmm_libxsmm,github_actions,,,False
 cockroachdb_cockroach-operator,github_actions,,,False
+bazelbuild_starlark,buildkite,,,False
 angular_angular,github_actions,,,False
 angular_angular,circle_ci,,,False
 android_testing-samples,github_actions,,,False
@@ -645,6 +668,7 @@ autodiff_autodiff,github_actions,,,False
 CodeIntelligenceTesting_jazzer,github_actions,,,False
 LieluoboAi_radish,travis_ci,,,False
 grpc-ecosystem_grpc-gateway,github_actions,,,False
+grpc-ecosystem_grpc-gateway,buildkite,,,False
 google_XNNPACK,github_actions,,,False
 LandRover_StaffjoyV2,github_actions,,,False
 tensorflow_tfjs,github_actions,,,False
@@ -727,6 +751,7 @@ envoyproxy_envoy-mobile,github_actions,,,False
 envoyproxy_envoy-mobile,circle_ci,,,False
 baidu_BaikalDB,github_actions,,,False
 bazel-ios_rules_ios,github_actions,,,False
+bazelbuild_rules_k8s,buildkite,,,False
 gflags_gflags,travis_ci,,,False
 catchorg_Catch2,github_actions,,,False
 googleapis_google-cloud-cpp,github_actions,,,False

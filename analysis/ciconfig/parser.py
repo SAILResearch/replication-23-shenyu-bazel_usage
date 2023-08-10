@@ -3,7 +3,6 @@ import os
 import re
 from abc import abstractmethod
 from enum import Enum
-from pymake import pymake
 
 import yaml
 
@@ -18,7 +17,7 @@ class CIToolType(Enum):
 
 class BuildCommand:
     def __init__(self, build_tool: str, raw_arguments: str, local_cache: bool = False, local_cache_paths=None,
-                 cores: int = 2, bazelci_project=False, invoked_by_script=False, non_expended_arg_size=None,
+                 cores: int = 2, bazelci_project=False, invoker="ci", non_expended_arg_size=None,
                  expanded_arg_size=None):
         if local_cache_paths is None:
             local_cache_paths = []
@@ -28,7 +27,7 @@ class BuildCommand:
         self.local_cache_paths = local_cache_paths
         self.cores = cores
         self.bazelci_project = bazelci_project
-        self.invoked_by_script = invoked_by_script
+        self.invoker = invoker
         self.non_expended_arg_size = non_expended_arg_size
         self.expanded_arg_size = expanded_arg_size
 
@@ -225,8 +224,11 @@ class CIConfigParser:
                 for match in matcher.finditer(command):
                     if match.group().startswith("#"):
                         continue
-                    cmds.append(
-                        BuildCommand(build_tool, match.group(1)))
+
+                    cmd = BuildCommand(build_tool, match.group(1))
+                    if not convert_make:
+                        cmd.invoker = "make"
+                    cmds.append(cmd)
             else:
                 # if this step invoke a script, we look at that script to check if they run any Bazel command within
                 for script_file in self.sh_scripts:
@@ -237,8 +239,11 @@ class CIConfigParser:
                             for match in matcher.finditer(raw_script):
                                 if match.group().startswith("#"):
                                     continue
-                                cmds.append(
-                                    BuildCommand(build_tool, match.group(1), invoked_by_script=True))
+                                cmd = BuildCommand(build_tool, match.group(1), invoker="shell")
+                                if not convert_make:
+                                    cmd.invoker = "make"
+
+                                cmds.append(cmd)
         if convert_make:
             cmds = self._convert_make_targets(cmds)
 
@@ -680,7 +685,7 @@ class BuildkiteConfigParser(CIConfigParser):
 
         # Bazel development team's DSL of Buildkite pipeline
         if "platforms" in cfgs or "tasks" in cfgs:
-            tasks = cfgs["platforms"].values() if "platform" in cfgs else cfgs["tasks"].values()
+            tasks = cfgs["platforms"].values() if "platforms" in cfgs else cfgs["tasks"].values()
             for task in tasks:
                 if "build_targets" in task:
                     targets = task["build_targets"]

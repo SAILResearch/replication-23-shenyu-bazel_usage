@@ -1,5 +1,7 @@
 import os.path
 import re
+import shutil
+import subprocess
 
 import pandas as pd
 
@@ -35,14 +37,15 @@ def preprocess_data(data_dir: str):
                                       "maven-small-projects": "maven"}
     # for parent_dir_name, build_tool in parent_dir_name_and_build_tool.items():
     #     source_dir = os.path.join(data_dir, parent_dir_name)
-    #
-    #     preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    #     preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    #     preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    #     preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    #     preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    #     preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    preprocess_parallelization_experiments(data_dir, processed_data_dir)
+
+        # preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        # preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        # preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        # preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        # preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        # preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    # preprocess_parallelization_experiments(data_dir, processed_data_dir)
+    preprocess_cache_experiments(data_dir, processed_data_dir)
 
 
 def preprocess_build_rules(source_dir: str, processed_data_dir: str, build_tool: str, target_filename_prefix=""):
@@ -83,7 +86,7 @@ def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, targe
     build_commands = build_commands.drop_duplicates(subset=["project", "ci_tool", "subcommands"], keep="first")
     build_commands = build_commands.drop(
         columns=["raw_arguments", "build_tool", "local_cache", "remote_cache", "parallelism", "cores",
-                 "invoked_by_script"])
+                 "invoker"])
     build_commands["use_build_tool"] = True
     for _, row in ci_tool_usages.iterrows():
         if build_commands.loc[(build_commands["project"] == row["project"]) &
@@ -111,7 +114,7 @@ def preprocess_feature_usage(source_dir: str, target_dir: str, build_tool: str, 
         lambda row: row["remote_cache"] or row["project"] in manually_checked_remote_cahce_projects, axis=1)
 
     build_commands = build_commands.drop(
-        columns=["raw_arguments", "build_tool", "parallelism", "cores", "invoked_by_script"])
+        columns=["raw_arguments", "build_tool", "parallelism", "cores", "invoker"])
     build_commands = build_commands.drop_duplicates()
     build_commands.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
@@ -159,29 +162,131 @@ def preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_n
 
 
 def preprocess_parallelization_experiments(data_dir, processed_data_dir):
-    experiments_data_file_path = os.path.join(data_dir, "experiments/parallelization-experiments.csv")
+    experiments_data_file_path = os.path.join(data_dir, "parallel-experiments.csv")
+    cache_experiments_data_file_path = os.path.join(data_dir, "cache-experiments.csv")
     target_processed_file_path = os.path.join(processed_data_dir, "parallelization-experiments.csv")
 
     project_data_path = os.path.join(data_dir, "bazel_projects_manually_examined.csv")
     project_data = pd.read_csv(project_data_path, sep=",")
 
     experiments = pd.read_csv(experiments_data_file_path, sep=",")
+    cache_experiments_data = pd.read_csv(cache_experiments_data_file_path, sep=",")
+
+
     experiments = experiments.drop_duplicates()
 
     projects_to_be_dropped = []
 
     parallelisms = [1, 2, 4, 8, 16]
     for project in experiments["project"].unique():
-        for subcommand in ["build", "test"]:
-            for parallelism in parallelisms:
-                cnt = experiments.query(f"project == '{project}' and subcommand == '{subcommand}' and parallelism == {parallelism}").shape[0]
-                if cnt != 10:
-                    projects_to_be_dropped.append((project, subcommand))
-        print(f"project and subcommand: {project} {subcommand}")
-        experiments.loc[experiments["project"] == project, "commits"] = project_data[project_data["project"] == project]["commits"].values[0]
-    for project, subcommand in projects_to_be_dropped:
-        experiments = experiments.drop(experiments[(experiments["project"] == project) & (experiments["subcommand"] == subcommand)].index)
+        _, project_name = project.split("_", maxsplit=1)
+        if cache_experiments_data.loc[(cache_experiments_data["project"] == project_name) & (cache_experiments_data["status"] == "success")].shape[0] == 0:
+            projects_to_be_dropped.append((project, "build"))
+            projects_to_be_dropped.append((project, "test"))
+            continue
 
+
+        for subcommand in ["build"]:
+            for parallelism in parallelisms:
+                cnt = experiments.query(
+                    f"project == '{project}' and subcommand == '{subcommand}' and parallelism == {parallelism}").shape[
+                    0]
+                if cnt == 0:
+                    print(f"Project to drop: project: {project}, subcommand: {subcommand}, parallelism: {parallelism}")
+                    projects_to_be_dropped.append((project, subcommand))
+        # print(f"project and subcommand: {project} {subcommand}")
+        experiments.loc[experiments["project"] == project, "commits"] = \
+            project_data[project_data["project"] == project]["commits"].values[0]
+    for project, subcommand in projects_to_be_dropped:
+        experiments = experiments.drop(
+            experiments[(experiments["project"] == project) & (experiments["subcommand"] == subcommand)].index)
+
+    experiments.to_csv(target_processed_file_path, encoding="utf-8", index=False)
+
+
+# TODO get the commit size in experiments
+class LocalGitRepository:
+    def __init__(self, org: str, project: str):
+        self.org = org
+        self.project = project
+
+    def __enter__(self):
+        proc = subprocess.run(["git", "clone", f"https://github.com/{self.org}/{self.project}.git"])
+        if proc.returncode != 0:
+            raise Exception(f"Failed to clone {self.org}/{self.project}")
+
+        self.repo_path = f"{self.project}/"
+
+        proc = subprocess.run(["cp", "git-commit-size.sh", self.repo_path])
+        if proc.returncode != 0:
+            raise Exception(f"Failed to copy git-commit-size.sh to {self.repo_path}")
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        shutil.rmtree(self.repo_path)
+
+
+insertion_matcher = re.compile(r"(\d+) insertion[s]?\(\+\)")
+deletion_matcher = re.compile(r"(\d+) deletion[s]?\(-\)")
+
+
+
+def preprocess_cache_experiments(data_dir, processed_data_dir):
+    experiments_data_file_path = os.path.join(data_dir, "cache-experiments.csv")
+    target_processed_file_path = os.path.join(processed_data_dir, "cache-experiments.csv")
+
+    project_data_path = os.path.join(data_dir, "bazel_projects_manually_examined.csv")
+    project_data = pd.read_csv(project_data_path, sep=",")
+
+    experiments = pd.read_csv(experiments_data_file_path, sep=",")
+    projects_to_be_dropped = []
+
+    for project_name in experiments["project"].unique():
+        for full_project_name in project_data["project"].unique():
+            if full_project_name.endswith(project_name):
+                experiments.loc[experiments["project"] == project_name, "project"] = full_project_name
+                project = full_project_name
+                break
+
+        skip = True
+        for cache_type in ["remote", "local", "external", "no_cache"]:
+            if experiments.loc[(experiments["project"] == project) & (experiments["cache_type"] == cache_type)].shape[0] == 0:
+                print(f"Project has no correspondent experiments: project: {project}, cache_type: {cache_type}")
+                projects_to_be_dropped.append(project)
+                skip = False
+                break
+        if not skip:
+            continue
+
+
+        org = project.split("_")[0]
+        with LocalGitRepository(org, project_name) as repo:
+            for commit in experiments[experiments["project"] == project]["commit"].unique():
+                proc = subprocess.run([f"cd {repo.repo_path} && ./git-commit-size.sh {commit}"],
+                                      capture_output=True, text=True, shell=True)
+                if proc.returncode != 0:
+                    raise Exception(f"Failed to get number of lines changed for commit {project}")
+
+                size = 0
+                if match := insertion_matcher.search(proc.stdout):
+                    size += int(match.group(1))
+                if match := deletion_matcher.search(proc.stdout):
+                    size += int(match.group(1))
+
+                print(f"project: {project}, commit: {commit}, size: {size}")
+
+                experiments.loc[(experiments["project"] == project) & (experiments["commit"] == commit), "size"] = size
+
+        experiments.loc[experiments["project"] == project, "commits"] = \
+        project_data[project_data["project"] == project]["commits"].values[0]
+
+    for project in projects_to_be_dropped:
+        experiments = experiments.drop(experiments[experiments["project"] == project].index)
+
+
+    experiments["commits"] = experiments["commits"].astype(int, errors='ignore')
+    experiments["size"] = experiments["size"].astype(int, errors='ignore')
+    experiments["processes"] = experiments["processes"].astype(int, errors='ignore')
     experiments.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
 
