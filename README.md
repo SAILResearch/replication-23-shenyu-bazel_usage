@@ -120,7 +120,9 @@ docker build -f Builder.Dockerfile -t <parallel-experiement> .
 Run the following commands to start a experimental runner:
 ```shell
 # start the experimental runner
-docker run -d -v /var/run/docker.sock:/var/run/docker.sock -v /dev:/dev --name=parallel-experiment cizezsy/bazel_parallelization_experiment
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /dev:/dev \
+    --name=parallel-experiment <parallel-experiment-runner-img>
 ```
 Then, start the experiments by running the following commands within the experimental runner:
 ```shell
