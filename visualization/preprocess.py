@@ -10,8 +10,23 @@ from utils import fileutils
 build_subcommands = {"bazel": ["build", "test", "run", "coverage", "version", "sync", "query", "fetch", "info", "clean",
                                "shutdown", "help", "mobile-install", "aquery", "cquery", "config", "dump",
                                "analyze-profile"],
-                     "maven": ["clean", "compile", "test", "package", "integration-test", "install", "verify",
-                               "deploy"]}
+                     "maven": ["validate", "initialize", "generate-sources", "process-sources", "generate-resources",
+                               "process-resources", "compile", "process-classes", "generate-test-sources",
+                               "process-test-sources", "generate-test-resources", "process-test-resources",
+                               "test-compile", "process-test-classes", "test", "prepare-package", "package",
+                               "pre-integration-test", "integration-test", "post-integration-test", "verify",
+                               "install", "deploy", "pre-clean", "clean", "post-clean", "pre-site", "site",
+                               "post-site", "site-deploy"]}
+
+maven_plugin_goal_phase_mappings = \
+    {"clean:clean": "clean", "resources:resources": "process-resources", "compiler:compile": "compile",
+     "resources:testResources": "process-test-resources", "compiler:testCompile": "test-compile",
+     "surefire:test": "test", "ejb:ejb": "package", "ejb3:ejb3": "package", "jar:jar": "package", "par:par": "package",
+     "rar:rar": "package", "war:war": "package", "install:install": "install",
+     "ear:generate-application-xml": "generate-resources",
+     "ear:ear": "package", "plugin:descriptor": "generate-resources",
+     "plugin:addPluginArtifactMetadata": "package", "deploy:deploy": "deploy", "site:site": "site",
+     "site:deploy": "site-deploy"}
 
 manually_checked_remote_cahce_projects = ["tensorflow_tensorflow", "bazelbuild_bazel-toolchains",
                                           "rabbitmq_rabbitmq-server", "grpc_grpc", "dfinity_ic", "scionproto_scion",
@@ -35,8 +50,8 @@ def preprocess_data(data_dir: str):
 
     parent_dir_name_and_build_tool = {"bazel-projects": "bazel", "maven-large-projects": "maven",
                                       "maven-small-projects": "maven"}
-    # for parent_dir_name, build_tool in parent_dir_name_and_build_tool.items():
-    #     source_dir = os.path.join(data_dir, parent_dir_name)
+    for parent_dir_name, build_tool in parent_dir_name_and_build_tool.items():
+        source_dir = os.path.join(data_dir, parent_dir_name)
 
         # preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
         # preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
@@ -44,7 +59,7 @@ def preprocess_data(data_dir: str):
         # preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
         # preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
         # preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    # preprocess_parallelization_experiments(data_dir, processed_data_dir)
+    preprocess_parallelization_experiments(data_dir, processed_data_dir)
     preprocess_cache_experiments(data_dir, processed_data_dir)
 
 
@@ -77,6 +92,7 @@ def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, targe
     build_commands = build_commands[build_commands["build_tool"] == build_tool]
     build_commands["subcommands"] = build_commands.apply(lambda row: label_subcommand(row, build_tool)[0], axis=1)
     build_commands["skip_tests"] = build_commands.apply(lambda row: label_subcommand(row, build_tool)[1], axis=1)
+    build_commands["build_tests_only"] = build_commands.apply(lambda row: label_subcommand(row, build_tool)[2], axis=1)
 
     # TODO some maven projects specify their default goals in the maven pom,
     # so we need to read the default goals from the pom file as the subcommands.
@@ -88,14 +104,17 @@ def preprocess_ci_tools(source_dir: str, target_dir: str, build_tool: str, targe
         columns=["raw_arguments", "build_tool", "local_cache", "remote_cache", "parallelism", "cores",
                  "invoker"])
     build_commands["use_build_tool"] = True
+
+    lst = []
     for _, row in ci_tool_usages.iterrows():
         if build_commands.loc[(build_commands["project"] == row["project"]) &
                               (build_commands["ci_tool"] == row["ci_tool"])].any().all():
             continue
 
-        build_commands = build_commands.append(
-            {"project": row["project"], "ci_tool": row["ci_tool"], "use_build_tool": False, "subcommands": ""},
-            ignore_index=True)
+        lst.append({"project": row["project"], "ci_tool": row["ci_tool"], "use_build_tool": False, "subcommands": ""})
+
+    build_commands_extended = pd.DataFrame(lst)
+    build_commands = pd.concat([build_commands, build_commands_extended])
 
     build_commands.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
@@ -119,21 +138,28 @@ def preprocess_feature_usage(source_dir: str, target_dir: str, build_tool: str, 
     build_commands.to_csv(target_processed_file_path, encoding="utf-8", index=False)
 
 
-def label_subcommand(row, build_tool) -> (str, bool):
+def label_subcommand(row, build_tool) -> (str, bool, bool):
     # skipITs = "-DskipITs" in args or "-DskipIT" in args
     skipTest = "-DskipTests" in row["raw_arguments"] or "-Dmaven.test.skip" in row["raw_arguments"]
+    # TODO build_test_only
+    build_tests_only = "--build_tests_only" in row["raw_arguments"]
 
     args = row["raw_arguments"].strip().split()
     if len(args) == 0:
-        return "", skipTest
+        return "", skipTest, build_tests_only
 
     maven_plugin_goal_matcher = re.compile(r"(\w+:[\w@]+)(:\d+\.\d+\.\d+)?")
     subcommands = []
     for arg in args:
         if arg in build_subcommands[build_tool] or maven_plugin_goal_matcher.match(arg):
+            # we convert the maven plugin goal to the corresponding maven phase according
+            # to the Maven built-in lifecycle bindings
+            if arg in maven_plugin_goal_phase_mappings:
+                arg = maven_plugin_goal_phase_mappings[arg]
+
             subcommands.append(arg)
 
-    return ",".join(subcommands), skipTest
+    return ",".join(subcommands), skipTest, build_tests_only
 
 
 def preprocess_script_usage(source_dir: str, target_dir: str, build_tool: str, target_filename_prefix=""):
@@ -162,8 +188,8 @@ def preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_n
 
 
 def preprocess_parallelization_experiments(data_dir, processed_data_dir):
-    experiments_data_file_path = os.path.join(data_dir, "parallel-experiments.csv")
-    cache_experiments_data_file_path = os.path.join(data_dir, "cache-experiments.csv")
+    experiments_data_file_path = os.path.join(data_dir, "parallel-experiments", "parallelization-experiments.csv")
+    cache_experiments_data_file_path = os.path.join(data_dir, "cache-experiments", "cache-experiments.csv")
     target_processed_file_path = os.path.join(processed_data_dir, "parallelization-experiments.csv")
 
     project_data_path = os.path.join(data_dir, "bazel_projects_manually_examined.csv")
@@ -172,7 +198,6 @@ def preprocess_parallelization_experiments(data_dir, processed_data_dir):
     experiments = pd.read_csv(experiments_data_file_path, sep=",")
     cache_experiments_data = pd.read_csv(cache_experiments_data_file_path, sep=",")
 
-
     experiments = experiments.drop_duplicates()
 
     projects_to_be_dropped = []
@@ -180,11 +205,11 @@ def preprocess_parallelization_experiments(data_dir, processed_data_dir):
     parallelisms = [1, 2, 4, 8, 16]
     for project in experiments["project"].unique():
         _, project_name = project.split("_", maxsplit=1)
-        if cache_experiments_data.loc[(cache_experiments_data["project"] == project_name) & (cache_experiments_data["status"] == "success")].shape[0] == 0:
+        if cache_experiments_data.loc[(cache_experiments_data["project"] == project_name) & (
+                cache_experiments_data["status"] == "success")].shape[0] == 0:
             projects_to_be_dropped.append((project, "build"))
             projects_to_be_dropped.append((project, "test"))
             continue
-
 
         for subcommand in ["build"]:
             for parallelism in parallelisms:
@@ -230,9 +255,8 @@ insertion_matcher = re.compile(r"(\d+) insertion[s]?\(\+\)")
 deletion_matcher = re.compile(r"(\d+) deletion[s]?\(-\)")
 
 
-
 def preprocess_cache_experiments(data_dir, processed_data_dir):
-    experiments_data_file_path = os.path.join(data_dir, "cache-experiments.csv")
+    experiments_data_file_path = os.path.join(data_dir, "cache-experiments", "cache-experiments.csv")
     target_processed_file_path = os.path.join(processed_data_dir, "cache-experiments.csv")
 
     project_data_path = os.path.join(data_dir, "bazel_projects_manually_examined.csv")
@@ -250,14 +274,14 @@ def preprocess_cache_experiments(data_dir, processed_data_dir):
 
         skip = True
         for cache_type in ["remote", "local", "external", "no_cache"]:
-            if experiments.loc[(experiments["project"] == project) & (experiments["cache_type"] == cache_type)].shape[0] == 0:
+            if experiments.loc[(experiments["project"] == project) & (experiments["cache_type"] == cache_type)].shape[
+                0] == 0:
                 print(f"Project has no correspondent experiments: project: {project}, cache_type: {cache_type}")
                 projects_to_be_dropped.append(project)
                 skip = False
                 break
         if not skip:
             continue
-
 
         org = project.split("_")[0]
         with LocalGitRepository(org, project_name) as repo:
@@ -278,11 +302,10 @@ def preprocess_cache_experiments(data_dir, processed_data_dir):
                 experiments.loc[(experiments["project"] == project) & (experiments["commit"] == commit), "size"] = size
 
         experiments.loc[experiments["project"] == project, "commits"] = \
-        project_data[project_data["project"] == project]["commits"].values[0]
+            project_data[project_data["project"] == project]["commits"].values[0]
 
     for project in projects_to_be_dropped:
         experiments = experiments.drop(experiments[experiments["project"] == project].index)
-
 
     experiments["commits"] = experiments["commits"].astype(int, errors='ignore')
     experiments["size"] = experiments["size"].astype(int, errors='ignore')

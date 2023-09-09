@@ -40,6 +40,7 @@ openconfig_gnmi,github_actions,ci
 rabbitmq_rabbitmq-server,github_actions,ci
 jpsim_SourceKitten,github_actions,ci
 jesec_rtorrent,github_actions,ci
+grpc_grpc,github_actions,shell
 grpc_grpc,buildkite,ci
 cloudflare_workerd,github_actions,ci
 nanopb_nanopb,github_actions,ci
@@ -84,6 +85,7 @@ google_googletest,github_actions,ci
 squzy_squzy,github_actions,make
 squzy_squzy,github_actions,ci
 thundergolfer_example-bazel-monorepo,buildkite,ci
+thundergolfer_example-bazel-monorepo,buildkite,shell
 google_brunsli,github_actions,ci
 google_schedviz,github_actions,ci
 tensorflow_tensorboard,github_actions,ci
@@ -132,6 +134,7 @@ google_elemental2,github_actions,shell
 liuliu_dflat,github_actions,ci
 liuliu_dflat,github_actions,shell
 dtolnay_cxx,github_actions,ci
+ChrisCummins_ProGraML,github_actions,shell
 googleapis_gapic-generator-go,github_actions,ci
 bazelbuild_rules_go,buildkite,ci
 bytecodealliance_wasmtime-go,github_actions,ci
@@ -203,6 +206,7 @@ gTile_gTile,github_actions,ci
 gTile_gTile,buildkite,ci
 VeriSilicon_TIM-VX,github_actions,ci
 google_guetzli,travis_ci,shell
+facebookresearch_CompilerGym,github_actions,make
 deepmind_lab,github_actions,ci
 envoyproxy_envoy,github_actions,shell
 envoyproxy_envoy,github_actions,ci
@@ -217,6 +221,7 @@ bazelbuild_rules_k8s,buildkite,ci
 catchorg_Catch2,github_actions,ci
 googleapis_google-cloud-cpp,buildkite,ci
 opencivicdata_ocd-division-ids,github_actions,ci
+tensorflow_probability,github_actions,shell
 tweag_sparkle,github_actions,ci
 tweag_sparkle,circle_ci,ci
 stratum_stratum,circle_ci,ci
@@ -234,6 +239,7 @@ libjxl_libjxl,github_actions,ci
 bazeltools_bazel-deps,github_actions,shell
 bazeltools_bazel-deps,travis_ci,ci
 bazeltools_bazel-deps,travis_ci,shell
+SeleniumHQ_selenium,github_actions,shell
 bazelbuild_bazel-watcher,github_actions,ci
 bazelbuild_bazel-watcher,buildkite,ci
 KhronosGroup_SPIRV-Reflect,github_actions,ci
@@ -250,7 +256,6 @@ ChrisCummins_phd,travis_ci,shell
 pubref_rules_protobuf,travis_ci,make
 bazel-xcode_PodToBUILD,github_actions,make
 tensorflow_probability,github_actions,make
-facebookresearch_CompilerGym,github_actions,make
 lewish_asciiflow,github_actions,docker
 typedorm_typedorm,github_actions,npm
 ChrisCummins_ProGraML,github_actions,make

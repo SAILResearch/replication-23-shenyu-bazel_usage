@@ -1,4 +1,6 @@
 import copy
+import itertools
+
 import math
 from textwrap import wrap
 
@@ -20,8 +22,8 @@ def visualize_data(data_dir: str):
 
     data_dir = os.path.join(data_dir, "processed")
     # visualize_ci_tools(data_dir)
-    visualize_subcommand_usage(data_dir)
-    visualize_subcommand_intersection(data_dir)
+    # visualize_subcommand_usage(data_dir)
+    # visualize_subcommand_intersection(data_dir)
     # visualize_parallelization_usage(data_dir)
     # visualize_cache_usage(data_dir)
     # visualize_build_rule_categories(data_dir)
@@ -32,7 +34,8 @@ def visualize_data(data_dir: str):
     # parallelism_confidence_levels(data_dir)
     # visualize_parallelism_utilization()
     # visualize_cache_experiments_change_size(data_dir)
-    # visualize_cache_speed_up(data_dir)
+    visualize_cache_speed_up(data_dir)
+    # cache_speedup_confidence_levels(data_dir)
 
 
 def visualize_ci_tools(data_dir: str):
@@ -42,7 +45,7 @@ def visualize_ci_tools(data_dir: str):
     idx = 0
     for parent_dir_name, correspondent_build_tool in parent_dir_names.items():
         df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-build_tools.csv")).drop(
-            columns=["subcommands", "skip_tests"]).drop_duplicates()
+            columns=["subcommands", "skip_tests", "build_tests_only"]).drop_duplicates()
 
         build_tool_usage = pd.DataFrame({"Local": [0, 0, 0, 0], "CI": [0, 0, 0, 0],
                                          "CI/CD Services": ["github_actions", "circle_ci", "buildkite", "travis_ci"]})
@@ -193,7 +196,7 @@ def visualize_cache_usage(data_dir: str):
     ax.set_xticklabels(["Bazel Projects", "Large Maven Projects", "Small Maven Projects"], fontsize=12)
     ax.set_ylabel("Percentage of Projects", fontsize=12)
     ax.tick_params(labelsize=12)
-    labels = ["No Cache",  "CI-Local Cache", "Remote Cache"]
+    labels = ["No Cache", "CI-Local Cache", "Remote Cache"]
     labels = ["\n".join(wrap(l, 15)) for l in labels]
     ax.legend(labels=labels)
 
@@ -277,10 +280,18 @@ def visualize_subcommand_usage(data_dir: str):
 
         df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-build_tools.csv"))
         df = df.loc[df["use_build_tool"]]
+        total_projects = df["project"].unique().size
+
+        count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names, df, subcommand_usage,
+                                      False)
+        for subcommand, count in sorted(subcommand_usage.items(), key=lambda x: x[1]):
+            print(
+                f"{parent_dir_name} - Subcommand: {subcommand}, Count: {count}, Percentage: {count / total_projects:.4f}")
+
+        subcommand_usage = {}
         count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names, df, subcommand_usage)
 
         subcommand_usage = pd.DataFrame(subcommand_usage.items(), columns=["Subcommand", "Count"])
-        total_projects = df["project"].unique().size
         subcommand_usage["Usage Percentage"] = subcommand_usage["Count"] / total_projects
         subcommand_usage["Subcommand"] = pd.Categorical(subcommand_usage["Subcommand"],
                                                         categories=build_tool_subcommand_names[
@@ -311,9 +322,8 @@ def visualize_subcommand_usage(data_dir: str):
     plt.show()
 
 
-# TODO we need to check the -Dmaven.test.skip=true flag or -DskipTests flag in the build commands!
 def count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcommand_names, gha_projects,
-                                  subcommand_usage):
+                                  subcommand_usage, other_category=True):
     for project in gha_projects["project"].unique():
         project_df = gha_projects.loc[gha_projects["project"] == project]
         subcommands = set()
@@ -322,15 +332,19 @@ def count_unique_subcommand_usage(correspondent_build_tool, build_tool_subcomman
         skipTest = False not in project_df["skip_tests"].unique()
 
         if correspondent_build_tool == "bazel":
-            subcommands = set(
-                [subcommand if subcommand in build_tool_subcommand_names["bazel"] else "Other Subcommands" for
-                 subcommand in
-                 subcommands])
+            if other_category:
+                subcommands = set(
+                    [subcommand if subcommand in build_tool_subcommand_names["bazel"] else "Other Subcommands" for
+                     subcommand in
+                     subcommands])
         elif correspondent_build_tool == "maven":
             new_subcommands = set()
             for used_subcommand in subcommands:
                 if used_subcommand not in build_tool_subcommand_names["maven"]:
-                    new_subcommands.add("Other Subcommands")
+                    if other_category:
+                        new_subcommands.add("Other Subcommands")
+                    else:
+                        new_subcommands.add(used_subcommand)
                     continue
 
                 for subcommand in build_tool_subcommand_names["maven"]:
@@ -709,8 +723,7 @@ def visualize_parallelization_experiments_by_commits(data_dir):
     experiments["commits"] = experiments["commits"].astype(int)
     experiments["median_elapsed_time"] = 0
 
-    experiments = experiments.drop( experiments.loc[experiments["subcommand"] == "test"].index)
-
+    experiments = experiments.drop(experiments.loc[experiments["subcommand"] == "test"].index)
 
     # The results of bazelbuild_rules_foreign_cc seems weird, so we temporarily remove it until we figure out what's wrong
     experiments = experiments.drop(experiments[experiments["project"] == "bazelbuild_rules_foreign_cc"].index)
@@ -757,7 +770,6 @@ def visualize_parallelization_experiments_by_commits(data_dir):
     experiments["label"] = experiments.apply(
         lambda row: "small project" if row["commits"] in small else (
             "medium project" if row["commits"] in medium else "large project"), axis=1)
-
 
     # ax = sns.histplot(
     #     experiments.loc[(experiments['subcommand'] == "build")].filter(["project", "commits"]).drop_duplicates(),
@@ -821,7 +833,8 @@ def visualize_parallelization_experiments_by_commits(data_dir):
 
     parallelism2_posthoc = sp.posthoc_dunn([small_projects.loc[small_projects["parallelism"] == 2]["speedup"],
                                             medium_projects.loc[medium_projects["parallelism"] == 2]["speedup"],
-                                            large_projects.loc[large_projects["parallelism"] == 2]["speedup"]], p_adjust="holm")
+                                            large_projects.loc[large_projects["parallelism"] == 2]["speedup"]],
+                                           p_adjust="holm")
 
     print(parallelism2_posthoc)
 
@@ -834,7 +847,6 @@ def visualize_parallelization_experiments_by_commits(data_dir):
                                               large_projects.loc[large_projects["parallelism"] == 2]["speedup"])
     print(
         f"the effect size of speedup between medium and large projects with parallelism 2 is {effect_size_medium_large_2}")
-
 
     print("--------------")
 
@@ -869,7 +881,8 @@ def visualize_parallelization_experiments_by_commits(data_dir):
 
     parallelism8_posthoc = sp.posthoc_dunn([small_projects.loc[small_projects["parallelism"] == 8]["speedup"],
                                             medium_projects.loc[medium_projects["parallelism"] == 8]["speedup"],
-                                            large_projects.loc[large_projects["parallelism"] == 8]["speedup"]], p_adjust="holm")
+                                            large_projects.loc[large_projects["parallelism"] == 8]["speedup"]],
+                                           p_adjust="holm")
 
     print(parallelism8_posthoc)
     print("--------------")
@@ -881,7 +894,8 @@ def visualize_parallelization_experiments_by_commits(data_dir):
 
     parallelism16_posthoc = sp.posthoc_dunn([small_projects.loc[small_projects["parallelism"] == 16]["speedup"],
                                              medium_projects.loc[medium_projects["parallelism"] == 16]["speedup"],
-                                             large_projects.loc[large_projects["parallelism"] == 16]["speedup"]], p_adjust="holm")
+                                             large_projects.loc[large_projects["parallelism"] == 16]["speedup"]],
+                                            p_adjust="holm")
 
     print(parallelism16_posthoc)
     print("--------------")
@@ -940,7 +954,7 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
     experiments = experiments.drop(columns=["target"])
     experiments["median_elapsed_time"] = 0
 
-    experiments = experiments.drop( experiments.loc[experiments["subcommand"] == "test"].index)
+    experiments = experiments.drop(experiments.loc[experiments["subcommand"] == "test"].index)
 
     # The results of bazelbuild_rules_foreign_cc seems weird, so we temporarily remove it until we figure out what's wrong
     experiments = experiments.drop(experiments[experiments["project"] == "bazelbuild_rules_foreign_cc"].index)
@@ -960,10 +974,12 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
 
                 median_critical_path = experiments.loc[(experiments["project"] == project) & (
                         experiments["subcommand"] == subcommand) & (
-                                        experiments["parallelism"] == parallelism)]["critical_path"].median()
+                                                               experiments["parallelism"] == parallelism)][
+                    "critical_path"].median()
                 experiments.loc[(experiments["project"] == project) & (
                         experiments["subcommand"] == subcommand) & (
-                                        experiments["parallelism"] == parallelism), "critical_path_ratio"] = median_critical_path / median
+                                        experiments[
+                                            "parallelism"] == parallelism), "critical_path_ratio"] = median_critical_path / median
 
     experiments = experiments.drop(columns=["elapsed_time", "critical_path"]).drop_duplicates()
     experiments["speedup"] = 0
@@ -1031,6 +1047,21 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
         print(
             f"the median speedup of test with parallelism {parallelism} is {experiments.loc[(experiments['label'] == 'test') & (experiments['parallelism'] == parallelism)]['speedup'].median()}")
 
+    print("----------------")
+    baseline_data = experiments.loc[(experiments["parallelism"] == 1) & (experiments["subcommand"] == "build")]
+    for label in ["short build duration", "medium build duration", "long build duration"]:
+        print(f"the median baseline build duration of {label} is {baseline_data.loc[baseline_data['label'] == label]['median_elapsed_time'].median()}")
+        print(f"the min baseline build duration of {label} is {baseline_data.loc[baseline_data['label'] == label]['median_elapsed_time'].min()}")
+        print(f"the max baseline build duration of {label} is {baseline_data.loc[baseline_data['label'] == label]['median_elapsed_time'].max()}")
+    ax = sns.boxplot(data=baseline_data, x="label", y="median_elapsed_time", palette="Set2")
+    ax.set_yscale("log")
+    ax.set_ylabel("Baseline Build Duration in Seconds (Log)")
+    ax.set_xlabel("")
+    plt.tight_layout()
+    savefig("./images/parallelization_baseline_build_duration")
+    plt.show()
+
+
     experiments = experiments.drop(experiments[(experiments["parallelism"] == 1)].index)
     experiments.drop(columns=["subcommand"], inplace=True)
 
@@ -1061,7 +1092,6 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
     #                  y="speedup", hue="label", palette="Set2")
     # plt.show()
 
-
     short_build_duration = experiments.loc[experiments["label"] == "short build duration"]
     medium_build_duration = experiments.loc[experiments["label"] == "medium build duration"]
     long_build_duration = experiments.loc[experiments["label"] == "long build duration"]
@@ -1076,18 +1106,6 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
          medium_build_duration.loc[medium_build_duration["parallelism"] == 2]["speedup"],
          long_build_duration.loc[long_build_duration["parallelism"] == 2]["speedup"]], p_adjust="holm")
     print(f"the posthoc p-values of parallelism 2 are {parallelism2_posthoc}")
-
-    parallelism2_short_medium = cliffs_delta(
-        short_build_duration.loc[short_build_duration["parallelism"] == 2]["speedup"],
-        medium_build_duration.loc[medium_build_duration["parallelism"] == 2]["speedup"])
-    print(
-        f"the cliffs_delta effect size of short build time project to medium build time project in parallelism 2 is {parallelism2_short_medium}")
-
-    parallelism2_short_large = cliffs_delta(
-        short_build_duration.loc[short_build_duration["parallelism"] == 2]["speedup"],
-        long_build_duration.loc[long_build_duration["parallelism"] == 2]["speedup"])
-    print(
-        f"the cliffs_delta effect size of short build time project to long build time project in parallelism 2 is {parallelism2_short_large}")
 
     print("--------------")
 
@@ -1105,9 +1123,16 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
 
     parallelism4_short_medium = cliffs_delta(
         short_build_duration.loc[short_build_duration["parallelism"] == 4]["speedup"],
-        medium_build_duration.loc[medium_build_duration["parallelism"] == 4]["speedup"])
+        long_build_duration.loc[long_build_duration["parallelism"] == 4]["speedup"])
     print(
-        f"the vda effect size of short build time project to medium build time project in parallelism 4 is {parallelism4_short_medium}")
+        f"the cliffs_delta effect size of short build time project to long build time project in parallelism 4 is {parallelism4_short_medium}")
+
+    parallelism4_short_medium = cliffs_delta(
+        medium_build_duration.loc[medium_build_duration["parallelism"] == 4]["speedup"],
+        long_build_duration.loc[long_build_duration["parallelism"] == 4]["speedup"])
+    print(
+        f"the cliffs_delta effect size of medium build time project to long build time project in parallelism 4 is {parallelism4_short_medium}")
+
     print("--------------")
 
     parallelism8 = scipy.stats.kruskal(short_build_duration.loc[short_build_duration["parallelism"] == 8]["speedup"],
@@ -1124,9 +1149,16 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
 
     parallelism8_short_medium = cliffs_delta(
         short_build_duration.loc[short_build_duration["parallelism"] == 8]["speedup"],
-        medium_build_duration.loc[medium_build_duration["parallelism"] == 8]["speedup"])
+        long_build_duration.loc[long_build_duration["parallelism"] == 8]["speedup"])
     print(
-        f"the vda effect size of short build time project to medium build time project in parallelism 8 is {parallelism8_short_medium}")
+        f"the cliffs_delta effect size of short build time project to long build time project in parallelism 8 is {parallelism8_short_medium}")
+
+    parallelism8_short_medium = cliffs_delta(
+        medium_build_duration.loc[medium_build_duration["parallelism"] == 8]["speedup"],
+        long_build_duration.loc[long_build_duration["parallelism"] == 8]["speedup"])
+    print(
+        f"the cliffs_delta effect size of medium build time project to long build time project in parallelism 8 is {parallelism8_short_medium}")
+
     print("--------------")
 
     parallelism16 = scipy.stats.kruskal(short_build_duration.loc[short_build_duration["parallelism"] == 16]["speedup"],
@@ -1142,11 +1174,17 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
 
     print(f"the posthoc p-values of parallelism 16 are {parallelism16_posthoc}")
 
+    parallelism16_short_medium = cliffs_delta(
+        short_build_duration.loc[short_build_duration["parallelism"] == 16]["speedup"],
+        long_build_duration.loc[long_build_duration["parallelism"] == 16]["speedup"])
+    print(
+        f"the cliffs_delta effect size of short build time project to long build time project in parallelism 16 is {parallelism16_short_medium}")
+
     parallelism16_medium_long = cliffs_delta(
         medium_build_duration.loc[medium_build_duration["parallelism"] == 16]["speedup"],
-        long_build_duration.loc[long_build_duration["parallelism"] == 2]["speedup"])
+        long_build_duration.loc[long_build_duration["parallelism"] == 16]["speedup"])
     print(
-        f"the vda effect size of medium build time project to long build time project in parallelism 16 is {parallelism16_medium_long}")
+        f"the cliffs_delta effect size of medium build time project to long build time project in parallelism 16 is {parallelism16_medium_long}")
 
     print("--------------")
 
@@ -1163,6 +1201,9 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
          short_build_duration.loc[short_build_duration["parallelism"] == 8]["speedup"],
          short_build_duration.loc[short_build_duration["parallelism"] == 16]["speedup"]], p_adjust="holm")
     print(f"the posthoc p-values of short build duration projects are {short_build_duration_projects_posthoc}")
+
+    duration_parallelism_effect_sizes(short_build_duration, "short build duration")
+
     print("--------------")
 
     medium_build_duration_projects_stats = scipy.stats.kruskal(
@@ -1178,6 +1219,8 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
          medium_build_duration.loc[medium_build_duration["parallelism"] == 8]["speedup"],
          medium_build_duration.loc[medium_build_duration["parallelism"] == 16]["speedup"]], p_adjust="holm")
     print(f"the posthoc p-values of medium build duration projects are {medium_build_duration_projects_posthoc}")
+
+    duration_parallelism_effect_sizes(medium_build_duration, "medium build duration")
     print("--------------")
 
     long_build_duration_projects_stats = scipy.stats.kruskal(
@@ -1192,6 +1235,8 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
          long_build_duration.loc[long_build_duration["parallelism"] == 4]["speedup"],
          long_build_duration.loc[long_build_duration["parallelism"] == 8]["speedup"],
          long_build_duration.loc[long_build_duration["parallelism"] == 16]["speedup"]], p_adjust="holm")
+
+    duration_parallelism_effect_sizes(long_build_duration, "long build duration")
     print(f"the posthoc p-values of long build duration projects are {long_build_duration_projects_posthoc}")
     print("--------------")
 
@@ -1199,6 +1244,7 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
 def parallelism_confidence_levels(data_dir):
     experiments = pd.read_csv(f"{data_dir}/parallelization-experiments.csv")
     experiments = experiments.drop(columns=["target", "critical_path"])
+    experiments = experiments.drop(experiments.loc[experiments["subcommand"] == "test"].index)
 
     for project in experiments["project"].unique():
         for subcommand in ["build", "test"]:
@@ -1246,7 +1292,6 @@ def parallelism_confidence_levels(data_dir):
             "medium build duration" if
             experiments.loc[(experiments["project"] == row["project"]) & (experiments["parallelism"] == 1)][
                 "median_elapsed_time"].iloc[0] < medium_project_durations else "long build duration"), axis=1)
-    experiments.loc[experiments["subcommand"] == "test", "label"] = "test"
 
     parallelism_confidence_levels = {}
 
@@ -1278,68 +1323,55 @@ def parallelism_confidence_levels(data_dir):
         label, parallelism = key
         total = len(confidence_intervals["m"])
         beyond_parallelism = len([c1 for c1 in confidence_intervals["c1"] if c1 > parallelism])
-        print(f"{label} {parallelism}x: {beyond_parallelism}/{total} ({beyond_parallelism / total})")
+        below_parallelism = len([c2 for c2 in confidence_intervals["c2"] if c2 < parallelism])
+        print(f"{label} {parallelism}x: beyond {beyond_parallelism}/{total} ({beyond_parallelism / total})")
+        print(f"{label} {parallelism}x: below {below_parallelism}/{total} ({below_parallelism / total})")
 
         if parallelism not in overall_confidence_levels:
-            overall_confidence_levels[parallelism] = {"total": 0, "beyond_parallelism": 0}
+            overall_confidence_levels[parallelism] = {"total": 0, "beyond_parallelism": 0, "below_parallelism": 0}
 
         overall_confidence_levels[parallelism]["total"] += total
         overall_confidence_levels[parallelism]["beyond_parallelism"] += beyond_parallelism
+        overall_confidence_levels[parallelism]["below_parallelism"] += below_parallelism
 
     for parallelism in overall_confidence_levels:
         print(
-            f'{parallelism}x: {overall_confidence_levels[parallelism]["beyond_parallelism"]}/{overall_confidence_levels[parallelism]["total"]} '
+            f'{parallelism}x: beyond {overall_confidence_levels[parallelism]["beyond_parallelism"]}/{overall_confidence_levels[parallelism]["total"]} '
             f'({overall_confidence_levels[parallelism]["beyond_parallelism"] / overall_confidence_levels[parallelism]["total"]})')
+        print(
+            f"{parallelism}x: below {overall_confidence_levels[parallelism]['below_parallelism']}/{overall_confidence_levels[parallelism]['total']} "
+            f"({overall_confidence_levels[parallelism]['below_parallelism'] / overall_confidence_levels[parallelism]['total']})")
+
+
+def duration_parallelism_effect_sizes(durations, label):
+    comparisons = [(2, 4), (2, 8), (2, 16), (4, 8), (4, 16), (8, 16)]
+    for comparison in comparisons:
+        effect_size = cliffs_delta(
+            durations.loc[(durations["parallelism"] == comparison[0])]["speedup"],
+            durations.loc[(durations["parallelism"] == comparison[1])]["speedup"])
+        print(f"{label}: {comparison[0]}x vs {comparison[1]}x: {effect_size}")
 
 
 def visualize_parallelism_utilization():
     df = pd.DataFrame({"parallelism": [2, 4, 8, 16],
-                       "small project": [0.42, 0.42, 0.28, 0.02],
-                       "medium project": [0.40, 0.42, 0.36, 0.1],
-                       "large project": [0.12, 0.12, 0.16, 0.12],
-                       "test": [0.36, 0.36, 0.20, 0.04]})
+                       "short build duration": [0.2609, 0.7826, 1, 1],
+                       "medium build duration": [0.1739, 0.8261, 0.9130, 0.9565],
+                       "long build duration": [0.25, 0.4167, 0.5416, 0.833]})
 
     df = df.melt(id_vars=["parallelism"])
     ax = sns.barplot(x="parallelism", y="value", hue="variable", data=df, palette="Set2")
-    ax.set_xlabel("Parallelism", fontsize=12)
-    ax.set_ylabel("Percentage of projects fully utilized the parallelism", fontsize=12)
+    ax.set_xlabel("Parallelism")
+    ax.set_ylabel("Percentage of projects unable to utilize build parallelism", fontsize=12)
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
     ax.set_ylim(0, 1)
-    ax.tick_params(labelsize=12)
 
     for p in ax.patches:
         height = p.get_height()
         ax.annotate(f'{height:.0%}', (p.get_x() + p.get_width() / 2., height),
-                    ha='center', va='bottom', fontsize=10, xytext=(0, 5),
+                    ha='center', va='bottom', xytext=(0, 5),
                     textcoords='offset points')
 
-    sns.move_legend(ax, loc="upper right", title="Group", fontsize=12)
-
-    plt.tight_layout()
-    savefig("./images/parallelism_utilization_by_commits")
-    plt.show()
-
-    df = pd.DataFrame({"parallelism": [2, 4, 8, 16],
-                       "short build duration": [0.60, 0.64, 0.52, 0.00],
-                       "medium build duration": [0.26, 0.22, 0.16, 0.10],
-                       "long build duration": [0.08, 0.10, 0.12, 0.14],
-                       "test": [0.36, 0.36, 0.20, 0.04]})
-
-    df = df.melt(id_vars=["parallelism"])
-    ax = sns.barplot(x="parallelism", y="value", hue="variable", data=df, palette="Set2")
-    ax.set_xlabel("Parallelism", fontsize=12)
-    ax.set_ylabel("Percentage of projects fully utilized the parallelism", fontsize=12)
-    ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
-    ax.set_ylim(0, 1)
-    ax.tick_params(labelsize=12)
-
-    for p in ax.patches:
-        height = p.get_height()
-        ax.annotate(f'{height:.0%}', (p.get_x() + p.get_width() / 2., height),
-                    ha='center', va='bottom', fontsize=10, xytext=(0, 5),
-                    textcoords='offset points')
-
-    sns.move_legend(ax, loc="upper right", title="Group", fontsize=12)
+    sns.move_legend(ax, loc="upper left", title="Group", bbox_to_anchor=(1, 1))
 
     plt.tight_layout()
     savefig("./images/parallelism_utilization_by_duration")
@@ -1398,8 +1430,16 @@ def process_cache_experiments_data(data_dir: str):
     experiments["median_elapsed_time"] = 0
     for project in experiments["project"].unique():
         for cache_type in ["external", "local", "no_cache", "remote"]:
+            first = True
             for commit in experiments.loc[(experiments["project"] == project) & (
                     experiments["cache_type"] == cache_type)]["commit"].unique():
+                if first and cache_type != "no_cache":
+                    experiments.loc[(experiments["project"] == project) & (
+                            experiments["cache_type"] == cache_type) & (
+                                            experiments["commit"] == commit), "label"] = "delete"
+                    first = False
+                    continue
+
                 median = experiments.loc[(experiments["project"] == project) & (
                         experiments["cache_type"] == cache_type) & (
                                                  experiments["commit"] == commit)]["elapsed_time"].median()
@@ -1407,24 +1447,25 @@ def process_cache_experiments_data(data_dir: str):
                 experiments.loc[(experiments["project"] == project) & (
                         experiments["cache_type"] == cache_type) & (
                                         experiments["commit"] == commit), "median_elapsed_time"] = median
+            if cache_type == "no_cache":
+                experiments.loc[(experiments["project"] == project), "median_baseline"] = experiments.loc[
+                    (experiments["project"] == project) & (experiments["cache_type"] == "no_cache")]["median_elapsed_time"].median()
 
     experiments = experiments.drop(columns=["elapsed_time"]).drop_duplicates()
+    experiments = experiments.drop(experiments.loc[experiments["label"] == "delete"].index)
 
-    base_build_durations = sorted(
-        experiments.loc[(experiments["cache_type"] == "no_cache")].filter(
-            ["project", "median_elapsed_time"]).drop_duplicates()[
-            "median_elapsed_time"].unique())
+    base_build_durations = sorted(experiments["median_baseline"].unique())
 
     small_project_durations = base_build_durations[len(base_build_durations) // 3]
     medium_project_durations = base_build_durations[len(base_build_durations) // 3 * 2]
 
     experiments["label"] = experiments.apply(
         lambda row: "short build duration" if
-        experiments.loc[(experiments["project"] == row["project"]) & (experiments["cache_type"] == "no_cache")][
-            "median_elapsed_time"].iloc[0] < small_project_durations else (
+        experiments.loc[(experiments["project"] == row["project"])][
+            "median_baseline"].iloc[0] <= small_project_durations else (
             "medium build duration" if
-            experiments.loc[(experiments["project"] == row["project"]) & (experiments["cache_type"] == "no_cache")][
-                "median_elapsed_time"].iloc[0] < medium_project_durations else "long build duration"), axis=1)
+            experiments.loc[(experiments["project"] == row["project"])][
+                "median_baseline"].iloc[0] <= medium_project_durations else "long build duration"), axis=1)
 
     experiments.to_csv(f"{data_dir}/cache-experiments-processed.csv", index=False)
     return experiments
@@ -1433,153 +1474,135 @@ def process_cache_experiments_data(data_dir: str):
 def visualize_cache_experiments_change_size(data_dir):
     experiments = process_cache_experiments_data(data_dir)
 
-    experiments.loc[experiments["size"] == 0, "size"] = 1
-
-    experiments["time_size_ratio"] = experiments.apply(
-        lambda row: row["median_elapsed_time"] / row["size"], axis=1)
     experiments["cache_hit_ratio"] = experiments.apply(
         lambda row: row["cache_hit"] / row["processes"], axis=1)
 
     experiments["cache_type"] = experiments["cache_type"].replace(
-        {"external": "CI-enabled Repository Cache", "local": "CI-enabled Repository and Action Cache",
-         "remote": "Build System-enabled Repository and Action Cache", "no_cache": "No Cache"})
+        {"external": "Local-Deps", "local": "Local-Deps-and-Results",
+         "remote": "Remote-Deps-and-Results", "no_cache": "No Cache"})
 
-    ax = sns.boxplot(data=experiments, x="label", y="time_size_ratio", hue="cache_type", palette="Set2",
-                     hue_order=["No Cache", "CI-enabled Repository Cache", "CI-enabled Repository and Action Cache",
-                                "Build System-enabled Repository and Action Cache"])
-    ax.set_ylabel("The ratio between the build time and # of changed lines in commit")
-    ax.set_yscale("log")
-    ax.set_xlabel("Project Build Duration")
-    sns.move_legend(ax, loc="best", title="Cache Strategy")
-
-    plt.tight_layout()
-    savefig("./images/cache_experiments_change_size")
-    plt.show()
-
-    cache_hit_rates_data = experiments.loc[(experiments["cache_type"] == "CI-enabled Repository and Action Cache") | (experiments["cache_type"] == "Build System-enabled Repository and Action Cache")]
+    cache_hit_rates_data = experiments.loc[
+        (experiments["cache_type"] == "Local-Deps-and-Results") | (experiments["cache_type"] == "Remote-Deps-and-Results")]
     ax = sns.violinplot(data=cache_hit_rates_data, x="label", y="cache_hit_ratio", cut=0, palette="Set2")
     ax.set_ylim(0, 1)
     ax.yaxis.set_major_formatter(ticker.PercentFormatter(1))
-    ax.set_ylabel("Cache Hit Rate", fontsize=12)
-    ax.set_xlabel("Project Build Duration", fontsize=12)
+    ax.set_ylabel("Cache Hit Rate", fontsize=14)
+    ax.set_xlabel("")
     ax.tick_params(labelsize=12)
     plt.tight_layout()
     savefig("./images/cache_experiments_cache_hit_ratio")
     plt.show()
 
+    ax = sns.scatterplot(data=cache_hit_rates_data, x="cache_hit_ratio", y="median_elapsed_time", hue="label",
+                         palette="Set2")
+    ax.set_xlim(0, 1)
+    ax.xaxis.set_major_formatter(ticker.PercentFormatter(1))
+    ax.set_yscale("log")
+    ax.set_ylabel("Build Duration in Second (Log)", fontsize=12)
+    ax.set_xlabel("Cache Hit Rate", fontsize=12)
+    ax.tick_params(labelsize=12)
+    plt.tight_layout()
+    savefig("./images/cache_experiments_cache_hit_ratio_vs_build_duration")
+    plt.show()
+
     sd = experiments.loc[experiments["label"] == "short build duration"]
+    print(scipy.stats.mannwhitneyu(sd.loc[sd["cache_type"] == "Local-Deps-and-Results"]["cache_hit_ratio"],
+                                sd.loc[sd["cache_type"] == "Remote-Deps-and-Results"]["cache_hit_ratio"]))
+    print(cliffs_delta(sd.loc[sd["cache_type"] == "Local-Deps-and-Results"]["cache_hit_ratio"],
+                      sd.loc[sd["cache_type"] == "Remote-Deps-and-Results"]["cache_hit_ratio"]))
+    print(sd.loc[sd["cache_type"] == "Local-Deps-and-Results"]["cache_hit_ratio"].median())
+    print(sd.loc[sd["cache_type"] == "Remote-Deps-and-Results"]["cache_hit_ratio"].median())
+    sd_cache = sd.loc[(sd["cache_type"] == "Local-Deps-and-Results") | (sd["cache_type"] == "Remote-Deps-and-Results")]
+
     md = experiments.loc[experiments["label"] == "medium build duration"]
+    print(scipy.stats.mannwhitneyu(md.loc[md["cache_type"] == "Local-Deps-and-Results"]["cache_hit_ratio"],
+                              md.loc[md["cache_type"] == "Remote-Deps-and-Results"]["cache_hit_ratio"]))
+    print(cliffs_delta(md.loc[md["cache_type"] == "Local-Deps-and-Results"]["cache_hit_ratio"],
+                        md.loc[md["cache_type"] == "Remote-Deps-and-Results"]["cache_hit_ratio"]))
+    print(md.loc[md["cache_type"] == "Local-Deps-and-Results"]["cache_hit_ratio"].median())
+    print(md.loc[md["cache_type"] == "Remote-Deps-and-Results"]["cache_hit_ratio"].median())
+    md_cache = md.loc[(md["cache_type"] == "Local-Deps-and-Results") | (md["cache_type"] == "Remote-Deps-and-Results")]
+
     ld = experiments.loc[experiments["label"] == "long build duration"]
+    print(scipy.stats.mannwhitneyu(ld.loc[ld["cache_type"] == "Local-Deps-and-Results"]["cache_hit_ratio"],
+                                ld.loc[ld["cache_type"] == "Remote-Deps-and-Results"]["cache_hit_ratio"]))
+    print(cliffs_delta(ld.loc[ld["cache_type"] == "Local-Deps-and-Results"]["cache_hit_ratio"],
+                        ld.loc[ld["cache_type"] == "Remote-Deps-and-Results"]["cache_hit_ratio"]))
+    print(ld.loc[ld["cache_type"] == "Local-Deps-and-Results"]["cache_hit_ratio"].median())
+    print(ld.loc[ld["cache_type"] == "Remote-Deps-and-Results"]["cache_hit_ratio"].median())
 
-    print(f"short build duration projects: median cache hit ratio is {sd.loc[(sd['cache_type'] == 'CI-enabled Repository and Action Cache') | (sd['cache_type'] == 'Build System-enabled Repository and Action Cache')]['cache_hit_ratio'].median()}")
+    ld_cache = ld.loc[(ld["cache_type"] == "Local-Deps-and-Results") | (ld["cache_type"] == "Remote-Deps-and-Results")]
+
+    print(
+        f"short build duration projects: median cache hit ratio is {sd_cache['cache_hit_ratio'].median()}")
     print("---------------")
-    print(f"medium build duration projects: median cache hit ratio is {md.loc[(md['cache_type'] == 'CI-enabled Repository and Action Cache') | (md['cache_type'] == 'Build System-enabled Repository and Action Cache')]['cache_hit_ratio'].median()}")
+    print(
+        f"medium build duration projects: median cache hit ratio is {md_cache['cache_hit_ratio'].median()}")
     print("---------------")
-    print(f"long build duration projects: median cache hit ratio is {ld.loc[(ld['cache_type'] == 'CI-enabled Repository and Action Cache') | (ld['cache_type'] == 'Build System-enabled Repository and Action Cache')]['cache_hit_ratio'].median()}")
+    print(
+        f"long build duration projects: median cache hit ratio is {ld_cache['cache_hit_ratio'].median()}")
     print("---------------")
 
-    cache_hit_rate_kw = scipy.stats.kruskal(sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache") | (sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"],
-                                            md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache") | (md["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"],
-                                            ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache") | (ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"])
+    cache_hit_rate_kw = scipy.stats.kruskal(
+        sd_cache["cache_hit_ratio"],
+        md_cache["cache_hit_ratio"],
+        ld_cache["cache_hit_ratio"])
 
     print(f"the p-value of cache hit rate is {cache_hit_rate_kw}")
 
     cache_hit_rate_posthoc = sp.posthoc_dunn(
-        [sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache") | (sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"],
-            md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache") | (md["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"],
-            ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache") | (ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"]],
+        [sd_cache["cache_hit_ratio"],
+         md_cache["cache_hit_ratio"],
+         ld_cache["cache_hit_ratio"]],
         p_adjust="holm"
     )
     print(f"the posthoc of cache hit rate is {cache_hit_rate_posthoc}")
 
-    cache_hit_rate_medium_short = cliffs_delta(md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache") | (md["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"],
-        sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache") | (sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"])
-    print(f"the cliffs delta of cache hit rate between medium and short build duration is {cache_hit_rate_medium_short}")
+    cache_hit_rate_medium_short = cliffs_delta(
+        md_cache["cache_hit_ratio"],
+        sd_cache["cache_hit_ratio"])
+    print(
+        f"the cliffs delta of cache hit rate between medium and short build duration is {cache_hit_rate_medium_short}")
 
-    cache_hit_rate_long_short = cliffs_delta(ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache") | (ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"],
-        sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache") | (sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"])
+    cache_hit_rate_long_short = cliffs_delta(
+        ld_cache["cache_hit_ratio"],
+        sd_cache["cache_hit_ratio"])
     print(f"the cliffs delta of cache hit rate between long and short build duration is {cache_hit_rate_long_short}")
 
-    cache_hit_rate_long_medium = cliffs_delta(ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache") | (ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"],
-        md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache") | (md["cache_type"] == "Build System-enabled Repository and Action Cache")]["cache_hit_ratio"])
+    cache_hit_rate_long_medium = cliffs_delta(
+        ld_cache["cache_hit_ratio"],
+        md_cache["cache_hit_ratio"])
     print(f"the cliffs delta of cache hit rate between long and medium build duration is {cache_hit_rate_long_medium}")
 
-    print("---------------")
+    calculate_cache_hit_correlation(sd_cache, "short build duration")
+    calculate_cache_hit_correlation(md_cache, "medium build duration")
+    calculate_cache_hit_correlation(ld_cache, "long build duration")
 
-    print (f"short build duration projects: median of time size ratio for No Cache is {sd.loc[(sd['cache_type'] == 'No Cache')]['time_size_ratio'].median()}")
-    print (f"short build duration projects: median of time size ratio for CI-enabled Repository Cache is {sd.loc[(sd['cache_type'] == 'CI-enabled Repository Cache')]['time_size_ratio'].median()}")
-    print (f"short build duration projects: median of time size ratio for CI-enabled Repository and Action Cache is {sd.loc[(sd['cache_type'] == 'CI-enabled Repository and Action Cache')]['time_size_ratio'].median()}")
-    print (f"short build duration projects: median of time size ratio for Build System-enabled Repository and Action Cache is {sd.loc[(sd['cache_type'] == 'Build System-enabled Repository and Action Cache')]['time_size_ratio'].median()}")
+def calculate_cache_hit_correlation(cache_data, label):
+    for cache_type in cache_data["cache_type"].unique():
+        results = {"no": 0, "small": 0, "medium": 0, "large": 0}
+        for project in cache_data["project"].unique():
+                cor = scipy.stats.kendalltau(
+                    cache_data.loc[(cache_data["project"] == project) & (cache_data["cache_type"] == cache_type)]["cache_hit_ratio"],
+                    cache_data.loc[(cache_data["project"] == project) & (cache_data["cache_type"] == cache_type)]["median_elapsed_time"])
+                if cor.pvalue >= 0.01:
+                    results["no"] += 1
+                elif cor.statistic >= 0.5:
+                    results["large"] += 1
+                elif cor.statistic >= 0.3:
+                    results["medium"] += 1
+                else:
+                    results["small"] += 1
 
-    print("---------------")
-
-    print (f"medium build duration projects: median of time size ratio for No Cache is {md.loc[(md['cache_type'] == 'No Cache')]['time_size_ratio'].median()}")
-    print (f"medium build duration projects: median of time size ratio for CI-enabled Repository Cache is {md.loc[(md['cache_type'] == 'CI-enabled Repository Cache')]['time_size_ratio'].median()}")
-    print (f"medium build duration projects: median of time size ratio for CI-enabled Repository and Action Cache is {md.loc[(md['cache_type'] == 'CI-enabled Repository and Action Cache')]['time_size_ratio'].median()}")
-    print (f"medium build duration projects: median of time size ratio for Build System-enabled Repository and Action Cache is {md.loc[(md['cache_type'] == 'Build System-enabled Repository and Action Cache')]['time_size_ratio'].median()}")
-
-    print("---------------")
-
-    print (f"long build duration projects: median of time size ratio for No Cache is {ld.loc[(ld['cache_type'] == 'No Cache')]['time_size_ratio'].median()}")
-    print (f"long build duration projects: median of time size ratio for CI-enabled Repository Cache is {ld.loc[(ld['cache_type'] == 'CI-enabled Repository Cache')]['time_size_ratio'].median()}")
-    print (f"long build duration projects: median of time size ratio for CI-enabled Repository and Action Cache is {ld.loc[(ld['cache_type'] == 'CI-enabled Repository and Action Cache')]['time_size_ratio'].median()}")
-    print (f"long build duration projects: median of time size ratio for Build System-enabled Repository and Action Cache is {ld.loc[(ld['cache_type'] == 'Build System-enabled Repository and Action Cache')]['time_size_ratio'].median()}")
-
-    print("---------------")
+        total = sum(results.values())
+        for key in results.keys():
+            print(f"{label} - {cache_type}: The percentage of {key} correlation is {results[key] / total}")
 
 
-    short_build_duration_change_rate_kw = scipy.stats.kruskal(
-        sd.loc[(sd["cache_type"] == "No Cache")]["time_size_ratio"],
-        sd.loc[(sd["cache_type"] == "CI-enabled Repository Cache")]["time_size_ratio"],
-        sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache")]["time_size_ratio"],
-        sd.loc[(sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["time_size_ratio"])
-    print(f"the p-value of short build duration change rate is {short_build_duration_change_rate_kw}")
-
-    short_build_duration_change_rate_posthoc = sp.posthoc_dunn(
-        [sd.loc[(sd["cache_type"] == "No Cache")]["time_size_ratio"],
-            sd.loc[(sd["cache_type"] == "CI-enabled Repository Cache")]["time_size_ratio"],
-            sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache")]["time_size_ratio"],
-            sd.loc[(sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["time_size_ratio"]],
-        p_adjust="holm")
-    print(f"the posthoc of short build duration change rate is {short_build_duration_change_rate_posthoc}")
-
-    medium_build_duration_change_rate_kw = scipy.stats.kruskal(
-        md.loc[(md["cache_type"] == "No Cache")]["time_size_ratio"],
-        md.loc[(md["cache_type"] == "CI-enabled Repository Cache")]["time_size_ratio"],
-        md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache")]["time_size_ratio"],
-        md.loc[(md["cache_type"] == "Build System-enabled Repository and Action Cache")]["time_size_ratio"])
-    print(f"the p-value of medium build duration change rate is {medium_build_duration_change_rate_kw}")
-
-    medium_build_duration_change_rate_posthoc = sp.posthoc_dunn(
-        [md.loc[(md["cache_type"] == "No Cache")]["time_size_ratio"],
-            md.loc[(md["cache_type"] == "CI-enabled Repository Cache")]["time_size_ratio"],
-            md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache")]["time_size_ratio"],
-            md.loc[(md["cache_type"] == "Build System-enabled Repository and Action Cache")]["time_size_ratio"]],
-        p_adjust="holm")
-
-    print(f"the posthoc of medium build duration change rate is {medium_build_duration_change_rate_posthoc}")
-
-    long_build_duration_change_rate_kw = scipy.stats.kruskal(
-        ld.loc[(ld["cache_type"] == "No Cache")]["time_size_ratio"],
-        ld.loc[(ld["cache_type"] == "CI-enabled Repository Cache")]["time_size_ratio"],
-        ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache")]["time_size_ratio"],
-        ld.loc[(ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["time_size_ratio"])
-    print(f"the p-value of long build duration change rate is {long_build_duration_change_rate_kw}")
-
-    long_build_duration_change_rate_posthoc = sp.posthoc_dunn(
-        [ld.loc[(ld["cache_type"] == "No Cache")]["time_size_ratio"],
-            ld.loc[(ld["cache_type"] == "CI-enabled Repository Cache")]["time_size_ratio"],
-            ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache")]["time_size_ratio"],
-            ld.loc[(ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["time_size_ratio"]],
-        p_adjust="holm")
-    print(f"the posthoc of long build duration change rate is {long_build_duration_change_rate_posthoc}")
-
-def visualize_cache_speed_up(data_dir):
-    experiments = process_cache_experiments_data(data_dir)
-
+def calculate_cache_speed_up(experiments):
     for project in experiments["project"].unique():
         baseline_data = experiments.loc[(experiments["project"] == project) & (
-                        experiments["cache_type"] == "no_cache")]
+                experiments["cache_type"] == "no_cache")]
 
         baselines = []
         for row in baseline_data.itertuples():
@@ -1600,14 +1623,37 @@ def visualize_cache_speed_up(data_dir):
             speedup = nearest_baseline_build_time / row.median_elapsed_time
             experiments.loc[row.Index, "speedup"] = speedup
 
+    return experiments
+
+
+def visualize_cache_speed_up(data_dir):
+    experiments = process_cache_experiments_data(data_dir)
+    experiments = calculate_cache_speed_up(experiments)
+
     experiments["cache_type"] = experiments["cache_type"].replace(
-        {"external": "CI-enabled Repository Cache", "local": "CI-enabled Repository and Action Cache",
-         "remote": "Build System-enabled Repository and Action Cache", "no_cache": "No Cache"})
+        {"external": "Local-Deps", "local": "Local-Deps-and-Results",
+         "remote": "Remote-Deps-and-Results", "no_cache": "No Cache"})
+
+    print("----------------")
+    baseline_data = experiments.loc[(experiments["cache_type"] == "No Cache")]
+    baseline_data = baseline_data.drop(columns=["cache_hit", "commit", "id", "cache_type", "processes", "size", "commits", "median_elapsed_time"]).drop_duplicates()
+    for label in ["short build duration", "medium build duration", "long build duration"]:
+        print(f"the median baseline build duration of {label} is {baseline_data.loc[baseline_data['label'] == label]['median_baseline'].median()}")
+        print(f"the min baseline build duration of {label} is {baseline_data.loc[baseline_data['label'] == label]['median_baseline'].min()}")
+        print(f"the max baseline build duration of {label} is {baseline_data.loc[baseline_data['label'] == label]['median_baseline'].max()}")
+    ax = sns.boxplot(data=baseline_data, x="label", y="median_baseline", palette="Set2", order=["short build duration", "medium build duration", "long build duration"])
+    ax.set_yscale("log")
+    ax.set_ylabel("Baseline Build Duration in Seconds (Log)")
+    ax.set_xlabel("")
+    plt.tight_layout()
+    savefig("./images/cache_baseline_build_duration")
+    plt.show()
+
 
     experiments = experiments.loc[~(experiments["cache_type"] == "No Cache")]
     ax = sns.boxplot(data=experiments, x="label", y="speedup", hue="cache_type", palette="Set2",
-                     hue_order=["CI-enabled Repository Cache", "CI-enabled Repository and Action Cache",
-                                "Build System-enabled Repository and Action Cache"])
+                     hue_order=["Local-Deps", "Local-Deps-and-Results",
+                                "Remote-Deps-and-Results"])
     ax.set_ylabel("Speedup")
     ax.set_xlabel("Project Build Duration")
     sns.move_legend(ax, loc="best", title="Cache Strategy")
@@ -1616,128 +1662,111 @@ def visualize_cache_speed_up(data_dir):
     savefig("./images/cache_speed_up")
     plt.show()
 
-    sd = experiments.loc[experiments["label"] == "short build duration"]
-    md = experiments.loc[experiments["label"] == "medium build duration"]
-    ld = experiments.loc[experiments["label"] == "long build duration"]
+    cache_speedup_statistical_analysis_between_strategy(experiments, "short build duration")
+    cache_speedup_statistical_analysis_between_strategy(experiments, "medium build duration")
+    cache_speedup_statistical_analysis_between_strategy(experiments, "long build duration")
+
+    cache_speedup_statistical_analysis_between_build_duration(experiments, "Local-Deps")
+    cache_speedup_statistical_analysis_between_build_duration(experiments, "Local-Deps-and-Results")
+    cache_speedup_statistical_analysis_between_build_duration(experiments, "Remote-Deps-and-Results")
 
 
+def cache_speedup_statistical_analysis_between_strategy(experiments, label):
+    group_data = experiments.loc[experiments["label"] == label]
 
-    print(f"short build duration projects: median speedup for CI-enabled Repository Cache is {sd.loc[(sd['cache_type'] == 'CI-enabled Repository Cache')]['speedup'].median()}")
-    print(f"short build duration projects: median speedup for CI-enabled Repository and Action Cache is {sd.loc[(sd['cache_type'] == 'CI-enabled Repository and Action Cache')]['speedup'].median()}")
-    print(f"short build duration projects: median speedup for Build System-enabled Repository and Action Cache is {sd.loc[(sd['cache_type'] == 'Build System-enabled Repository and Action Cache')]['speedup'].median()}")
+    print("----------------------------------")
+    for cache_type in group_data["cache_type"].unique():
+        print(
+            f"median of {label} speedup with {cache_type} is {group_data.loc[(group_data['cache_type'] == cache_type)]['speedup'].median()}")
 
-    print("----------")
+    kw_p_value = scipy.stats.kruskal(
+        group_data.loc[(group_data["cache_type"] == "Local-Deps")]["speedup"],
+        group_data.loc[(group_data["cache_type"] == "Local-Deps-and-Results")]["speedup"],
+        group_data.loc[(group_data["cache_type"] == "Remote-Deps-and-Results")]["speedup"])
+    print(f"the p-value of {label} speedup is {kw_p_value}")
 
-    print(f"medium build duration projects: median speedup for CI-enabled Repository Cache is {md.loc[(md['cache_type'] == 'CI-enabled Repository Cache')]['speedup'].median()}")
-    print(f"medium build duration projects: median speedup for CI-enabled Repository and Action Cache is {md.loc[(md['cache_type'] == 'CI-enabled Repository and Action Cache')]['speedup'].median()}")
-    print(f"medium build duration projects: median speedup for Build System-enabled Repository and Action Cache is {md.loc[(md['cache_type'] == 'Build System-enabled Repository and Action Cache')]['speedup'].median()}")
-
-    print("----------")
-
-    print(f"long build duration projects: median speedup for CI-enabled Repository Cache is {ld.loc[(ld['cache_type'] == 'CI-enabled Repository Cache')]['speedup'].median()}")
-    print(f"long build duration projects: median speedup for CI-enabled Repository and Action Cache is {ld.loc[(ld['cache_type'] == 'CI-enabled Repository and Action Cache')]['speedup'].median()}")
-    print(f"long build duration projects: median speedup for Build System-enabled Repository and Action Cache is {ld.loc[(ld['cache_type'] == 'Build System-enabled Repository and Action Cache')]['speedup'].median()}")
-
-    print("----------")
-
-    short_build_duration_speedup_kw = scipy.stats.kruskal(
-        sd.loc[(sd["cache_type"] == "CI-enabled Repository Cache")]["speedup"],
-        sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-        sd.loc[(sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"])
-    print(f"the p-value of short build duration speedup is {short_build_duration_speedup_kw}")
-
-    short_build_duration_speedup_posthoc = sp.posthoc_dunn(
-        [sd.loc[(sd["cache_type"] == "CI-enabled Repository Cache")]["speedup"],
-            sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-            sd.loc[(sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"]],
+    posthoc = sp.posthoc_dunn(
+        [group_data.loc[(group_data["cache_type"] == "Local-Deps")]["speedup"],
+         group_data.loc[(group_data["cache_type"] == "Local-Deps-and-Results")]["speedup"],
+         group_data.loc[(group_data["cache_type"] == "Remote-Deps-and-Results")]["speedup"]],
         p_adjust="holm")
-    print(f"the posthoc of short build duration speedup is {short_build_duration_speedup_posthoc}")
+    print(f"the posthoc of {label} speedup is {posthoc}")
 
-    medium_build_duration_speedup_kw = scipy.stats.kruskal(
-        md.loc[(md["cache_type"] == "CI-enabled Repository Cache")]["speedup"],
-        md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-        md.loc[(md["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"])
-    print(f"the p-value of medium build duration speedup is {medium_build_duration_speedup_kw}")
+    for cache_type1, cache_type2 in itertools.combinations(["Local-Deps", "Local-Deps-and-Results", "Remote-Deps-and-Results"], 2):
+        cliffs_delta_value = cliffs_delta(
+            group_data.loc[(group_data["cache_type"] == cache_type1)]["speedup"],
+            group_data.loc[(group_data["cache_type"] == cache_type2)]["speedup"])
+        print(f"the cliffs delta of {label} speedup between {cache_type1} and {cache_type2} is {cliffs_delta_value}")
 
-    medium_build_duration_speedup_posthoc = sp.posthoc_dunn(
-        [md.loc[(md["cache_type"] == "CI-enabled Repository Cache")]["speedup"],
-            md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-            md.loc[(md["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"]],
+
+def cache_speedup_statistical_analysis_between_build_duration(experiments, cache_strategy):
+    print("----------------------------------")
+    sd = experiments.loc[
+        (experiments["label"] == "short build duration") & (experiments["cache_type"] == cache_strategy)]
+    md = experiments.loc[
+        (experiments["label"] == "medium build duration") & (experiments["cache_type"] == cache_strategy)]
+    ld = experiments.loc[
+        (experiments["label"] == "long build duration") & (experiments["cache_type"] == cache_strategy)]
+
+    kw_p_value = scipy.stats.kruskal(
+        sd["speedup"],
+        md["speedup"],
+        ld["speedup"])
+    print(f"the p-value of {cache_strategy} speedup is {kw_p_value}")
+
+    posthoc = sp.posthoc_dunn(
+        [sd["speedup"],
+         md["speedup"],
+         ld["speedup"]],
         p_adjust="holm")
-    print(f"the posthoc of medium build duration speedup is {medium_build_duration_speedup_posthoc}")
+    print(f"the posthoc of {cache_strategy} speedup is {posthoc}")
 
-    long_build_duration_speedup_kw = scipy.stats.kruskal(
-        ld.loc[(ld["cache_type"] == "CI-enabled Repository Cache")]["speedup"],
-        ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-        ld.loc[(ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"])
-    print(f"the p-value of long build duration speedup is {long_build_duration_speedup_kw}")
-
-    long_build_duration_speedup_posthoc = sp.posthoc_dunn(
-        [ld.loc[(ld["cache_type"] == "CI-enabled Repository Cache")]["speedup"],
-            ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-            ld.loc[(ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"]],
-        p_adjust="holm")
-    print(f"the posthoc of long build duration speedup is {long_build_duration_speedup_posthoc}")
-
-    ci_enabled_repository_and_action_cache_kw = scipy.stats.kruskal(
-        sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-        md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-        ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"])
-    print(f"the p-value of CI-enabled Repository and Action Cache speedup is {ci_enabled_repository_and_action_cache_kw}")
-
-    ci_enabled_repository_and_action_cache_posthoc = sp.posthoc_dunn(
-        [sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-            md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-            ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"]],
-        p_adjust="holm")
-    print(f"the posthoc of CI-enabled Repository and Action Cache speedup is {ci_enabled_repository_and_action_cache_posthoc}")
-
-    ci_long_medium = cliffs_delta(
-        ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-        md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"])
-    print(f"the cliffs delta of CI-enabled Repository and Action Cache speedup between long and medium build duration is {ci_long_medium}")
-
-    ci_long_short = cliffs_delta(
-        ld.loc[(ld["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-        sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"])
-    print(f"the cliffs delta of CI-enabled Repository and Action Cache speedup between long and short build duration is {ci_long_short}")
-
-    ci_medium_short = cliffs_delta(
-        md.loc[(md["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"],
-        sd.loc[(sd["cache_type"] == "CI-enabled Repository and Action Cache")]["speedup"])
-    print(f"the cliffs delta of CI-enabled Repository and Action Cache speedup between medium and short build duration is {ci_medium_short}")
+    for build_duration1, build_duration2 in itertools.combinations(
+            ["short build duration", "medium build duration", "long build duration"], 2):
+        cliffs_delta_value = cliffs_delta(
+            experiments.loc[(experiments["label"] == build_duration1) & (experiments["cache_type"] == cache_strategy)][
+                "speedup"],
+            experiments.loc[(experiments["label"] == build_duration2) & (experiments["cache_type"] == cache_strategy)][
+                "speedup"])
+        print(
+            f"the cliffs delta of {cache_strategy} speedup between {build_duration1} and {build_duration2} is {cliffs_delta_value}")
 
 
-    build_system_enabled_repository_and_action_cache_kw = scipy.stats.kruskal(
-        sd.loc[(sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"],
-        md.loc[(md["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"],
-        ld.loc[(ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"])
-    print(f"the p-value of Build System-enabled Repository and Action Cache speedup is {build_system_enabled_repository_and_action_cache_kw}")
+def cache_speedup_confidence_levels(data_dir):
+    experiments = process_cache_experiments_data(data_dir)
+    experiments = calculate_cache_speed_up(experiments)
 
-    build_system_enabled_repository_and_action_cache_posthoc = sp.posthoc_dunn(
-        [sd.loc[(sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"],
-            md.loc[(md["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"],
-            ld.loc[(ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"]],
-        p_adjust="holm")
+    cache_confidence_levels = {}
+    for project in experiments["project"].unique():
+        for cache_type in ["external", "local", "remote"]:
+            rows = experiments.loc[(experiments["project"] == project) & (experiments["cache_type"] == cache_type)][
+                "label"]
+            if len(rows) == 0:
+                continue
+            label = rows.iloc[0]
 
-    print(f"the posthoc of Build System-enabled Repository and Action Cache speedup is {build_system_enabled_repository_and_action_cache_posthoc}")
+            if (label, cache_type) not in cache_confidence_levels:
+                cache_confidence_levels[(label, cache_type)] = {"c1": [], "c2": [], "m": []}
 
-    build_long_medium = cliffs_delta(
-        ld.loc[(ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"],
-        md.loc[(md["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"])
-    print(f"the cliffs delta of Build System-enabled Repository and Action Cache speedup between long and medium build duration is {build_long_medium}")
+            data = experiments.loc[(experiments["project"] == project) & (experiments["cache_type"] == cache_type)][
+                "speedup"]
+            m, c1, c2 = mean_confidence_interval(data)
+            cache_confidence_levels[(label, cache_type)]["c1"].append(c1)
+            cache_confidence_levels[(label, cache_type)]["c2"].append(c2)
+            cache_confidence_levels[(label, cache_type)]["m"].append(m)
 
-    build_long_short = cliffs_delta(
-        ld.loc[(ld["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"],
-        sd.loc[(sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"])
-    print(f"the cliffs delta of Build System-enabled Repository and Action Cache speedup between long and short build duration is {build_long_short}")
+    for key in cache_confidence_levels:
+        intervals = cache_confidence_levels[key]
+        label, cache_type = key
 
-    build_medium_short = cliffs_delta(
-        md.loc[(md["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"],
-        sd.loc[(sd["cache_type"] == "Build System-enabled Repository and Action Cache")]["speedup"])
-
-    print(f"the cliffs delta of Build System-enabled Repository and Action Cache speedup between medium and short build duration is {build_medium_short}")
-
+        total = len(intervals["c1"])
+        better_than_baseline = len([ci for ci in intervals["c1"] if ci > 1])
+        worse_than_baseline = len([ci for ci in intervals["c2"] if ci <= 1])
+        print(
+            f"{label} {cache_type}: better than baseline {better_than_baseline}/{total} ({better_than_baseline / total * 100}%)")
+        print(
+            f"{label} {cache_type}: worse than baseline {worse_than_baseline}/{total} ({worse_than_baseline / total * 100}%)")
+        print("------------------")
 
 
 def savefig(path, fig_types=("pdf", "png")):

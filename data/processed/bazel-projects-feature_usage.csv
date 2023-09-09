@@ -41,6 +41,7 @@ rabbitmq_rabbitmq-server,github_actions,False,True,True
 rabbitmq_rabbitmq-server,github_actions,True,True,True
 jpsim_SourceKitten,github_actions,False,False,True
 jesec_rtorrent,github_actions,False,False,True
+grpc_grpc,github_actions,True,True,True
 grpc_grpc,buildkite,False,True,True
 cloudflare_workerd,github_actions,False,True,True
 nanopb_nanopb,github_actions,True,False,True
@@ -126,6 +127,7 @@ jpsim_Yams,github_actions,False,False,True
 google_elemental2,github_actions,False,False,True
 liuliu_dflat,github_actions,False,False,True
 dtolnay_cxx,github_actions,False,False,True
+ChrisCummins_ProGraML,github_actions,False,False,True
 googleapis_gapic-generator-go,github_actions,False,False,True
 bazelbuild_rules_go,buildkite,False,True,True
 bytecodealliance_wasmtime-go,github_actions,False,False,True
@@ -194,6 +196,7 @@ gTile_gTile,github_actions,True,False,True
 gTile_gTile,buildkite,False,False,True
 VeriSilicon_TIM-VX,github_actions,False,False,True
 google_guetzli,travis_ci,False,False,True
+facebookresearch_CompilerGym,github_actions,False,False,True
 deepmind_lab,github_actions,False,False,True
 envoyproxy_envoy,github_actions,False,True,True
 envoyproxy_envoy,buildkite,False,True,True
@@ -206,6 +209,7 @@ bazelbuild_rules_k8s,buildkite,False,True,True
 catchorg_Catch2,github_actions,True,False,True
 googleapis_google-cloud-cpp,buildkite,False,True,True
 opencivicdata_ocd-division-ids,github_actions,False,False,True
+tensorflow_probability,github_actions,False,False,True
 tweag_sparkle,github_actions,False,False,True
 tweag_sparkle,circle_ci,False,False,True
 stratum_stratum,circle_ci,False,False,True
@@ -221,6 +225,7 @@ angular_angular-cli,circle_ci,False,True,True
 libjxl_libjxl,github_actions,False,False,True
 bazeltools_bazel-deps,github_actions,False,False,True
 bazeltools_bazel-deps,travis_ci,False,False,True
+SeleniumHQ_selenium,github_actions,False,False,True
 bazelbuild_bazel-watcher,github_actions,False,False,True
 bazelbuild_bazel-watcher,buildkite,False,True,True
 KhronosGroup_SPIRV-Reflect,github_actions,False,False,True
@@ -235,11 +240,8 @@ grpc_grpc-kotlin,github_actions,True,False,True
 ChrisCummins_phd,travis_ci,False,False,True
 pubref_rules_protobuf,travis_ci,False,False,True
 bazel-xcode_PodToBUILD,github_actions,False,False,True
-tensorflow_probability,github_actions,False,False,True
-facebookresearch_CompilerGym,github_actions,False,False,True
 lewish_asciiflow,github_actions,False,True,True
 typedorm_typedorm,github_actions,False,False,True
-ChrisCummins_ProGraML,github_actions,False,False,True
 google_tensorstore,github_actions,True,True,True
 euphoria-io_heim,travis_ci,False,False,True
 LieluoboAi_radish,travis_ci,False,False,True

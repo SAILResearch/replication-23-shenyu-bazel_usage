@@ -8,6 +8,31 @@ import yaml
 
 from utils import fileutils
 
+# analyze-profile	Analyzes build profile data.
+# aquery	Analyzes the given targets and queries the action graph.
+# build	Builds the specified targets.
+# canonicalize-flags	Canonicalizes a list of bazel options.
+# clean	Removes output files and optionally stops the server.
+# coverage	Generates code coverage report for specified test targets.
+# cquery	Loads, analyzes, and queries the specified targets w/ configurations.
+# dump	Dumps the internal state of the bazel server process.
+# fetch	Fetches external repositories that are prerequisites to the targets.
+# help	Prints help for commands, or the index.
+# info	Displays runtime info about the bazel server.
+# license	Prints the license of this software.
+# mobile-install	Installs targets to mobile devices.
+# mod	Queries the Bzlmod external dependency graph
+# print_action	Prints the command line args for compiling a file.
+# query	Executes a dependency graph query.
+# run	Runs the specified target.
+# shutdown	Stops the bazel server.
+# sync	Syncs all repositories specified in the workspace file
+# test	Builds and runs the specified test targets.
+# version
+bazel_sub_commands = ["analyze-profile", "aquery", "build", "canonicalize-flags", "clean", "coverage", "cquery", "dump",
+                      "fetch", "help", "info", "license", "mobile-install", "mod", "print_action", "query", "run",
+                      "shutdown", "sync", "test", "version"]
+bazel_sub_commands_with_spaces = [c + " " for c in bazel_sub_commands]
 
 class CIToolType(Enum):
     GITHUB_ACTIONS = "GitHub Actions"
@@ -104,7 +129,7 @@ class CIConfigParser:
 
                 (command, rest) = line.split(maxsplit=1)
                 # we only concern about the build, test, coverage and run commands.
-                if command.startswith(("build", "test", "coverage", "run")):
+                if command.startswith(tuple(bazel_sub_commands)):
                     bazelrc_configs[command] = rest if command not in bazelrc_configs else bazelrc_configs[
                                                                                                command] + " " + rest
 
@@ -287,10 +312,7 @@ class CIConfigParser:
             cmd.non_expended_arg_size = non_expanded_arg_size
 
             if cmd.build_tool == "bazel":
-                # we only analyze the following commands.
-                # Also, we add a space to each command to try to improve the precision of the results.
-                bazel_sub_cmds = ["build ", "test ", "run ", "coverage "]
-                if not any(x in cmd.raw_arguments for x in bazel_sub_cmds):
+                if not any(x in cmd.raw_arguments for x in bazel_sub_commands_with_spaces):
                     continue
 
             cmd.raw_arguments = self._remove_comments(cmd.raw_arguments)
