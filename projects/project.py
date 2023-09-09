@@ -196,7 +196,7 @@ def clone_maven_projects(base_dir: str, projects_raw: pd.DataFrame):
 
 
 def retrieve_projects():
-    project_base_dir = "/Users/zhengshenyu/PycharmProjects/how-do-developers-use-bazel/repos/"
-    # retrieve_bazel_projects(f"{project_base_dir}/bazel")
-    # retrieve_maven_projects(f"{project_base_dir}/maven")
-    # sample_maven_projects()
+    project_base_dir = "repos/"
+    retrieve_bazel_projects(f"{project_base_dir}/bazel")
+    retrieve_maven_projects(f"{project_base_dir}/maven")
+    sample_maven_projects()

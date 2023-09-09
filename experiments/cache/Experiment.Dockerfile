@@ -26,5 +26,6 @@ COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
 WORKDIR /root
 COPY cache_experiments.py /root/cache_experiments.py
 COPY bazel_projects.csv /root/bazel_projects.csv
+COPY start_experiments.sh /root/start_experiments.sh
 # run the container indefinitely as we will use it to run the experiments
 CMD ["sleep", "infinity"]

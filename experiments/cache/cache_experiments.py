@@ -16,8 +16,7 @@ experiment_results_path = "./results.csv"
 
 experiment_times = 5
 cpu_quota = 2
-# github_api_token = os.environ["GITHUB_API_TOKEN"]
-github_api_token = "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"
+github_api_token = os.environ["GITHUB_API_TOKEN"]
 
 elapsed_time_matcher = re.compile(r"Elapsed time: (\d+\.\d+)s")
 critical_path_matcher = re.compile(r"Critical Path: (\d+\.\d+)s")
@@ -26,6 +25,10 @@ disk_cache_hit_matcher = re.compile(r" (\d+) disk cache hit,")
 total_processes_matcher = re.compile(r"INFO: (\d+) processes:")
 
 repository_path = "/data/repo"
+
+# update your cache servers abd ports here
+cache_servers = ["cache-server_1", "cache-server_2", "cache-server_3", "cache-server_4", "cache-server_5"]
+cache_server_ports = [-1, -1, -1, -1, -1]
 
 
 class Experiment:
@@ -151,8 +154,8 @@ def run_experiment_in_docker(L, i, project, target, subcommand, cache_type):
                 bazel_cmd_args += f" --repository_cache=/bazel-cache/{prefix}_repository-cache"
                 bazel_cmd_args += f" --disk_cache=/bazel-cache/{prefix}_disk-cache"
             elif cache_type == "remote":
-                bazel_cmd_args += f" --remote_cache=cache-server:port"
-                bazel_cmd_args += f" --experimental_remote_downloader=grpc://cache-server:port"
+                bazel_cmd_args += f" --remote_cache={cache_servers[i]}:{cache_server_ports[i]}"
+                bazel_cmd_args += f" --experimental_remote_downloader=grpc://{cache_servers[i]}:{cache_server_ports[i]}"
                 pass
         else:
             # for baseline builds, we build only one commit every 5 commits
