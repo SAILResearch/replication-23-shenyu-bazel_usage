@@ -225,5 +225,7 @@ if __name__ == '__main__':
 
 ### Authors
 Shenyu Zheng
+
 Bram Adams
+
 Ahmed E. Hassan
