@@ -207,4 +207,20 @@ bash start_experiments.sh
 The experimental results are stored in the `/root/results.csv` file within the experimental runner. 
 The build logs are stored in the `/root/build_logs/` directory within the experimental runner.
 
+### Visualization
+Running the following codes in `main.py` to preprocess the experimental results and visualize the results:
+```python3
+from visualization.preprocess import preprocess_data
+from visualization.visualize import visualize_data
+
+if __name__ == '__main__':
+    # preprocess the data
+    preprocess_data("./data")
+    # visualize the data
+    visualize_data("./data")
+```
+
 ### Authors
+Shenyu Zheng
+Bram Adams
+Ahmed E. Hassan
