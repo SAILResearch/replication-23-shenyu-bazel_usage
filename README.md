@@ -137,6 +137,7 @@ We used the same docker version and operating system as RQ2 to run the experimen
 
 
 **1. Setup experiment environment**
+
 Run the following commands to setup the machines for the experiments:
 ```shell
 # create a directory to store the cloned git repositories
