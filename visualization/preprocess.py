@@ -53,12 +53,12 @@ def preprocess_data(data_dir: str):
     for parent_dir_name, build_tool in parent_dir_name_and_build_tool.items():
         source_dir = os.path.join(data_dir, parent_dir_name)
 
-        # preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        # preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        # preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        # preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        # preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        # preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
     preprocess_parallelization_experiments(data_dir, processed_data_dir)
     preprocess_cache_experiments(data_dir, processed_data_dir)
 

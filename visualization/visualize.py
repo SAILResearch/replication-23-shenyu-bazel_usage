@@ -21,21 +21,21 @@ def visualize_data(data_dir: str):
     sns.set_style("whitegrid")
 
     data_dir = os.path.join(data_dir, "processed")
-    # visualize_ci_tools(data_dir)
-    # visualize_subcommand_usage(data_dir)
-    # visualize_subcommand_intersection(data_dir)
-    # visualize_parallelization_usage(data_dir)
-    # visualize_cache_usage(data_dir)
-    # visualize_build_rule_categories(data_dir)
-    # visualize_build_system_invoker(data_dir)
+    visualize_ci_tools(data_dir)
+    visualize_subcommand_usage(data_dir)
+    visualize_subcommand_intersection(data_dir)
+    visualize_parallelization_usage(data_dir)
+    visualize_cache_usage(data_dir)
+    visualize_build_rule_categories(data_dir)
+    visualize_build_system_invoker(data_dir)
     # visualize_arg_size(data_dir)
-    # visualize_parallelization_experiments_by_commits(data_dir)
-    # visualize_parallelization_experiments_by_build_durations(data_dir)
-    # parallelism_confidence_levels(data_dir)
-    # visualize_parallelism_utilization()
-    # visualize_cache_experiments_change_size(data_dir)
+    visualize_parallelization_experiments_by_commits(data_dir)
+    visualize_parallelization_experiments_by_build_durations(data_dir)
+    parallelism_confidence_levels(data_dir)
+    visualize_parallelism_utilization()
+    visualize_cache_experiments_change_size(data_dir)
     visualize_cache_speed_up(data_dir)
-    # cache_speedup_confidence_levels(data_dir)
+    cache_speedup_confidence_levels(data_dir)
 
 
 def visualize_ci_tools(data_dir: str):
@@ -1034,7 +1034,7 @@ def visualize_parallelization_experiments_by_build_durations(data_dir):
             "median_elapsed_time"].iloc[0] <= small_project_durations else (
             "medium build duration" if
             experiments.loc[(experiments["project"] == row["project"]) & (experiments["parallelism"] == 1)][
-                "median_elapsed_time"].iloc[0] <= medium_project_durations else "long build duration"), axis=1)
+                "median_elapsed_time"].iloc[0] < medium_project_durations else "long build duration"), axis=1)
     experiments.loc[experiments["subcommand"] == "test", "label"] = "test"
 
     for parallelism in parallelisms[1:]:
