@@ -1,0 +1,6 @@
+digraph mygraph {
+  node [shape=box];
+  "//:refresh_compile_commands (41d1687)"
+  "//:refresh_compile_commands (41d1687)" -> "//:refresh_compile_commands.py (41d1687)"
+  "//:refresh_compile_commands.py (41d1687)"
+}

@@ -12,19 +12,25 @@ about the extent to which new build technologies like Bazel deliver on their
 promised benefits, especially for long-build duration projects.
 
 
-In this study, we collected 383 Bazel projects from GitHub, 
-then studied their usage of Bazel in popular CI services (GitHub Actions, CircleCI, Travis CI, or Buildkite), 
-and compared the results with Maven projects. 
-We conducted 14,150 experiments on 383 Bazel projects and analyzed the build logs of a subset of 70 buildable projects to evaluate the performance impact of Bazel's parallel builds. 
-Additionally, we performed 145,900 experiments on the 70 buildable projects' last 100 commits to evaluate Bazel's incremental build performance. 
-Our results show that 32.56\% of Bazel projects adopt a CI service but do not use Bazel in the CI service, while for those who do use Bazel in CI, 
-26.36\% of them use other tools to facilitate Bazel's execution. Compared to sequential builds, 
-the median speedups for long-build duration projects are 2.00x, 3.88, 7.36x, and 13.10x, at parallelism degrees 2, 4, 8, and 16, respectively, 
-even though, compared to a clean build, applying incremental build achieves a median speedup of 4.22x (with the *Local-Deps-and-Results* strategy) 
-and 4.73x (with the *Remote-Deps-and-Results* strategy) for long-build duration projects.
-Our results provide guidance for developers to improve the usage of Bazel in their projects, 
-and emphasize the importance of exploring modern build systems due to the current lack of literature and their potential advantages within contemporary software practices such as cloud computing and microservice.
-
+In this study, we collected 383 Bazel projects from GitHub, then studied
+their parallel and incremental build usage of Bazel in popular CI services
+(GitHub Actions, CircleCI, Travis CI, or Buildkite), and compared the results
+with Maven projects. We conducted 19,150 experiments on 383 Bazel projects
+and analyzed the build logs of a subset of 70 buildable projects to evaluate
+the performance impact of Bazel’s parallel builds. Additionally, we performed
+102,232 experiments on the 70 buildable projects’ last 100 commits to evaluate
+Bazel’s incremental build performance. Our results show that 31.23% of Bazel
+projects adopt a CI service but do not use Bazel in the CI service, while for
+those who do use Bazel in CI, 27.76% of them use other tools to facilitate
+Bazel’s execution. Compared to sequential builds, the median speedups for
+long-build duration projects are 2.00x, 3.84x, 7.36x, and 12.80x, at parallelism
+degrees 2, 4, 8, and 16, respectively, even though, compared to a clean build, applying incremental build achieves a median speedup of 4.22x (with a build
+system tool-independent CI cache) and 4.71x (with a build system tool-specific
+cache) for long-build duration projects. Our results provide guidance for developers
+to improve the usage of Bazel in their projects, and emphasize the
+importance of exploring modern build systems due to the current lack of literature
+and their potential advantages within contemporary software practices
+such as cloud computing and microservice.
 
 ### Project Structure
 

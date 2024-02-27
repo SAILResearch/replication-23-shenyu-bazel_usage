@@ -1,0 +1,18 @@
+digraph mygraph {
+  node [shape=box];
+  "//:catch2_main (6df9591)"
+  "//:catch2_main (6df9591)" -> "//:catch2 (6df9591)"
+  "//:catch2_main (6df9591)" -> "//:src/catch2/internal/catch_main.cpp (null)"
+  "//:src/catch2/internal/catch_main.cpp (null)"
+  "//:catch2 (6df9591)"
+  "//:catch2 (6df9591)" -> "//:catch2_generated (6df9591)"
+  "//:catch2 (6df9591)" -> "//:src/catch2/benchmark/catch_benchmark.hpp (null)\n//:src/catch2/benchmark/catch_benchmark_all.hpp (null)\n//:src/catch2/benchmark/catch_chronometer.cpp (null)\n//:src/catch2/benchmark/catch_chronometer.hpp (null)\n//:src/catch2/benchmark/catch_clock.hpp (null)\n//:src/catch2/benchmark/catch_constructor.hpp (null)\n//:src/catch2/benchmark/catch_environment.hpp (null)\n//:src/catch2/benchmark/catch_estimate.hpp (null)\n//:src/catch2/benchmark/catch_execution_plan.hpp (null)\n...and 264 more items"
+  "//:src/catch2/benchmark/catch_benchmark.hpp (null)\n//:src/catch2/benchmark/catch_benchmark_all.hpp (null)\n//:src/catch2/benchmark/catch_chronometer.cpp (null)\n//:src/catch2/benchmark/catch_chronometer.hpp (null)\n//:src/catch2/benchmark/catch_clock.hpp (null)\n//:src/catch2/benchmark/catch_constructor.hpp (null)\n//:src/catch2/benchmark/catch_environment.hpp (null)\n//:src/catch2/benchmark/catch_estimate.hpp (null)\n//:src/catch2/benchmark/catch_execution_plan.hpp (null)\n...and 264 more items"
+  "//:catch2_generated (6df9591)"
+  "//:catch2_generated (6df9591)" -> "//:catch2/catch_user_config.hpp (6df9591)"
+  "//:catch2/catch_user_config.hpp (6df9591)"
+  "//:catch2/catch_user_config.hpp (6df9591)" -> "//:catch_user_config (6df9591)"
+  "//:catch_user_config (6df9591)"
+  "//:catch_user_config (6df9591)" -> "//:src/catch2/catch_user_config.hpp.in (null)"
+  "//:src/catch2/catch_user_config.hpp.in (null)"
+}

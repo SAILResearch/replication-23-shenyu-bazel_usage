@@ -1,0 +1,15 @@
+digraph mygraph {
+  node [shape=box];
+  "//deps/clog:clog (ccee327)"
+  "//deps/clog:clog (ccee327)" -> "//deps/clog:android (ccee327)\n//deps/clog:include/clog.h (null)\n//deps/clog:macos_x86_64 (ccee327)\n//deps/clog:src/clog.c (null)\n//deps/clog:windows (ccee327)"
+  "//deps/clog:android (ccee327)\n//deps/clog:include/clog.h (null)\n//deps/clog:macos_x86_64 (ccee327)\n//deps/clog:src/clog.c (null)\n//deps/clog:windows (ccee327)"
+  "//:emscripten_asmjs (ccee327)\n//:emscripten_wasmsimd (ccee327)"
+  "//:cpuinfo (ccee327)\n//:cpuinfo_with_unstripped_include_path (ccee327)"
+  "//:cpuinfo (ccee327)\n//:cpuinfo_with_unstripped_include_path (ccee327)" -> "//:cpuinfo_impl (ccee327)"
+  "//:cpuinfo (ccee327)\n//:cpuinfo_with_unstripped_include_path (ccee327)" -> "//:include/cpuinfo.h (null)"
+  "//:cpuinfo_impl (ccee327)"
+  "//:cpuinfo_impl (ccee327)" -> "//:android_arm64 (ccee327)\n//:android_armv7 (ccee327)\n//:android_x86 (ccee327)\n//:android_x86_64 (ccee327)\n//:emscripten_wasm (ccee327)\n//:ios_arm64 (ccee327)\n//:ios_arm64e (ccee327)\n//:ios_armv7 (ccee327)\n//:ios_sim_arm64 (ccee327)\n//:ios_x86 (ccee327)\n//:ios_x86_64 (ccee327)\n//:linux_aarch64 (ccee327)\n//:linux_arm (ccee327)\n//:linux_armeabi (ccee327)\n//:linux_armhf (ccee327)\n//:linux_armv7a (ccee327)\n//:linux_mips64 (ccee327)\n//:linux_riscv64 (ccee327)\n...and 46 more items"
+  "//:cpuinfo_impl (ccee327)" -> "//:include/cpuinfo.h (null)"
+  "//:include/cpuinfo.h (null)"
+  "//:android_arm64 (ccee327)\n//:android_armv7 (ccee327)\n//:android_x86 (ccee327)\n//:android_x86_64 (ccee327)\n//:emscripten_wasm (ccee327)\n//:ios_arm64 (ccee327)\n//:ios_arm64e (ccee327)\n//:ios_armv7 (ccee327)\n//:ios_sim_arm64 (ccee327)\n//:ios_x86 (ccee327)\n//:ios_x86_64 (ccee327)\n//:linux_aarch64 (ccee327)\n//:linux_arm (ccee327)\n//:linux_armeabi (ccee327)\n//:linux_armhf (ccee327)\n//:linux_armv7a (ccee327)\n//:linux_mips64 (ccee327)\n//:linux_riscv64 (ccee327)\n...and 46 more items"
+}

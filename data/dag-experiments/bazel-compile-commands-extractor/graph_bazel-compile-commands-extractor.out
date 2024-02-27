@@ -1,0 +1,6 @@
+digraph mygraph {
+  node [shape=box];
+  "//:refresh_all (4e67ca8)"
+  "//:refresh_all (4e67ca8)" -> "//:refresh_all.check_python_version.py (4e67ca8)\n//:refresh_all.py (4e67ca8)"
+  "//:refresh_all.check_python_version.py (4e67ca8)\n//:refresh_all.py (4e67ca8)"
+}

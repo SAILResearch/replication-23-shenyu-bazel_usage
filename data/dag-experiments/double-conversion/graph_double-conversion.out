@@ -1,0 +1,18 @@
+digraph mygraph {
+  node [shape=box];
+  "//:cctest (6953f50)"
+  "//:cctest (6953f50)" -> "//:double-conversion (4e67ca8)"
+  "//:cctest (6953f50)" -> "//:test/cctest/cctest.cc (null)\n//:test/cctest/cctest.h (null)\n//:test/cctest/checks.h (null)\n//:test/cctest/gay-fixed.cc (null)\n//:test/cctest/gay-fixed.h (null)\n//:test/cctest/gay-precision.cc (null)\n//:test/cctest/gay-precision.h (null)\n//:test/cctest/gay-shortest-single.cc (null)\n//:test/cctest/gay-shortest-single.h (null)\n//:test/cctest/gay-shortest.cc (null)\n//:test/cctest/gay-shortest.h (null)\n//:test/cctest/test-bignum-dtoa.cc (null)\n...and 8 more items"
+  "//:cctest (6953f50)" -> "@local_config_cc//:cc-compiler-k8 (4e67ca8)"
+  "@local_config_cc//:cc-compiler-k8 (4e67ca8)"
+  "@local_config_cc//:cc-compiler-k8 (4e67ca8)" -> "@local_config_cc//:compiler_deps (016b1f6)"
+  "@local_config_cc//:cc-compiler-k8 (4e67ca8)" -> "@local_config_cc//:empty (016b1f6)\n@local_config_cc//:local (4e67ca8)"
+  "@local_config_cc//:empty (016b1f6)\n@local_config_cc//:local (4e67ca8)"
+  "@local_config_cc//:compiler_deps (016b1f6)"
+  "@local_config_cc//:compiler_deps (016b1f6)" -> "@local_config_cc//:builtin_include_directory_paths (null)"
+  "@local_config_cc//:builtin_include_directory_paths (null)"
+  "//:test/cctest/cctest.cc (null)\n//:test/cctest/cctest.h (null)\n//:test/cctest/checks.h (null)\n//:test/cctest/gay-fixed.cc (null)\n//:test/cctest/gay-fixed.h (null)\n//:test/cctest/gay-precision.cc (null)\n//:test/cctest/gay-precision.h (null)\n//:test/cctest/gay-shortest-single.cc (null)\n//:test/cctest/gay-shortest-single.h (null)\n//:test/cctest/gay-shortest.cc (null)\n//:test/cctest/gay-shortest.h (null)\n//:test/cctest/test-bignum-dtoa.cc (null)\n...and 8 more items"
+  "//:double-conversion (4e67ca8)"
+  "//:double-conversion (4e67ca8)" -> "//:double-conversion/bignum-dtoa.cc (null)\n//:double-conversion/bignum-dtoa.h (null)\n//:double-conversion/bignum.cc (null)\n//:double-conversion/bignum.h (null)\n//:double-conversion/cached-powers.cc (null)\n//:double-conversion/cached-powers.h (null)\n//:double-conversion/diy-fp.h (null)\n//:double-conversion/double-conversion.h (null)\n//:double-conversion/double-to-string.cc (null)\n//:double-conversion/double-to-string.h (null)\n//:double-conversion/fast-dtoa.cc (null)\n...and 9 more items"
+  "//:double-conversion/bignum-dtoa.cc (null)\n//:double-conversion/bignum-dtoa.h (null)\n//:double-conversion/bignum.cc (null)\n//:double-conversion/bignum.h (null)\n//:double-conversion/cached-powers.cc (null)\n//:double-conversion/cached-powers.h (null)\n//:double-conversion/diy-fp.h (null)\n//:double-conversion/double-conversion.h (null)\n//:double-conversion/double-to-string.cc (null)\n//:double-conversion/double-to-string.h (null)\n//:double-conversion/fast-dtoa.cc (null)\n...and 9 more items"
+}

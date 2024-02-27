@@ -1,0 +1,4 @@
+target,path,size
+//:refresh_all.check_python_version.py,/root/bazel-compile-commands-extractor/check_python_version.template.py,16
+//:refresh_all.py,/root/bazel-compile-commands-extractor/refresh.template.py,1079
+//:refresh_all,/root/.cache/bazel/_bazel_root/b8ce4e5899c50e49c679c512f5cb6524/external/bazel_tools/tools/zip/zipper/zipper,373

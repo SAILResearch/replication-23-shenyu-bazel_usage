@@ -1,0 +1,3 @@
+target,path,size
+//:refresh_compile_commands.py,/root/.cache/bazel/_bazel_root/e40cda7dca1f2d462bb1ed3236ed76b4/external/hedron_compile_commands/refresh.template.py,1051
+//:refresh_compile_commands,/root/.cache/bazel/_bazel_root/e40cda7dca1f2d462bb1ed3236ed76b4/external/bazel_tools/tools/zip/zipper/zipper,373

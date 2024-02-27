@@ -1,9 +1,18 @@
 import os.path
 import re
 import shutil
+import statistics
 import subprocess
 
+import numpy
+import pandas
 import pandas as pd
+import powerlaw
+import pygraphviz as pgv
+import networkx as nx
+import rustworkx as rnx
+import igraph as ig
+import scipy
 
 from utils import fileutils
 
@@ -50,17 +59,18 @@ def preprocess_data(data_dir: str):
 
     parent_dir_name_and_build_tool = {"bazel-projects": "bazel", "maven-large-projects": "maven",
                                       "maven-small-projects": "maven"}
-    for parent_dir_name, build_tool in parent_dir_name_and_build_tool.items():
-        source_dir = os.path.join(data_dir, parent_dir_name)
-
-        preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
-        preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    preprocess_parallelization_experiments(data_dir, processed_data_dir)
-    preprocess_cache_experiments(data_dir, processed_data_dir)
+    # for parent_dir_name, build_tool in parent_dir_name_and_build_tool.items():
+    #     source_dir = os.path.join(data_dir, parent_dir_name)
+    #
+    #     preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    #     preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    #     preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    #     preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    #     preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    #     preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    # preprocess_parallelization_experiments(data_dir, processed_data_dir)
+    # preprocess_cache_experiments(data_dir, processed_data_dir)
+    preprocess_dog_experiments(data_dir, processed_data_dir)
 
 
 def preprocess_build_rules(source_dir: str, processed_data_dir: str, build_tool: str, target_filename_prefix=""):
@@ -257,6 +267,7 @@ deletion_matcher = re.compile(r"(\d+) deletion[s]?\(-\)")
 
 def preprocess_cache_experiments(data_dir, processed_data_dir):
     experiments_data_file_path = os.path.join(data_dir, "cache-experiments", "cache-experiments.csv")
+    parallel_experiments_data_file_path = os.path.join(processed_data_dir, "parallelization-experiments.csv")
     target_processed_file_path = os.path.join(processed_data_dir, "cache-experiments.csv")
 
     project_data_path = os.path.join(data_dir, "bazel_projects_manually_examined.csv")
@@ -265,12 +276,18 @@ def preprocess_cache_experiments(data_dir, processed_data_dir):
     experiments = pd.read_csv(experiments_data_file_path, sep=",")
     projects_to_be_dropped = []
 
+    parallel_projects = pd.read_csv(parallel_experiments_data_file_path, sep=",")["project"].unique()
+
     for project_name in experiments["project"].unique():
         for full_project_name in project_data["project"].unique():
             if full_project_name.endswith(project_name):
                 experiments.loc[experiments["project"] == project_name, "project"] = full_project_name
                 project = full_project_name
                 break
+
+        if project not in parallel_projects:
+            projects_to_be_dropped.append(project)
+            continue
 
         skip = True
         for cache_type in ["remote", "local", "external", "no_cache"]:
@@ -311,6 +328,123 @@ def preprocess_cache_experiments(data_dir, processed_data_dir):
     experiments["size"] = experiments["size"].astype(int, errors='ignore')
     experiments["processes"] = experiments["processes"].astype(int, errors='ignore')
     experiments.to_csv(target_processed_file_path, encoding="utf-8", index=False)
+
+
+digest_matcher = re.compile(r"( .*)$")
+
+
+def preprocess_dog_experiments(data_dir, processed_data_dir):
+    experiment_data_dir = os.path.join(data_dir, "dag-experiments")
+    project_dag_data_path = os.path.join(processed_data_dir, "project_dag.csv")
+
+    project_data = pandas.DataFrame(columns=["project", "num_nodes", "mean_total_degree", "mean_node_size",
+                                             # "out_coefficient_variation", "in_coefficient_variation",
+                                             "out_skewness", "in_skewness",
+                                             "percent_wcc", "cluster_coefficient",
+                                             "average_shortest_path_length"])
+
+    for project in os.listdir(experiment_data_dir):
+        project_dir = os.path.join(experiment_data_dir, project)
+        if not os.path.isdir(project_dir):
+            continue
+
+        print(f"Processing project {project}")
+
+        G = pgv.AGraph(directed=True)
+        G.read(os.path.join(project_dir, f"graph_{project}.out"))
+
+        num_nodes = len(G.nodes())
+
+        targets = set()
+        for node in G.nodes():
+            target_label = node.name
+            if match := digest_matcher.search(target_label):
+                target_label = target_label.replace(match.group(1), "")
+            targets.add(target_label)
+
+        deps = pd.read_csv(os.path.join(project_dir, f"dep_results.json")).drop_duplicates()
+        deps = deps[deps["target"].isin(targets)]
+        deps = deps.groupby("target").agg({"size": "sum", "path": "count"}).reset_index()
+
+        node_sizes = deps["size"].values
+        mean_node_size = numpy.mean(node_sizes)
+
+        for _, target in G.edges():
+            target_label = target.name
+            if match := digest_matcher.search(target_label):
+                target_label = target_label.replace(match.group(1), "")
+
+            if target_label not in deps["target"].values:
+                G.get_edge(_, target).attr["weight"] = 1
+                continue
+
+            G.get_edge(_, target).attr["weight"] = deps[deps["target"] == target_label]["path"].values[0]
+
+        G = nx.drawing.nx_agraph.from_agraph(G, create_using=nx.DiGraph)
+
+        out_degree_map = {node: degree for node, degree in G.out_degree()}
+        in_degrees_map = {node: degree for node, degree in G.in_degree()}
+
+        total_degrees = numpy.array([out_degree_map[node] + in_degrees_map[node] for node in G.nodes()])
+        out_degrees = numpy.array(list(out_degree_map.values()))
+        in_degrees = numpy.array(list(in_degrees_map.values()))
+
+        mean_total_degree = numpy.mean(total_degrees)
+
+        # out_coefficient_variation = scipy.stats.variation(out_degrees)
+        # in_coefficient_variation = scipy.stats.variation(in_degrees)
+        out_skewness = scipy.stats.skew(out_degrees)
+        in_skewness = scipy.stats.skew(in_degrees)
+
+        max_wcc = max(nx.weakly_connected_components(G), key=len)
+        max_wcc = G.subgraph(max_wcc)
+        percent_wcc = len(max_wcc.nodes()) / len(G.nodes())
+
+        iG = ig.Graph.from_networkx(G)
+        iG.es["weight"] = list(map(int, list(iG.es["weight"])))
+
+        cluster_coefficient = nx.average_clustering(G)
+        average_shortest_path_length = iG.average_path_length(directed=True, unconn=True)
+
+        null_graph_clustering_coefficient = []
+        null_graph_average_shortest_path_length = []
+        for i in range(10):
+            null_graph = ig.Graph.Erdos_Renyi(n=len(G.nodes()), m=len(G.edges()), directed=True)
+            nx_null_graph = ig.Graph.to_networkx(null_graph)
+
+            clustering_coefficient_null = nx.average_clustering(nx_null_graph)
+            average_shortest_path_length_null = null_graph.average_path_length(directed=True, unconn=True)
+
+            null_graph_clustering_coefficient.append(clustering_coefficient_null)
+            null_graph_average_shortest_path_length.append(average_shortest_path_length_null)
+        try:
+            cluster_coefficient = cluster_coefficient / statistics.mean(null_graph_clustering_coefficient)
+            average_shortest_path_length = average_shortest_path_length / statistics.mean(
+                null_graph_average_shortest_path_length)
+        except:
+            pass
+
+
+        # log transform some skewed metrics
+        num_nodes = numpy.log(num_nodes)
+        mean_node_size = numpy.log(mean_node_size)
+        cluster_coefficient = numpy.log(cluster_coefficient + 0.001)
+
+        project_data = pd.concat(
+            [project_data, pd.DataFrame({"project": project, "num_nodes": num_nodes,
+                                         "mean_total_degree": mean_total_degree,
+                                         "mean_node_size": mean_node_size,
+                                         # "out_coefficient_variation": out_coefficient_variation,
+                                         # "in_coefficient_variation": in_coefficient_variation,
+                                         "out_skewness": out_skewness, "in_skewness": in_skewness,
+                                         "percent_wcc": percent_wcc,
+                                         "cluster_coefficient": cluster_coefficient,
+                                         "average_shortest_path_length": average_shortest_path_length
+                                         }, index=[0])])
+
+        print(G)
+
+    project_data.to_csv(project_dag_data_path, encoding="utf-8", index=False)
 
 
 if __name__ == "__main__":
