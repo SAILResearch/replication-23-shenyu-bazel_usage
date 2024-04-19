@@ -27,17 +27,18 @@ def visualize_data(data_dir: str):
     sns.set_style("whitegrid")
 
     data_dir = os.path.join(data_dir, "processed")
+    # visualize_data_distribution(data_dir)
     # visualize_ci_tools(data_dir)
     # visualize_subcommand_usage(data_dir)
     # visualize_subcommand_intersection(data_dir)
-    # visualize_parallelization_usage(data_dir)
-    # visualize_cache_usage(data_dir)
+    visualize_parallelization_usage(data_dir)
+    visualize_cache_usage(data_dir)
     # visualize_build_rule_categories(data_dir)
     # visualize_build_system_invoker(data_dir)
     # visualize_arg_size(data_dir)
     # visualize_parallelization_experiments_by_commits(data_dir)
     # visualize_parallelization_experiments_by_build_durations(data_dir)
-    visualize_parallelization_experiments_by_network_metrics(data_dir)
+    # visualize_parallelization_experiments_by_network_metrics(data_dir)
     # parallelism_confidence_levels(data_dir)
     # visualize_parallelism_utilization()
     # visualize_cache_experiments_change_size(data_dir)
@@ -47,21 +48,81 @@ def visualize_data(data_dir: str):
     # cache_speedup_confidence_levels(data_dir)
 
 
-def divide_bazel_projects_by_size(data_dir: str):
+def visualize_data_distribution(data_dir: str):
+    bazel_df = pd.read_csv("./data/bazel_projects_manually_examined.csv")
+    bazel_df["category"] = "Bazel"
+
+    large_maven_df = pd.read_csv("./data/large_maven_projects_subset_manually_examined.csv")
+    large_maven_df["category"] = "Sampled Large Maven"
+
+    small_maven_df = pd.read_csv("./data/small_maven_projects_subset_manually_examined.csv")
+    small_maven_df["category"] = "Sampled Small Maven"
+
+    all_maven_df = pd.read_csv("./data/maven_projects.csv")
+    all_maven_df["category"] = "All Maven Projects"
+
+    median_maven_commit_number = all_maven_df["commits"].median()
+    print(f"number of bazel projects with more than {median_maven_commit_number} is {bazel_df.loc[bazel_df['commits'] > median_maven_commit_number].shape[0]}")
+    print(f"number of bazel projects with less than {median_maven_commit_number} is {bazel_df.loc[bazel_df['commits'] <= median_maven_commit_number].shape[0]}")
+
+
+    ax = sns.boxplot(data=pd.concat([bazel_df, large_maven_df, small_maven_df, all_maven_df]), palette="Set2",
+                     x="category", y="commits")
+    ax.set_xlabel("")
+    ax.set_ylabel("Number of Commits (Log)")
+    ax.set_yscale("log")
+
+    savefig("./images/commits_distribution")
+    plt.tight_layout()
+    plt.show()
+
+
+def get_divided_bazel_projects(target_df: pd.DataFrame, project_type: str):
     df = pd.read_csv("./data/bazel_projects_manually_examined.csv")
     # sort by commit count and divide into two groups
-    median_commit = df["commits"].median()
-    small_projects = df.loc[df["commits"] <= median_commit]["project"]
-    large_projects = df.loc[df["commits"] > median_commit]["project"]
-    return small_projects, large_projects
+    median_commit = 731.25
+    small_projects = df.loc[df["commits"] < median_commit]["project"].unique()
+    large_projects = df.loc[df["commits"] >= median_commit]["project"].unique()
+
+    print(f"number of small projects: {len(small_projects)}")
+    print(f"number of large projects: {len(large_projects)}")
+
+    if project_type == "bazel-large-projects":
+        return target_df[target_df["project"].isin(large_projects)]
+    elif project_type == "bazel-small-projects":
+        return target_df[target_df["project"].isin(small_projects)]
+    else:
+        return None
+
+def get_all_maven_projects(data_dir: str):
+    large_maven_df = pd.read_csv(os.path.join(data_dir, f"maven-large-projects-build_tools.csv")).drop(
+            columns=["subcommands", "skip_tests", "build_tests_only"]).drop_duplicates()
+    small_maven_df = pd.read_csv(os.path.join(data_dir, f"maven-small-projects-build_tools.csv")).drop(
+            columns=["subcommands", "skip_tests", "build_tests_only"]).drop_duplicates()
+
+    return pd.concat([large_maven_df, small_maven_df])
+
 
 def visualize_ci_tools(data_dir: str):
     fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(15, 8), sharex=True)
     parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
+    # parent_dir_names = {"bazel-large-projects": "bazel", "bazel-small-projects": "bazel", "maven-projects": "maven"}
+
     titles = ["Bazel Projects", "Large Maven Projects", "Small Maven Projects"]
     idx = 0
     for parent_dir_name, correspondent_build_tool in parent_dir_names.items():
-        df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-build_tools.csv")).drop(
+        if parent_dir_name == "bazel-large-projects" or parent_dir_name == "bazel-small-projects":
+            df = pd.read_csv(os.path.join(data_dir, f"bazel-projects-build_tools.csv")).drop(
+                columns=["subcommands", "skip_tests", "build_tests_only"]).drop_duplicates()
+            df = get_divided_bazel_projects(df, parent_dir_name)
+        elif parent_dir_name == "maven-projects":
+            large_maven_df = pd.read_csv(os.path.join(data_dir, f"maven-large-projects-build_tools.csv")).drop(
+                columns=["subcommands", "skip_tests", "build_tests_only"]).drop_duplicates()
+            small_maven_df = pd.read_csv(os.path.join(data_dir, f"maven-small-projects-build_tools.csv")).drop(
+                columns=["subcommands", "skip_tests", "build_tests_only"]).drop_duplicates()
+            df = pd.concat([large_maven_df, small_maven_df])
+        else:
+            df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-build_tools.csv")).drop(
                 columns=["subcommands", "skip_tests", "build_tests_only"]).drop_duplicates()
 
         build_tool_usage = pd.DataFrame({"Local": [0, 0, 0, 0], "CI": [0, 0, 0, 0],
@@ -73,6 +134,7 @@ def visualize_ci_tools(data_dir: str):
                     df["use_build_tool"])].any().all(),
             axis=1)
         df = df.drop_duplicates()
+        print(f"number of projects that use build tools in {parent_dir_name}: {df['project'].nunique()}")
 
         for project in df["project"].unique():
             ci_tools = sorted(df[df["project"] == project]["ci_tool"].unique())
@@ -111,7 +173,6 @@ def visualize_ci_tools(data_dir: str):
 
             ax.bar_label(c, labels=labels, fontsize=12, padding=1)
 
-
         # ax = sns.histplot(data=build_tool_usage, weights="Local_percentage", x="CI/CD Services", shrink=.8,
         #                   ax=axs[1][idx], color="#fc8d62")
         # ax.tick_params(labelsize=15)
@@ -148,11 +209,24 @@ def visualize_ci_tools(data_dir: str):
 
 
 def visualize_parallelization_usage(data_dir: str):
-    parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
+    # parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
+    parent_dir_names = {"bazel-large-projects": "bazel", "bazel-small-projects": "bazel", "maven-projects": "maven"}
+
     parallelization_usage = {"Parallel": [], "Serial": [], "Dataset": []}
     for parent_dir_name, correspondent_build_tool in parent_dir_names.items():
-        df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-feature_usage.csv")).drop(
-            columns=["local_cache", "remote_cache", "ci_tool"]).drop_duplicates()
+        if parent_dir_name == "bazel-large-projects" or parent_dir_name == "bazel-small-projects":
+            df = pd.read_csv(os.path.join(data_dir, f"bazel-projects-feature_usage.csv")).drop(
+                columns=["local_cache", "remote_cache", "ci_tool"]).drop_duplicates()
+            df = get_divided_bazel_projects(df, parent_dir_name)
+        elif parent_dir_name == "maven-projects":
+            large_maven_df = pd.read_csv(os.path.join(data_dir, f"maven-large-projects-feature_usage.csv")).drop(
+                columns=["local_cache", "remote_cache", "ci_tool"]).drop_duplicates()
+            small_maven_df = pd.read_csv(os.path.join(data_dir, f"maven-small-projects-feature_usage.csv")).drop(
+                columns=["local_cache", "remote_cache", "ci_tool"]).drop_duplicates()
+            df = pd.concat([large_maven_df, small_maven_df])
+        else:
+            df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-feature_usage.csv")).drop(
+                columns=["local_cache", "remote_cache", "ci_tool"]).drop_duplicates()
 
         total_projects = df["project"].nunique()
         parallelized_projects = df.loc[(df["use_parallelization"])]["project"].nunique()
@@ -185,11 +259,24 @@ def visualize_parallelization_usage(data_dir: str):
 
 
 def visualize_cache_usage(data_dir: str):
-    parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
+    # parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
+    parent_dir_names = {"bazel-large-projects": "bazel", "bazel-small-projects": "bazel", "maven-projects": "maven"}
+
     cache_usage = {"Build System-enabled Cache": [], "CI-enabled Cache": [], "No Cache": [], "Dataset": []}
     for parent_dir_name, build_tool in parent_dir_names.items():
-        df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-feature_usage.csv")).drop(
-            columns=["use_parallelization", "ci_tool"]).drop_duplicates()
+        if parent_dir_name == "bazel-large-projects" or parent_dir_name == "bazel-small-projects":
+            df = pd.read_csv(os.path.join(data_dir, f"bazel-projects-feature_usage.csv")).drop(
+                columns=["use_parallelization", "ci_tool"]).drop_duplicates()
+            df = get_divided_bazel_projects(df, parent_dir_name)
+        elif parent_dir_name == "maven-projects":
+            large_maven_df = pd.read_csv(os.path.join(data_dir, f"maven-large-projects-feature_usage.csv")).drop(
+                columns=["use_parallelization", "ci_tool"]).drop_duplicates()
+            small_maven_df = pd.read_csv(os.path.join(data_dir, f"maven-small-projects-feature_usage.csv")).drop(
+                columns=["use_parallelization", "ci_tool"]).drop_duplicates()
+            df = pd.concat([large_maven_df, small_maven_df])
+        else:
+            df = pd.read_csv(os.path.join(data_dir, f"{parent_dir_name}-feature_usage.csv")).drop(
+                columns=["use_parallelization", "ci_tool"]).drop_duplicates()
 
         total_projects = df["project"].nunique()
         cache_projects = df.loc[(df["local_cache"]) | (df["remote_cache"])]["project"].nunique()
@@ -643,7 +730,8 @@ def calculate_build_rule_percentage_for_row(row, build_rule_categories):
 
 
 def visualize_build_system_invoker(data_dir: str):
-    parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
+    # parent_dir_names = {"bazel-projects": "bazel", "maven-large-projects": "maven", "maven-small-projects": "maven"}
+    parent_dir_names = {"bazel-large-projects": "bazel", "bazel-small-projects": "bazel", "maven-projects": "maven"}
     build_system_invoker = {"Dataset": []}
     build_system_invoke_methods = {"Dataset": [], "Direct": [0, 0, 0], "Indirect": [0, 0, 0]}
 
@@ -652,7 +740,15 @@ def visualize_build_system_invoker(data_dir: str):
         build_system_invoker["Dataset"].append(parent_dir_name)
         build_system_invoke_methods["Dataset"].append(parent_dir_name)
 
-        df = pd.read_csv(f"{data_dir}/{parent_dir_name}-script_usage.csv")
+        if parent_dir_name == "bazel-large-projects" or parent_dir_name == "bazel-small-projects":
+            df = pd.read_csv(f"{data_dir}/bazel-projects-script_usage.csv")
+            df = get_divided_bazel_projects(df, parent_dir_name)
+        elif parent_dir_name == "maven-projects":
+            large_projects = pd.read_csv(f"{data_dir}/maven-large-projects-script_usage.csv")
+            small_projects = pd.read_csv(f"{data_dir}/maven-small-projects-script_usage.csv")
+            df = pd.concat([large_projects, small_projects], ignore_index=True)
+        else:
+            df = pd.read_csv(f"{data_dir}/{parent_dir_name}-script_usage.csv")
 
         invokers = df.invoker.value_counts()
 
@@ -870,7 +966,8 @@ def visualize_parallelization_experiments_by_network_metrics(data_dir):
     # dag_metrics_df = dag_metrics_df.loc[dag_metrics_df["num_nodes"] >= 10].reset_index(drop=True)
     # filter out experiments that have less than 100 nodes
     experiments = experiments.loc[experiments["project"].isin(dag_metrics_df["project"].unique())]
-    baseline_durations = experiments[experiments["parallelism"] == 1].drop(experiments.columns.difference(["project", "median_elapsed_time"]), axis=1)
+    baseline_durations = experiments[experiments["parallelism"] == 1].drop(
+        experiments.columns.difference(["project", "median_elapsed_time"]), axis=1)
 
     dag_metrics_df = pd.merge(dag_metrics_df, baseline_durations, on="project", how="left")
     dag_metrics_df.rename(columns={"median_elapsed_time": "baseline_duration"}, inplace=True)
@@ -1008,7 +1105,7 @@ def visualize_cache_experiments_by_network_metrics(data_dir):
     plt.show()
 
     df_vif = sklearn_vif(preliminary_analysis_df.columns, preliminary_analysis_df).sort_values(by='VIF',
-                                                                                                  ascending=False)
+                                                                                               ascending=False)
     run_count = 1
     df_vif_history = df_vif.copy().drop(columns=["Tolerance"]).rename(columns={"VIF": f"Model {run_count}"})
     print(df_vif)
@@ -1026,8 +1123,6 @@ def visualize_cache_experiments_by_network_metrics(data_dir):
 
     preliminary_analysis_df = preliminary_analysis_df[df_vif.index]
     preliminary_analysis_df["project"] = dag_metrics_df["project"]
-
-
 
 
 def sklearn_vif(exogs, data):
@@ -1173,7 +1268,7 @@ def parallelism_speedup_statistical_analysis_within_group(experiments, group_lab
             for j in range(i + 1, len(parallelism_data_at_group)):
                 effect_size = cliffs_delta(parallelism_data_at_group[i], parallelism_data_at_group[j])
                 print(
-                    f"the cliffs_delta effect size of parallelism {pow(2, i)} to {pow(2,j)} in {group_label} is {effect_size}")
+                    f"the cliffs_delta effect size of parallelism {pow(2, i)} to {pow(2, j)} in {group_label} is {effect_size}")
 
 
 def parallelism_confidence_levels(data_dir):
@@ -1433,7 +1528,8 @@ def visualize_cache_experiments_change_size(data_dir):
                        sd.loc[sd["cache_type"] == "Specific-Deps-and-Results"]["cache_hit_ratio"]))
     print(sd.loc[sd["cache_type"] == "General-Deps-and-Results"]["cache_hit_ratio"].median())
     print(sd.loc[sd["cache_type"] == "Specific-Deps-and-Results"]["cache_hit_ratio"].median())
-    sd_cache = sd.loc[(sd["cache_type"] == "General-Deps-and-Results") | (sd["cache_type"] == "Specific-Deps-and-Results")]
+    sd_cache = sd.loc[
+        (sd["cache_type"] == "General-Deps-and-Results") | (sd["cache_type"] == "Specific-Deps-and-Results")]
 
     md = experiments.loc[experiments["label"] == "medium build duration"]
     print(scipy.stats.mannwhitneyu(md.loc[md["cache_type"] == "General-Deps-and-Results"]["cache_hit_ratio"],
@@ -1442,7 +1538,8 @@ def visualize_cache_experiments_change_size(data_dir):
                        md.loc[md["cache_type"] == "Specific-Deps-and-Results"]["cache_hit_ratio"]))
     print(md.loc[md["cache_type"] == "General-Deps-and-Results"]["cache_hit_ratio"].median())
     print(md.loc[md["cache_type"] == "Specific-Deps-and-Results"]["cache_hit_ratio"].median())
-    md_cache = md.loc[(md["cache_type"] == "General-Deps-and-Results") | (md["cache_type"] == "Specific-Deps-and-Results")]
+    md_cache = md.loc[
+        (md["cache_type"] == "General-Deps-and-Results") | (md["cache_type"] == "Specific-Deps-and-Results")]
 
     ld = experiments.loc[experiments["label"] == "long build duration"]
     print(scipy.stats.mannwhitneyu(ld.loc[ld["cache_type"] == "General-Deps-and-Results"]["cache_hit_ratio"],
@@ -1452,7 +1549,8 @@ def visualize_cache_experiments_change_size(data_dir):
     print(ld.loc[ld["cache_type"] == "General-Deps-and-Results"]["cache_hit_ratio"].median())
     print(ld.loc[ld["cache_type"] == "Specific-Deps-and-Results"]["cache_hit_ratio"].median())
 
-    ld_cache = ld.loc[(ld["cache_type"] == "General-Deps-and-Results") | (ld["cache_type"] == "Specific-Deps-and-Results")]
+    ld_cache = ld.loc[
+        (ld["cache_type"] == "General-Deps-and-Results") | (ld["cache_type"] == "Specific-Deps-and-Results")]
 
     print(
         f"short build duration projects: median cache hit ratio is {sd_cache['cache_hit_ratio'].median()}")

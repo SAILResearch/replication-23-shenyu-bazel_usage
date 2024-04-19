@@ -443,7 +443,7 @@ class GitHubActionConfigParser(CIConfigParser):
 
             # this step runs command
             if "run" in step:
-                command = step["run"]
+                command = str(step["run"])
                 for cmd in self._parse_commands(command):
                     cmd.cores = cores
                     cmd.local_cache = (cmd.build_tool == "maven" and local_maven_cache) or local_cache_enable
@@ -475,7 +475,7 @@ class CircleCIConfigParser(CIConfigParser):
         if not cfgs:
             return None
 
-        if "jobs" not in cfgs:
+        if "jobs" not in cfgs or not cfgs["jobs"]:
             return cc_cfg
 
         custom_executors = {}
@@ -486,7 +486,7 @@ class CircleCIConfigParser(CIConfigParser):
                     custom_executors[executor_name] = executor_cores
 
         reusable_steps = {}
-        if "commands" in cfgs:
+        if "commands" in cfgs and cfgs["commands"]:
             for cmd_name, cmd_cfg in cfgs["commands"].items():
                 if "steps" in cmd_cfg:
                     reusable_steps[cmd_name] = cmd_cfg["steps"]

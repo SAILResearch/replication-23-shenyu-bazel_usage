@@ -59,18 +59,18 @@ def preprocess_data(data_dir: str):
 
     parent_dir_name_and_build_tool = {"bazel-projects": "bazel", "maven-large-projects": "maven",
                                       "maven-small-projects": "maven"}
-    # for parent_dir_name, build_tool in parent_dir_name_and_build_tool.items():
-    #     source_dir = os.path.join(data_dir, parent_dir_name)
-    #
-    #     preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    #     preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    #     preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    #     preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    #     preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
-    #     preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
+    for parent_dir_name, build_tool in parent_dir_name_and_build_tool.items():
+        source_dir = os.path.join(data_dir, parent_dir_name)
+
+        preprocess_ci_tools(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_feature_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_build_rules(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        preprocess_script_usage(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        # preprocess_arg_size(source_dir, processed_data_dir, build_tool, parent_dir_name)
+        # preprocess_project_data(source_dir, processed_data_dir, build_tool, parent_dir_name)
     # preprocess_parallelization_experiments(data_dir, processed_data_dir)
     # preprocess_cache_experiments(data_dir, processed_data_dir)
-    preprocess_dog_experiments(data_dir, processed_data_dir)
+    # preprocess_dag_experiments(data_dir, processed_data_dir)
 
 
 def preprocess_build_rules(source_dir: str, processed_data_dir: str, build_tool: str, target_filename_prefix=""):
@@ -333,7 +333,7 @@ def preprocess_cache_experiments(data_dir, processed_data_dir):
 digest_matcher = re.compile(r"( .*)$")
 
 
-def preprocess_dog_experiments(data_dir, processed_data_dir):
+def preprocess_dag_experiments(data_dir, processed_data_dir):
     experiment_data_dir = os.path.join(data_dir, "dag-experiments")
     project_dag_data_path = os.path.join(processed_data_dir, "project_dag.csv")
 

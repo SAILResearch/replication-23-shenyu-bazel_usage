@@ -5,6 +5,8 @@ import shutil
 import subprocess
 import time
 import urllib
+from datetime import datetime
+
 import pandas as pd
 import numpy as np
 import requests
@@ -139,7 +141,21 @@ def clone_projects(base_dir: str, projects: [Project]):
     for p in projects:
         logging.info(f"cloning repository {p.org}/{p.name}")
         # shallow clone the repository
-        Repo.clone_from(f"https://github.com/{p.org}/{p.name}.git", f"{base_dir}/{p.org}_{p.name}", depth=1)
+        data_collection_date = datetime.fromisoformat("2023-02-23T00:00:00Z")
+        Repo.clone_from(f"https://github.com/{p.org}/{p.name}.git", f"{base_dir}/{p.org}_{p.name}")
+
+        proc = subprocess.run(
+            [f"git -C {base_dir}/{p.org}_{p.name} checkout $(git -C {base_dir}/{p.org}_{p.name} rev-list -n 1 --before='2023-02-23' HEAD)"],
+            capture_output=True,
+            text=True,
+            shell=True)
+
+        if proc.returncode != 0:
+            logging.warning(f"error when checking out the repository {p.org}/{p.name}, reason {proc.stderr}")
+            continue
+
+        logging.info(f"cloned repository {p.org}/{p.name}")
+
 
 
 def retrieve_bazel_projects(project_base_dir: str):
@@ -200,3 +216,53 @@ def retrieve_projects():
     retrieve_bazel_projects(f"{project_base_dir}/bazel")
     retrieve_maven_projects(f"{project_base_dir}/maven")
     sample_maven_projects()
+
+
+def sample_maven_projects_rebuttal_ver():
+    # bazel_projects = pd.read_csv("data/bazel_projects_manually_examined.csv")
+    mvn_projects = pd.read_csv("data/maven_projects.csv")
+    print(f"median commits: {np.median(mvn_projects['commits'])}")
+    #
+    # # some projects were removed from GitHub since the last data collection
+    # projects_to_be_removed = ["liuht777_Taroco", "microsoft_Availability-Monitor-for-Kafka", "Jerusalem01_tesco-mall"]
+    # pattern = '|'.join(projects_to_be_removed)
+    # mvn_projects = mvn_projects.loc[~mvn_projects["project"].str.contains(pattern, case=False)]
+    #
+    # mvn_projects = mvn_projects.sort_values(by="commits").reset_index(drop=True)
+    #
+    # bazel_commits = bazel_projects["commits"]
+    # medians = []
+    # for i in range(100):
+    #     sampled_mvn_projects = mvn_projects.sample(n=len(bazel_projects), random_state=i+3)
+    #     maven_commits = sampled_mvn_projects["commits"]
+    #
+    #     all_commits = np.concatenate([bazel_commits, maven_commits])
+    #     medians.append(np.median(all_commits))
+    #
+    # median = np.median(medians)
+    # print(f"median: {median}")
+    #
+    # small_maven_projects = mvn_projects[mvn_projects["commits"] < median]
+    # large_maven_projects = mvn_projects[mvn_projects["commits"] >= median]
+    #
+    #
+    # small_maven_projects = small_maven_projects.sample(n=len(bazel_projects))
+    # large_maven_projects = large_maven_projects.sample(n=len(bazel_projects))
+    #
+    # small_maven_projects.to_csv("data/small_maven_projects_subset_rebuttal_ver.csv", index=False)
+    # large_maven_projects.to_csv("data/large_maven_projects_subset_rebuttal_ver.csv", index=False)
+
+    # small_maven_projects = pd.read_csv("data/small_maven_projects_subset_rebuttal_ver.csv")
+    # large_maven_projects = pd.read_csv("data/large_maven_projects_subset_rebuttal_ver.csv")
+
+    # clone_maven_projects("./repos/maven-small_rebuttal_ver", small_maven_projects)
+    # clone_maven_projects("./repos/maven-large_rebuttal_ver", large_maven_projects)
+
+    # bazel_projects = pd.read_csv("data/bazel_projects_manually_examined.csv")
+    # clone_maven_projects("./repos/bazel", bazel_projects)
+
+
+
+def retrieve_projects_rebuttal_ver():
+    project_base_dir = "repos/"
+    sample_maven_projects_rebuttal_ver()
