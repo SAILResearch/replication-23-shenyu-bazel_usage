@@ -11,8 +11,8 @@ if __name__ == '__main__':
         format='%(asctime)s - %(levelname)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
     # projects = project.retrieve_projects()
-    project.retrieve_projects_rebuttal_ver()
+    # project.retrieve_projects_rebuttal_ver()
 
     # analysis.analyze("./repos")
     # preprocess_data("./data")
-    # visualize_data("./data")
+    visualize_data("./data")
